@@ -653,6 +653,106 @@ button { touch-action: manipulation; }
   color: var(--text-faint);
 }
 
+/* ---------- Статус ---------- */
+
+.r-E { --rc: #9fb6c8; }
+.r-D { --rc: #6dffc0; }
+.r-C { --rc: #66d0ff; }
+.r-B { --rc: #b99bff; }
+.r-A { --rc: #ff8a5c; }
+.r-S { --rc: #ffd36b; }
+b[class^="r-"] { color: var(--rc); text-shadow: 0 0 8px var(--rc); }
+
+.status {
+  margin-top: 16px;
+  padding: 0 16px 16px;
+  border-color: var(--line);
+  box-shadow:
+    0 0 18px var(--glow),
+    0 0 50px rgba(40, 130, 255, 0.16),
+    inset 0 0 28px rgba(70, 170, 255, 0.12);
+}
+.status::before, .status::after {
+  content: "";
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  border: 2px solid var(--accent-2);
+  filter: drop-shadow(0 0 6px var(--accent));
+}
+.status::before { top: -3px; left: -3px; border-right: 0; border-bottom: 0; }
+.status::after { bottom: -3px; right: -3px; border-left: 0; border-top: 0; }
+.status-head {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 14px 0 12px;
+  margin-bottom: 16px;
+  border-bottom: 1px solid var(--line-soft);
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  color: var(--accent-2);
+  text-shadow: 0 0 10px var(--accent);
+}
+.status-head .sys-icon { width: 26px; height: 26px; }
+
+.status-main { display: flex; align-items: center; gap: 14px; }
+.rank-badge {
+  flex: none;
+  width: 76px;
+  height: 76px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid var(--rc);
+  border-radius: 6px;
+  background: radial-gradient(circle at 50% 40%, color-mix(in srgb, var(--rc) 22%, transparent), transparent 70%);
+  box-shadow: 0 0 16px color-mix(in srgb, var(--rc) 55%, transparent), inset 0 0 16px color-mix(in srgb, var(--rc) 25%, transparent);
+}
+.rank-badge small { font-size: 10px; letter-spacing: 0.24em; text-transform: uppercase; color: var(--rc); opacity: 0.85; }
+.rank-badge b { font-size: 40px; line-height: 1; font-weight: 900; color: var(--rc); text-shadow: 0 0 14px var(--rc); }
+.r-S .rank-badge { animation: rank-pulse 2.4s ease-in-out infinite; }
+
+.status-who { flex: 1; min-width: 0; }
+.status-name { font-size: 21px; font-weight: 700; line-height: 1.2; overflow-wrap: anywhere; }
+.status-title { margin-top: 4px; font-size: 13px; color: var(--rc); letter-spacing: 0.04em; }
+.status-level { flex: none; text-align: center; }
+.status-level small { display: block; font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--text-dim); }
+.status-level b {
+  display: block;
+  font-family: var(--mono);
+  font-size: 40px;
+  line-height: 1;
+  font-weight: 800;
+  color: var(--accent-2);
+  text-shadow: 0 0 14px var(--accent);
+}
+.bar.big { height: 12px; margin-top: 18px; border-radius: 6px; }
+.status-next { margin: 12px 0 0; font-size: 14px; color: var(--text-dim); text-align: center; }
+
+.counters { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 14px; }
+.counters > div {
+  padding: 10px 8px;
+  text-align: center;
+  border: 1px solid var(--line-soft);
+  border-radius: 4px;
+  background: rgba(4, 10, 22, 0.5);
+}
+.counters b { display: block; font-family: var(--mono); font-size: 18px; color: var(--accent-2); }
+.counters small { display: block; margin-top: 2px; font-size: 11px; color: var(--text-faint); letter-spacing: 0.04em; }
+
+.stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.stat-grid .stat { margin: 0; padding: 12px; }
+.stat-grid .stat-name { font-size: 14px; line-height: 1.25; }
+.stat-grid .stat-lv { font-size: 18px; }
+.stat-lv small { margin-right: 3px; font-size: 11px; font-weight: 400; color: var(--text-dim); text-shadow: none; }
+.stat-grid + .btn { margin-top: 16px; }
+@media (max-width: 340px) { .stat-grid { grid-template-columns: 1fr; } }
+
 /* ---------- Настройки ---------- */
 
 .set-row {
@@ -678,6 +778,7 @@ button { touch-action: manipulation; }
   border-radius: 4px;
   outline: none;
 }
+.xp-input input:disabled { opacity: 0.5; }
 .xp-input input:focus { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent), 0 0 12px var(--glow); }
 
 /* ---------- Окна поверх экрана ---------- */
@@ -812,6 +913,9 @@ html.noscroll, html.noscroll body { overflow: hidden; }
 @keyframes scan { to { top: 100%; } }
 @keyframes spin { to { transform: rotate(360deg); } }
 @keyframes fade { from { opacity: 0; } }
+@keyframes rank-pulse {
+  50% { box-shadow: 0 0 30px color-mix(in srgb, var(--rc) 80%, transparent), inset 0 0 22px color-mix(in srgb, var(--rc) 40%, transparent); }
+}
 @keyframes toast-in { from { opacity: 0; transform: translateY(-14px) scaleY(0.6); } }
 @keyframes toast-out { to { opacity: 0; transform: translateY(-10px); } }
 @keyframes quest-flash {
@@ -912,7 +1016,7 @@ html.noscroll, html.noscroll body { overflow: hidden; }
 
 <template id="tpl-shell">
   <header class="topbar">
-    <div class="who"><small>Игрок</small><b data-bind="name"></b></div>
+    <div class="who"><small data-bind="rankline"></small><b data-bind="name"></b></div>
     <div class="xp-total" data-bind="xp"></div>
     <button class="icon-btn" type="button" data-action="lock" aria-label="Заблокировать">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>
@@ -920,13 +1024,13 @@ html.noscroll, html.noscroll body { overflow: hidden; }
   </header>
   <div class="view" data-view></div>
   <nav class="tabbar" aria-label="Разделы">
+    <button type="button" data-tab="status">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l8.5 5v10L12 22l-8.5-5V7z"/><path d="M12 7l4 2.5v5L12 17l-4-2.5v-5z"/></svg>
+      <span>Статус</span>
+    </button>
     <button type="button" data-tab="quests">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M8 12l3 3 5-6"/></svg>
       <span>Квесты</span>
-    </button>
-    <button type="button" data-tab="stats">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l8.5 5v10L12 22l-8.5-5V7z"/><path d="M12 7l4 2.5v5L12 17l-4-2.5v-5z"/></svg>
-      <span>Характеристики</span>
     </button>
     <button type="button" data-tab="settings">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>
@@ -1047,6 +1151,17 @@ const DEFAULT_STATS = ['Сила', 'Интеллект', 'Креатив', 'Ди
 
 const REPEATS = { none: 'Разовый', daily: 'Каждый день', weekly: 'Каждую неделю' };
 
+/** Ранги охотника и общий уровень, с которого они даются. Текущие пороги — в state.settings.ranks. */
+const RANKS = [
+  { id: 'E', from: 1 },
+  { id: 'D', from: 5 },
+  { id: 'C', from: 10 },
+  { id: 'B', from: 15 },
+  { id: 'A', from: 20 },
+  { id: 'S', from: 30 },
+];
+const defaultRankThresholds = () => Object.fromEntries(RANKS.slice(1).map((r) => [r.id, r.from]));
+
 function uid() {
   return Array.from(crypto.getRandomValues(new Uint8Array(8)), (b) => b.toString(16).padStart(2, '0')).join('');
 }
@@ -1066,7 +1181,8 @@ function migrate(state) {
   state.stats = state.stats || DEFAULT_STATS.map((name) => ({ id: uid(), name }));
   state.quests = state.quests || [];
   state.log = state.log || [];
-  state.schema = 2;
+  state.settings.ranks = Object.assign(defaultRankThresholds(), state.settings.ranks);
+  state.schema = 3;
   return state;
 }
 
@@ -1109,6 +1225,19 @@ function statXp() {
     for (const [id, xp] of Object.entries(e.stats)) map.set(id, (map.get(id) || 0) + xp);
   }
   return map;
+}
+
+function rankOf(level) {
+  const thresholds = session.state.settings.ranks;
+  let rank = RANKS[0].id;
+  for (const r of RANKS.slice(1)) if (level >= thresholds[r.id]) rank = r.id;
+  return rank;
+}
+
+/** Общий уровень и ранг персонажа. */
+function playerInfo(xp = totalXp()) {
+  const info = levelInfo(xp);
+  return { ...info, xp, rank: rankOf(info.level) };
 }
 
 function statName(id) {
@@ -1479,14 +1608,14 @@ function sheetError(root, message) {
 }
 
 /* =====================================================================
-   ГЛАВНЫЙ ЭКРАН: вкладки «Квесты», «Характеристики», «Настройки»
+   ГЛАВНЫЙ ЭКРАН: вкладки «Статус», «Квесты», «Настройки»
    ===================================================================== */
 
-const ui = { tab: 'quests', showAllDone: false };
+const ui = { tab: 'status', showAllDone: false };
 let renderTimer = null;
 
 function showHome() {
-  ui.tab = 'quests';
+  ui.tab = 'status';
   ui.showAllDone = false;
   mount('tpl-shell');
   app.classList.add('shell');
@@ -1504,6 +1633,8 @@ function showHome() {
 }
 
 function renderTopbar() {
+  const p = playerInfo();
+  app.querySelector('.topbar [data-bind="rankline"]').textContent = `Ранг ${p.rank} · Ур. ${p.level}`;
   app.querySelector('.topbar [data-bind="name"]').textContent = session.state.profile.name;
   app.querySelector('.topbar [data-bind="xp"]').textContent = fmt(totalXp()) + ' XP';
 }
@@ -1525,7 +1656,7 @@ function render() {
   }));
 }
 
-const VIEWS = { quests: questsView, stats: statsView, settings: settingsView };
+const VIEWS = { status: statusView, quests: questsView, settings: settingsView };
 
 function onViewClick(e) {
   const t = e.target.closest('[data-check], [data-edit], [data-stat], [data-action]');
@@ -1538,6 +1669,7 @@ function onViewClick(e) {
     case 'new-stat': return openStatEditor(null);
     case 'show-done': ui.showAllDone = !ui.showAllDone; return render();
     case 'reset-xp': return resetXp();
+    case 'reset-ranks': return resetRanks();
     case 'lock': return lock('manual');
   }
 }
@@ -1625,6 +1757,7 @@ function completeQuest(q) {
   const xp = state.settings.xp[q.type];
   const statIds = q.stats.filter((id) => state.stats.some((s) => s.id === id));
   const before = statXp();
+  const playerBefore = playerInfo();
   const entry = {
     id: uid(),
     questId: q.id,
@@ -1646,11 +1779,15 @@ function completeQuest(q) {
     action: { label: 'Отменить', run: () => undoEntry(entry.id) },
     ms: 6000,
   });
-  for (const sid of statIds) {
-    const was = levelInfo(before.get(sid) || 0).level;
-    const now = levelInfo(after.get(sid) || 0).level;
-    if (now > was) toast({ title: 'Характеристика повышена', main: `${statName(sid)}: ур. ${now}`, kind: 'up', ms: 5000 });
-  }
+  const statUps = statIds
+    .map((sid) => [sid, levelInfo(before.get(sid) || 0).level, levelInfo(after.get(sid) || 0).level])
+    .filter(([, was, now]) => now > was)
+    .map(([sid, , now]) => `${statName(sid)}: ур. ${now}`);
+  if (statUps.length === 1) toast({ title: 'Характеристика повышена', main: statUps[0], kind: 'up', ms: 5000 });
+  if (statUps.length > 1) toast({ title: 'Характеристики повышены', main: `+${statUps.length}`, sub: statUps.join(' · '), kind: 'up', ms: 5000 });
+  const playerAfter = playerInfo();
+  if (playerAfter.level > playerBefore.level) toast({ title: 'Level up', main: `Уровень ${playerAfter.level}`, kind: 'up', ms: 5000 });
+  if (playerAfter.rank !== playerBefore.rank) toast({ title: 'Новый ранг', main: `Охотник ранга ${playerAfter.rank}`, kind: 'up', ms: 6000 });
 }
 
 /** Откат отметки: запись удаляется из журнала, опыт пересчитывается. */
@@ -1741,21 +1878,48 @@ function openQuestEditor(quest) {
   }
 }
 
-/* ---------- Характеристики ---------- */
+/* ---------- Статус: персонаж и характеристики ---------- */
 
-function statsView() {
+function statusView() {
+  const { state } = session;
+  const p = playerInfo();
+  const next = RANKS.find((r) => r.id !== 'E' && state.settings.ranks[r.id] > p.level);
+  const nextLine = next
+    ? `До ранга <b class="r-${next.id}">${next.id}</b> — уровень ${state.settings.ranks[next.id]} · осталось ${state.settings.ranks[next.id] - p.level} ур.`
+    : 'Высший ранг достигнут.';
+
   const xpMap = statXp();
-  const cards = session.state.stats.map((s) => {
+  const cards = state.stats.map((s) => {
     const xp = xpMap.get(s.id) || 0;
     const info = levelInfo(xp);
     return `<button class="panel stat" type="button" data-stat="${s.id}">
-      <span class="stat-top"><span class="stat-name">${esc(s.name)}</span><span class="stat-lv">Ур. ${info.level}</span></span>
+      <span class="stat-top"><span class="stat-name">${esc(s.name)}</span><span class="stat-lv"><small>ур.</small>${info.level}</span></span>
       <span class="bar"><i data-pct="${(info.into / info.need * 100).toFixed(1)}"></i></span>
-      <span class="stat-xp"><span>${fmt(info.into)} / ${fmt(info.need)} XP</span><span>всего ${fmt(xp)}</span></span>
+      <span class="stat-xp"><span>${fmt(info.into)} / ${fmt(info.need)}</span></span>
     </button>`;
   }).join('');
-  return `<div class="section-h">Характеристики <span class="count">${session.state.stats.length}</span></div>
-    ${cards || '<div class="panel empty">Характеристик нет. Добавьте хотя бы одну, чтобы квесты могли её прокачивать.</div>'}
+
+  return `<section class="panel status r-${p.rank}">
+      <header class="status-head"><span class="sys-icon">!</span><span>Статус</span></header>
+      <div class="status-main">
+        <div class="rank-badge"><small>Ранг</small><b>${p.rank}</b></div>
+        <div class="status-who">
+          <div class="status-name">${esc(state.profile.name)}</div>
+          <div class="status-title">Охотник ранга ${p.rank}</div>
+        </div>
+        <div class="status-level"><small>Ур.</small><b>${p.level}</b></div>
+      </div>
+      <span class="bar big"><i data-pct="${(p.into / p.need * 100).toFixed(1)}"></i></span>
+      <div class="stat-xp"><span>${fmt(p.into)} / ${fmt(p.need)} XP</span><span>до ур. ${p.level + 1}: ${fmt(p.need - p.into)}</span></div>
+      <p class="status-next">${nextLine}</p>
+      <div class="counters">
+        <div><b>${fmt(p.xp)}</b><small>Всего опыта</small></div>
+        <div><b>${fmt(state.log.length)}</b><small>Квестов выполнено</small></div>
+      </div>
+    </section>
+
+    <div class="section-h">Характеристики <span class="count">${state.stats.length}</span></div>
+    ${cards ? `<div class="stat-grid">${cards}</div>` : '<div class="panel empty">Характеристик нет. Добавьте хотя бы одну, чтобы квесты могли её прокачивать.</div>'}
     <button class="btn" type="button" data-action="new-stat">+ Характеристика</button>`;
 }
 
@@ -1822,6 +1986,17 @@ function settingsView() {
       <button class="btn ghost" type="button" data-action="reset-xp">Вернуть значения по умолчанию</button>
     </div>
 
+    <div class="section-h">Ранги охотника</div>
+    <div class="panel pad">
+      <div class="set-row"><span><b class="r-E">Ранг E</b><small>Стартовый</small></span><span class="xp-input">с ур. <input type="number" value="1" disabled></span></div>
+      ${RANKS.slice(1).map((r) => `
+        <label class="set-row">
+          <span><b class="r-${r.id}">Ранг ${r.id}</b><small>По умолчанию с ${r.from} ур.</small></span>
+          <span class="xp-input">с ур. <input type="number" inputmode="numeric" min="2" max="999" step="1" data-rank="${r.id}" value="${state.settings.ranks[r.id]}"></span>
+        </label>`).join('')}
+      <button class="btn ghost" type="button" data-action="reset-ranks">Вернуть пороги по умолчанию</button>
+    </div>
+
     <div class="section-h">Безопасность</div>
     <div class="panel pad">
       <div class="stat-row"><span>Хранилище</span><span class="ok">Зашифровано</span></div>
@@ -1831,7 +2006,7 @@ function settingsView() {
       <div class="stat-row"><span>Автоблокировка</span><span>5 мин или сворачивание</span></div>
       <button class="btn" type="button" data-action="lock">Заблокировать</button>
     </div>
-    <p class="footer-note">Этап 2 из 6 · общий уровень и ранги — на этапе 3</p>`;
+    <p class="footer-note">Этап 3 из 6 · анимации, звук и окна «Система» — на этапе 4</p>`;
 }
 
 function wireSettings(view) {
@@ -1853,6 +2028,33 @@ function wireSettings(view) {
       save();
     });
   });
+  view.querySelectorAll('[data-rank]').forEach((input) => {
+    input.addEventListener('change', () => onRankInput(input));
+  });
+}
+
+/** Порог ранга должен быть строго между порогами соседних рангов. */
+function onRankInput(input) {
+  const { ranks } = session.state.settings;
+  const i = RANKS.findIndex((r) => r.id === input.dataset.rank);
+  const low = i === 1 ? 1 : ranks[RANKS[i - 1].id];
+  const high = i === RANKS.length - 1 ? 1000 : ranks[RANKS[i + 1].id];
+  const value = Math.round(Number(input.value));
+  if (!(value > low && value < high)) {
+    input.value = ranks[input.dataset.rank];
+    toast({ title: 'Пороги рангов', main: 'Не сохранено', sub: `Ранг ${input.dataset.rank}: уровень от ${low + 1} до ${high - 1}`, kind: 'minus' });
+    return;
+  }
+  ranks[input.dataset.rank] = value;
+  save();
+  renderTopbar();
+}
+
+function resetRanks() {
+  session.state.settings.ranks = defaultRankThresholds();
+  save();
+  render();
+  toast({ title: 'Настройки', main: 'Пороги по умолчанию', ms: 2500 });
 }
 
 function resetXp() {
