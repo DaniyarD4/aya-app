@@ -1,0 +1,865 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<meta name="referrer" content="no-referrer">
+<!-- Никаких сетевых запросов со страницы: CSP запрещает fetch/XHR, внешние скрипты, стили, шрифты и картинки -->
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src data: blob:; media-src data: blob:; manifest-src 'self'; worker-src 'self'; connect-src 'none'; base-uri 'none'; form-action 'none'">
+<meta name="theme-color" content="#05070d">
+<meta name="color-scheme" content="dark">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Система">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%2305070d'/%3E%3Crect x='10' y='10' width='44' height='44' rx='4' fill='none' stroke='%2366d0ff' stroke-width='4'/%3E%3Cpath d='M32 19v18' stroke='%2366d0ff' stroke-width='6' stroke-linecap='round'/%3E%3Ccircle cx='32' cy='45' r='3.5' fill='%2366d0ff'/%3E%3C/svg%3E">
+<title>Система</title>
+<style>
+:root {
+  --bg: #05070d;
+  --bg-2: #0a1222;
+  --panel: rgba(8, 18, 36, 0.86);
+  --line: rgba(120, 205, 255, 0.75);
+  --line-soft: rgba(120, 205, 255, 0.28);
+  --glow: rgba(64, 170, 255, 0.55);
+  --accent: #66d0ff;
+  --accent-2: #a9e6ff;
+  --text: #e6f4ff;
+  --text-dim: #8fb0c8;
+  --text-faint: #56738a;
+  --danger: #ff5f7a;
+  --danger-glow: rgba(255, 80, 110, 0.45);
+  --warn: #ffc56b;
+  --ok: #6dffc0;
+  --font: -apple-system, "SF Pro Display", system-ui, "Segoe UI", Roboto, sans-serif;
+  --mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  --safe-t: env(safe-area-inset-top, 0px);
+  --safe-b: env(safe-area-inset-bottom, 0px);
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  min-height: 100%;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font);
+  -webkit-font-smoothing: antialiased;
+  -webkit-text-size-adjust: 100%;
+  -webkit-tap-highlight-color: transparent;
+}
+
+body {
+  min-height: 100vh;
+  min-height: 100dvh;
+  overflow-x: hidden;
+  background:
+    radial-gradient(120% 70% at 50% -10%, rgba(40, 110, 220, 0.28), transparent 60%),
+    radial-gradient(90% 60% at 50% 115%, rgba(30, 80, 190, 0.22), transparent 60%),
+    var(--bg);
+}
+
+/* Тонкая голографическая сетка на фоне */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background-image:
+    linear-gradient(rgba(100, 190, 255, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(100, 190, 255, 0.05) 1px, transparent 1px);
+  background-size: 32px 32px;
+  mask-image: radial-gradient(ellipse at center, #000 30%, transparent 80%);
+  -webkit-mask-image: radial-gradient(ellipse at center, #000 30%, transparent 80%);
+}
+
+button, input { font: inherit; color: inherit; }
+button { touch-action: manipulation; }
+
+#app {
+  position: relative;
+  min-height: 100vh;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: calc(24px + var(--safe-t)) 16px calc(24px + var(--safe-b));
+}
+
+/* ---------- Окно «Система» ---------- */
+
+.sys {
+  position: relative;
+  width: 100%;
+  max-width: 440px;
+  padding: 22px 20px 24px;
+  background:
+    linear-gradient(180deg, rgba(110, 200, 255, 0.07), transparent 40%),
+    var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  box-shadow:
+    0 0 0 1px rgba(120, 205, 255, 0.12),
+    0 0 18px var(--glow),
+    0 0 60px rgba(40, 130, 255, 0.18),
+    inset 0 0 28px rgba(70, 170, 255, 0.14);
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+  animation: sys-open 0.55s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  transform-origin: center;
+}
+
+/* Уголки-скобки */
+.sys::before, .sys::after {
+  content: "";
+  position: absolute;
+  width: 18px;
+  height: 18px;
+  border: 2px solid var(--accent-2);
+  filter: drop-shadow(0 0 6px var(--accent));
+  pointer-events: none;
+}
+.sys::before { top: -3px; left: -3px; border-right: 0; border-bottom: 0; }
+.sys::after { bottom: -3px; right: -3px; border-left: 0; border-top: 0; }
+
+/* Бегущая полоса сканирования */
+.sys > .scan {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  border-radius: inherit;
+  pointer-events: none;
+}
+.sys > .scan::after {
+  content: "";
+  position: absolute;
+  left: 0; right: 0;
+  height: 40%;
+  top: -40%;
+  background: linear-gradient(180deg, transparent, rgba(120, 210, 255, 0.07), transparent);
+  animation: scan 5s linear infinite;
+}
+
+.sys > *:not(.scan) { animation: sys-content 0.4s 0.35s ease-out both; }
+
+.sys-head {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding-bottom: 14px;
+  margin-bottom: 18px;
+  border-bottom: 1px solid var(--line-soft);
+}
+.sys-icon {
+  flex: none;
+  width: 30px;
+  height: 30px;
+  display: grid;
+  place-items: center;
+  border: 1.5px solid var(--accent-2);
+  border-radius: 4px;
+  font-weight: 800;
+  color: var(--accent-2);
+  text-shadow: 0 0 8px var(--accent);
+  box-shadow: 0 0 10px var(--glow), inset 0 0 8px rgba(100, 200, 255, 0.25);
+}
+.sys-title {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  color: var(--accent-2);
+  text-shadow: 0 0 10px var(--accent);
+}
+
+.sys p { margin: 0 0 12px; line-height: 1.5; color: var(--text); }
+.sys .lead { font-size: 17px; text-align: center; }
+.sys .dim { color: var(--text-dim); font-size: 14px; }
+.sys .hl { color: var(--accent-2); text-shadow: 0 0 8px rgba(102, 208, 255, 0.6); font-weight: 600; }
+.center { text-align: center; }
+
+/* ---------- Поля ---------- */
+
+.field { display: block; margin: 16px 0 0; }
+.field > span {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 12px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+.input-wrap { position: relative; }
+.field input {
+  width: 100%;
+  min-height: 52px;
+  padding: 12px 14px;
+  font-size: 17px; /* ≥16px: iOS не зумит при фокусе */
+  background: rgba(4, 10, 22, 0.75);
+  border: 1px solid var(--line-soft);
+  border-radius: 4px;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.field input:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 1px var(--accent), 0 0 14px var(--glow);
+}
+.input-wrap input { padding-right: 56px; }
+.reveal {
+  position: absolute;
+  top: 0; right: 0;
+  width: 52px;
+  height: 52px;
+  display: grid;
+  place-items: center;
+  background: none;
+  border: 0;
+  color: var(--text-dim);
+  cursor: pointer;
+}
+.reveal svg { width: 22px; height: 22px; }
+.reveal[aria-pressed="true"] { color: var(--accent); }
+
+.hint { margin-top: 6px; font-size: 13px; color: var(--text-faint); }
+
+.warn {
+  margin: 20px 0 0;
+  padding: 14px;
+  border: 1px solid rgba(255, 95, 122, 0.55);
+  border-radius: 4px;
+  background: rgba(255, 60, 90, 0.08);
+  box-shadow: inset 0 0 18px rgba(255, 60, 90, 0.08);
+}
+.warn b {
+  display: block;
+  margin-bottom: 4px;
+  color: var(--danger);
+  letter-spacing: 0.12em;
+  font-size: 13px;
+  text-transform: uppercase;
+}
+.warn p { margin: 0; font-size: 14px; color: #ffd6dd; }
+
+.check {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  margin-top: 14px;
+  min-height: 44px;
+  cursor: pointer;
+  font-size: 15px;
+  line-height: 1.4;
+}
+.check input {
+  flex: none;
+  appearance: none;
+  -webkit-appearance: none;
+  width: 26px;
+  height: 26px;
+  margin: 0;
+  border: 1.5px solid var(--line);
+  border-radius: 4px;
+  background: rgba(4, 10, 22, 0.75);
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+}
+.check input::after {
+  content: "";
+  width: 12px;
+  height: 7px;
+  border-left: 2.5px solid var(--bg);
+  border-bottom: 2.5px solid var(--bg);
+  transform: translateY(-2px) rotate(-45deg) scale(0);
+  transition: transform 0.15s;
+}
+.check input:checked { background: var(--accent); box-shadow: 0 0 12px var(--glow); }
+.check input:checked::after { transform: translateY(-2px) rotate(-45deg) scale(1); }
+
+/* ---------- Кнопки ---------- */
+
+.btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  min-height: 54px;
+  margin-top: 22px;
+  padding: 12px 18px;
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--accent-2);
+  background: linear-gradient(180deg, rgba(80, 180, 255, 0.18), rgba(40, 120, 220, 0.1));
+  border: 1px solid var(--accent);
+  border-radius: 4px;
+  box-shadow: 0 0 14px var(--glow), inset 0 0 14px rgba(100, 200, 255, 0.18);
+  text-shadow: 0 0 8px var(--accent);
+  cursor: pointer;
+  transition: transform 0.12s, box-shadow 0.2s, opacity 0.2s;
+}
+.btn:active { transform: scale(0.98); box-shadow: 0 0 24px var(--glow), inset 0 0 20px rgba(100, 200, 255, 0.3); }
+.btn:disabled { opacity: 0.45; cursor: default; transform: none; }
+.btn.danger {
+  color: #ffd6dd;
+  border-color: var(--danger);
+  background: rgba(255, 60, 90, 0.12);
+  box-shadow: 0 0 14px var(--danger-glow), inset 0 0 14px rgba(255, 80, 110, 0.15);
+  text-shadow: 0 0 8px var(--danger);
+}
+.btn.ghost {
+  min-height: 48px;
+  margin-top: 12px;
+  font-size: 14px;
+  letter-spacing: 0.08em;
+  text-transform: none;
+  font-weight: 500;
+  color: var(--text-dim);
+  background: none;
+  border-color: transparent;
+  box-shadow: none;
+  text-shadow: none;
+}
+.btn .spin {
+  width: 16px;
+  height: 16px;
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
+.error {
+  min-height: 1.4em;
+  margin: 12px 0 0;
+  font-size: 14px;
+  color: var(--danger);
+  text-align: center;
+  text-shadow: 0 0 8px var(--danger-glow);
+}
+.shake { animation: shake 0.4s; }
+
+/* ---------- Статус (временный главный экран этапа 1) ---------- */
+
+.stat-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 0;
+  border-bottom: 1px solid rgba(120, 205, 255, 0.12);
+  font-size: 15px;
+}
+.stat-row:last-of-type { border-bottom: 0; }
+.stat-row > span:first-child { color: var(--text-dim); }
+.stat-row > span:last-child { text-align: right; }
+.mono { font-family: var(--mono); font-size: 13px; }
+.ok { color: var(--ok); text-shadow: 0 0 8px rgba(109, 255, 192, 0.5); }
+
+.sys .footer-note {
+  margin-top: 18px;
+  font-size: 12px;
+  color: var(--text-faint);
+  text-align: center;
+  letter-spacing: 0.06em;
+}
+
+/* ---------- Анимации ---------- */
+
+@keyframes sys-open {
+  0%   { opacity: 0; transform: scaleX(0.02) scaleY(0.006); }
+  45%  { opacity: 1; transform: scaleX(1) scaleY(0.006); }
+  100% { opacity: 1; transform: scale(1); }
+}
+@keyframes sys-content { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+@keyframes scan { to { top: 100%; } }
+@keyframes spin { to { transform: rotate(360deg); } }
+@keyframes shake {
+  20% { transform: translateX(-8px); }
+  40% { transform: translateX(7px); }
+  60% { transform: translateX(-5px); }
+  80% { transform: translateX(3px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
+}
+</style>
+</head>
+<body>
+<main id="app" aria-live="polite"></main>
+
+<!-- ===== Экраны (клонируются в #app) ===== -->
+
+<template id="tpl-unsupported">
+  <section class="sys">
+    <div class="scan"></div>
+    <header class="sys-head"><div class="sys-icon">!</div><h1 class="sys-title">Ошибка</h1></header>
+    <p class="lead">Шифрование недоступно в этом браузере.</p>
+    <p class="dim center">Откройте приложение по адресу <span class="hl">https://</span> или через <span class="hl">localhost</span> в Safari или Chrome — без этого Web Crypto API отключён.</p>
+  </section>
+</template>
+
+<template id="tpl-setup">
+  <section class="sys">
+    <div class="scan"></div>
+    <header class="sys-head"><div class="sys-icon">!</div><h1 class="sys-title">Уведомление</h1></header>
+    <p class="lead">Вы выполнили скрытые условия,<br>чтобы стать <span class="hl">Игроком</span>.</p>
+    <p class="dim center">Задайте мастер-пароль. Он шифрует все данные на этом устройстве и нигде не сохраняется.</p>
+    <form data-form="setup" novalidate>
+      <label class="field"><span>Имя игрока</span>
+        <input name="player" type="text" autocomplete="nickname" autocapitalize="words" maxlength="40" placeholder="Игрок">
+      </label>
+      <!-- Скрытый логин нужен, чтобы Связка ключей iOS могла предложить сохранить пароль -->
+      <input type="text" name="username" autocomplete="username" value="Система" hidden>
+      <label class="field"><span>Мастер-пароль</span>
+        <span class="input-wrap"><input name="pw" type="password" autocomplete="new-password" minlength="8" required><button type="button" class="reveal" aria-label="Показать пароль" aria-pressed="false"></button></span>
+      </label>
+      <div class="hint">Минимум 8 символов. Лучше — фраза из нескольких слов.</div>
+      <label class="field"><span>Повторите пароль</span>
+        <span class="input-wrap"><input name="pw2" type="password" autocomplete="new-password" required><button type="button" class="reveal" aria-label="Показать пароль" aria-pressed="false"></button></span>
+      </label>
+      <div class="warn" role="note">
+        <b>Внимание</b>
+        <p>Забытый пароль восстановить невозможно. Копии нет ни у кого — без пароля данные останутся зашифрованными навсегда.</p>
+      </div>
+      <label class="check"><input name="ack" type="checkbox"><span>Я понимаю, что восстановить пароль нельзя</span></label>
+      <p class="error" data-error></p>
+      <button class="btn" type="submit" data-submit>Принять</button>
+    </form>
+  </section>
+</template>
+
+<template id="tpl-login">
+  <section class="sys">
+    <div class="scan"></div>
+    <header class="sys-head"><div class="sys-icon">!</div><h1 class="sys-title">Система</h1></header>
+    <p class="lead">Подтвердите личность <span class="hl">Игрока</span>.</p>
+    <p class="dim center" data-reason hidden></p>
+    <form data-form="login" novalidate>
+      <input type="text" name="username" autocomplete="username" value="Система" hidden>
+      <label class="field"><span>Мастер-пароль</span>
+        <span class="input-wrap"><input name="pw" type="password" autocomplete="current-password" required><button type="button" class="reveal" aria-label="Показать пароль" aria-pressed="false"></button></span>
+      </label>
+      <p class="error" data-error></p>
+      <button class="btn" type="submit" data-submit>Войти</button>
+    </form>
+    <button class="btn ghost" type="button" data-action="forgot">Забыли пароль?</button>
+  </section>
+</template>
+
+<template id="tpl-wipe">
+  <section class="sys">
+    <div class="scan"></div>
+    <header class="sys-head"><div class="sys-icon">!</div><h1 class="sys-title">Предупреждение</h1></header>
+    <p class="lead">Пароль восстановить нельзя.</p>
+    <p class="dim center">Можно только стереть все данные на этом устройстве и начать заново. Если есть файл бэкапа, его можно будет импортировать — но тоже только с паролем, которым он зашифрован.</p>
+    <form data-form="wipe" novalidate>
+      <label class="field"><span>Введите «СТЕРЕТЬ» для подтверждения</span>
+        <input name="confirm" type="text" autocomplete="off" autocapitalize="characters" spellcheck="false">
+      </label>
+      <p class="error" data-error></p>
+      <button class="btn danger" type="submit" data-submit>Стереть всё</button>
+    </form>
+    <button class="btn ghost" type="button" data-action="back">Назад</button>
+  </section>
+</template>
+
+<template id="tpl-home">
+  <section class="sys">
+    <div class="scan"></div>
+    <header class="sys-head"><div class="sys-icon">!</div><h1 class="sys-title">Статус</h1></header>
+    <p class="lead">Добро пожаловать, <span class="hl" data-bind="name"></span>.</p>
+    <label class="field"><span>Имя игрока</span>
+      <input data-input="name" type="text" autocomplete="off" autocapitalize="words" maxlength="40">
+    </label>
+    <div style="margin-top:18px">
+      <div class="stat-row"><span>Хранилище</span><span class="ok">Зашифровано</span></div>
+      <div class="stat-row"><span>Шифр</span><span class="mono">AES-GCM-256</span></div>
+      <div class="stat-row"><span>Ключ</span><span class="mono" data-bind="kdf"></span></div>
+      <div class="stat-row"><span>Сохранено</span><span class="mono" data-bind="saved">—</span></div>
+      <div class="stat-row"><span>Автоблокировка</span><span>5 мин или сворачивание</span></div>
+    </div>
+    <p class="error" data-error></p>
+    <button class="btn" type="button" data-action="lock">Заблокировать</button>
+    <p class="footer-note">Этап 1 из 6 · квесты и характеристики — на этапе 2</p>
+  </section>
+</template>
+
+<script>
+'use strict';
+
+/* =====================================================================
+   НАСТРОЙКИ
+   ===================================================================== */
+
+const CONFIG = {
+  storageKey: 'system.vault.v1',
+  kdfIterations: 310000,        // PBKDF2-SHA-256, ТЗ требует ≥ 200 000
+  minPasswordLength: 8,
+  autoLockMs: 5 * 60 * 1000,    // 5 минут бездействия
+};
+
+/* =====================================================================
+   КРИПТОГРАФИЯ (Web Crypto API)
+   Ключ AES-GCM-256 выводится из пароля через PBKDF2 со случайной солью.
+   На каждое сохранение — новый случайный IV. Пароль нигде не хранится;
+   в памяти живёт только неизвлекаемый CryptoKey, пока сессия открыта.
+   ===================================================================== */
+
+const AAD = new TextEncoder().encode('system-vault-v1');
+
+const b64 = {
+  encode(bytes) {
+    let s = '';
+    for (let i = 0; i < bytes.length; i += 0x8000) s += String.fromCharCode.apply(null, bytes.subarray(i, i + 0x8000));
+    return btoa(s);
+  },
+  decode(str) {
+    const s = atob(str);
+    const out = new Uint8Array(s.length);
+    for (let i = 0; i < s.length; i++) out[i] = s.charCodeAt(i);
+    return out;
+  },
+};
+
+async function deriveKey(password, salt, iterations) {
+  const base = await crypto.subtle.importKey('raw', new TextEncoder().encode(password), 'PBKDF2', false, ['deriveKey']);
+  return crypto.subtle.deriveKey(
+    { name: 'PBKDF2', hash: 'SHA-256', salt, iterations },
+    base,
+    { name: 'AES-GCM', length: 256 },
+    false,
+    ['encrypt', 'decrypt'],
+  );
+}
+
+async function encryptJSON(key, kdf, data) {
+  const iv = crypto.getRandomValues(new Uint8Array(12));
+  const plain = new TextEncoder().encode(JSON.stringify(data));
+  const ct = new Uint8Array(await crypto.subtle.encrypt({ name: 'AES-GCM', iv, additionalData: AAD }, key, plain));
+  return { v: 1, kdf, iv: b64.encode(iv), ct: b64.encode(ct) };
+}
+
+/** Бросает ошибку, если пароль неверный (не сошёлся тег GCM). */
+async function decryptJSON(key, record) {
+  const plain = await crypto.subtle.decrypt(
+    { name: 'AES-GCM', iv: b64.decode(record.iv), additionalData: AAD },
+    key,
+    b64.decode(record.ct),
+  );
+  return JSON.parse(new TextDecoder().decode(plain));
+}
+
+function newKdfParams() {
+  return {
+    name: 'PBKDF2',
+    hash: 'SHA-256',
+    iter: CONFIG.kdfIterations,
+    salt: b64.encode(crypto.getRandomValues(new Uint8Array(16))),
+  };
+}
+
+/* =====================================================================
+   ХРАНИЛИЩЕ
+   В localStorage лежит только зашифрованная запись { v, kdf, iv, ct }.
+   ===================================================================== */
+
+const Vault = {
+  read() {
+    const raw = localStorage.getItem(CONFIG.storageKey);
+    return raw ? JSON.parse(raw) : null;
+  },
+  exists() {
+    return localStorage.getItem(CONFIG.storageKey) !== null;
+  },
+  write(record) {
+    localStorage.setItem(CONFIG.storageKey, JSON.stringify(record));
+  },
+  wipe() {
+    localStorage.removeItem(CONFIG.storageKey);
+  },
+};
+
+/* =====================================================================
+   ДАННЫЕ ИГРОКА
+   ===================================================================== */
+
+function defaultState(name) {
+  return {
+    schema: 1,
+    createdAt: Date.now(),
+    profile: { name: name || 'Игрок' },
+  };
+}
+
+/* =====================================================================
+   СЕССИЯ
+   session = { key, kdf, state } пока приложение разблокировано, иначе null.
+   ===================================================================== */
+
+let session = null;
+let saveChain = Promise.resolve();
+let lastSavedAt = null;
+
+async function createVault(password, name) {
+  const kdf = newKdfParams();
+  const key = await deriveKey(password, b64.decode(kdf.salt), kdf.iter);
+  const state = defaultState(name);
+  Vault.write(await encryptJSON(key, kdf, state));
+  lastSavedAt = Date.now();
+  session = { key, kdf, state };
+  // Просим браузер не вычищать хранилище при нехватке места
+  if (navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(() => {});
+}
+
+async function unlockVault(password) {
+  const record = Vault.read();
+  const kdf = record.kdf;
+  const key = await deriveKey(password, b64.decode(kdf.salt), kdf.iter);
+  const state = await decryptJSON(key, record); // неверный пароль → исключение
+  session = { key, kdf, state };
+  lastSavedAt = null;
+}
+
+/**
+ * Шифрует и сохраняет текущее состояние. Снимок и ключ берутся синхронно,
+ * поэтому сохранение завершится, даже если сразу после вызова сработает блокировка.
+ */
+function save() {
+  if (!session) return saveChain;
+  const { key, kdf } = session;
+  const snapshot = JSON.parse(JSON.stringify(session.state));
+  saveChain = saveChain
+    .then(() => encryptJSON(key, kdf, snapshot))
+    .then((record) => {
+      Vault.write(record);
+      lastSavedAt = Date.now();
+      if (session) renderSavedAt();
+    })
+    .catch((err) => {
+      console.error(err);
+      showError('Не удалось сохранить данные: ' + (err && err.name === 'QuotaExceededError' ? 'нет места в хранилище.' : 'ошибка записи.'));
+    });
+  return saveChain;
+}
+
+function lock(reason) {
+  if (!session) return;
+  flushInputs();
+  session = null; // ключ и расшифрованные данные больше недоступны
+  if (document.activeElement) document.activeElement.blur();
+  showLogin(reason);
+}
+
+/* =====================================================================
+   АВТОБЛОКИРОВКА
+   ===================================================================== */
+
+let lastActivity = Date.now();
+for (const ev of ['pointerdown', 'keydown', 'touchstart', 'wheel', 'scroll', 'input']) {
+  addEventListener(ev, () => { lastActivity = Date.now(); }, { passive: true, capture: true });
+}
+setInterval(() => {
+  if (session && Date.now() - lastActivity > CONFIG.autoLockMs) lock('idle');
+}, 5000);
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden) lock('hidden');
+});
+addEventListener('pagehide', () => lock('hidden'));
+
+/* =====================================================================
+   ИНТЕРФЕЙС
+   ===================================================================== */
+
+const app = document.getElementById('app');
+
+function mount(templateId) {
+  const node = document.getElementById(templateId).content.cloneNode(true);
+  app.replaceChildren(node);
+  wireRevealButtons(app);
+  return app.firstElementChild;
+}
+
+const EYE = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>';
+
+function wireRevealButtons(root) {
+  root.querySelectorAll('.reveal').forEach((btn) => {
+    btn.innerHTML = EYE;
+    btn.addEventListener('click', () => {
+      const input = btn.previousElementSibling;
+      const show = input.type === 'password';
+      input.type = show ? 'text' : 'password';
+      btn.setAttribute('aria-pressed', String(show));
+      btn.setAttribute('aria-label', show ? 'Скрыть пароль' : 'Показать пароль');
+    });
+  });
+}
+
+function showError(message, shakeEl) {
+  const el = app.querySelector('[data-error]');
+  if (el) el.textContent = message;
+  const target = shakeEl || app.querySelector('.sys');
+  if (message && target) {
+    target.classList.remove('shake');
+    void target.offsetWidth;
+    target.classList.add('shake');
+  }
+}
+
+function setBusy(button, busyText) {
+  if (busyText) {
+    button.dataset.label = button.textContent;
+    button.disabled = true;
+    button.innerHTML = '<span class="spin"></span>';
+    button.append(busyText);
+  } else {
+    button.disabled = false;
+    button.textContent = button.dataset.label;
+  }
+}
+
+/* ---------- Первый запуск ---------- */
+
+function showSetup() {
+  const root = mount('tpl-setup');
+  const form = root.querySelector('form');
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const name = form.player.value.trim();
+    const pw = form.pw.value;
+    if (pw.length < CONFIG.minPasswordLength) return showError(`Пароль должен быть не короче ${CONFIG.minPasswordLength} символов.`);
+    if (pw !== form.pw2.value) return showError('Пароли не совпадают.');
+    if (!form.ack.checked) return showError('Подтвердите, что понимаете: пароль восстановить нельзя.');
+    const btn = form.querySelector('[data-submit]');
+    setBusy(btn, 'Инициализация…');
+    try {
+      await createVault(pw, name);
+      showHome();
+    } catch (err) {
+      console.error(err);
+      setBusy(btn, null);
+      showError('Не удалось создать хранилище. Проверьте, что приватный режим выключен.');
+    }
+  });
+}
+
+/* ---------- Вход ---------- */
+
+const LOCK_REASONS = {
+  idle: 'Сеанс заблокирован: 5 минут без активности.',
+  hidden: 'Сеанс заблокирован при сворачивании.',
+  manual: 'Сеанс заблокирован.',
+};
+
+function showLogin(reason) {
+  const root = mount('tpl-login');
+  const form = root.querySelector('form');
+  const reasonEl = root.querySelector('[data-reason]');
+  if (reason && LOCK_REASONS[reason]) {
+    reasonEl.textContent = LOCK_REASONS[reason];
+    reasonEl.hidden = false;
+  }
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const pw = form.pw.value;
+    if (!pw) return showError('Введите пароль.');
+    const btn = form.querySelector('[data-submit]');
+    setBusy(btn, 'Расшифровка…');
+    try {
+      await unlockVault(pw);
+      showHome();
+    } catch (err) {
+      setBusy(btn, null);
+      if (err && err.name === 'OperationError') {
+        form.pw.value = '';
+        showError('Неверный пароль.');
+        form.pw.focus();
+      } else {
+        console.error(err);
+        showError('Хранилище повреждено или в неизвестном формате.');
+      }
+    }
+  });
+  root.querySelector('[data-action="forgot"]').addEventListener('click', showWipe);
+}
+
+/* ---------- Сброс ---------- */
+
+function showWipe() {
+  const root = mount('tpl-wipe');
+  const form = root.querySelector('form');
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+    if (form.confirm.value.trim().toUpperCase() !== 'СТЕРЕТЬ') return showError('Введите слово «СТЕРЕТЬ».');
+    Vault.wipe();
+    showSetup();
+  });
+  root.querySelector('[data-action="back"]').addEventListener('click', () => showLogin());
+}
+
+/* ---------- Главный экран (этап 1: статус хранилища) ---------- */
+
+let nameTimer = null;
+
+function commitName() {
+  clearTimeout(nameTimer);
+  nameTimer = null;
+  const input = app.querySelector('[data-input="name"]');
+  if (!session || !input) return;
+  const name = input.value.trim() || 'Игрок';
+  if (name === session.state.profile.name) return;
+  session.state.profile.name = name;
+  save();
+}
+
+/** Дописывает несохранённый ввод до блокировки. */
+function flushInputs() {
+  if (nameTimer) commitName();
+}
+
+function renderSavedAt() {
+  const el = app.querySelector('[data-bind="saved"]');
+  if (el && lastSavedAt) el.textContent = new Date(lastSavedAt).toLocaleTimeString('ru-RU');
+}
+
+function showHome() {
+  const root = mount('tpl-home');
+  const { state, kdf } = session;
+  const nameOut = root.querySelector('[data-bind="name"]');
+  const nameIn = root.querySelector('[data-input="name"]');
+  nameOut.textContent = state.profile.name;
+  nameIn.value = state.profile.name;
+  root.querySelector('[data-bind="kdf"]').textContent = `PBKDF2 · ${kdf.iter.toLocaleString('ru-RU')}`;
+  renderSavedAt();
+
+  nameIn.addEventListener('input', () => {
+    nameOut.textContent = nameIn.value.trim() || 'Игрок';
+    clearTimeout(nameTimer);
+    nameTimer = setTimeout(commitName, 500);
+  });
+  nameIn.addEventListener('change', commitName);
+  root.querySelector('[data-action="lock"]').addEventListener('click', () => lock('manual'));
+}
+
+/* =====================================================================
+   ЗАПУСК
+   ===================================================================== */
+
+function boot() {
+  if (!window.isSecureContext || !window.crypto || !crypto.subtle) return mount('tpl-unsupported');
+  if (Vault.exists()) showLogin();
+  else showSetup();
+}
+
+boot();
+</script>
+</body>
+</html>
