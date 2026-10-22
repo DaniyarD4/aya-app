@@ -363,13 +363,443 @@ button { touch-action: manipulation; }
 .mono { font-family: var(--mono); font-size: 13px; }
 .ok { color: var(--ok); text-shadow: 0 0 8px rgba(109, 255, 192, 0.5); }
 
-.sys .footer-note {
-  margin-top: 18px;
+.footer-note {
+  margin: 22px 0 0;
   font-size: 12px;
   color: var(--text-faint);
   text-align: center;
   letter-spacing: 0.06em;
 }
+
+/* ---------- Оболочка приложения ---------- */
+
+#app.shell { justify-content: flex-start; padding: 0; }
+
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: calc(10px + var(--safe-t)) 16px 10px;
+  background: linear-gradient(180deg, rgba(5, 7, 13, 0.97), rgba(5, 7, 13, 0.85));
+  border-bottom: 1px solid var(--line-soft);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+}
+.topbar .who { flex: 1; min-width: 0; }
+.topbar .who small {
+  display: block;
+  font-size: 11px;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--accent);
+  text-shadow: 0 0 8px var(--glow);
+}
+.topbar .who b {
+  display: block;
+  font-size: 17px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.xp-total {
+  font-family: var(--mono);
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--accent-2);
+  text-shadow: 0 0 8px var(--glow);
+  white-space: nowrap;
+}
+.icon-btn {
+  flex: none;
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  background: none;
+  border: 1px solid var(--line-soft);
+  border-radius: 4px;
+  color: var(--accent-2);
+  cursor: pointer;
+}
+.icon-btn svg { width: 20px; height: 20px; }
+
+.view {
+  width: 100%;
+  max-width: 560px;
+  padding: 8px 16px calc(100px + var(--safe-b));
+}
+
+.section-h {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 24px 0 10px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--accent);
+  text-shadow: 0 0 8px var(--glow);
+}
+.section-h::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, var(--line-soft), transparent);
+}
+.section-h .count { color: var(--text-faint); letter-spacing: 0.08em; text-shadow: none; }
+
+.tabbar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 20;
+  display: flex;
+  justify-content: center;
+  padding: 4px 8px calc(4px + var(--safe-b));
+  background: rgba(5, 7, 13, 0.95);
+  border-top: 1px solid var(--line-soft);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+}
+.tabbar button {
+  flex: 1;
+  max-width: 170px;
+  min-height: 56px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  background: none;
+  border: 0;
+  color: var(--text-faint);
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  cursor: pointer;
+}
+.tabbar svg { width: 24px; height: 24px; }
+.tabbar button[aria-current="page"] { color: var(--accent-2); text-shadow: 0 0 8px var(--glow); }
+.tabbar button[aria-current="page"] svg { filter: drop-shadow(0 0 6px var(--accent)); }
+
+/* Панель — рамка окна Системы без анимации открытия */
+.panel {
+  position: relative;
+  background: var(--panel);
+  border: 1px solid var(--line-soft);
+  border-radius: 6px;
+  box-shadow: 0 0 12px rgba(40, 140, 255, 0.12), inset 0 0 20px rgba(70, 170, 255, 0.06);
+}
+.panel.pad { padding: 4px 16px 16px; }
+
+.empty { padding: 26px 18px; text-align: center; color: var(--text-dim); line-height: 1.5; }
+.empty b { display: block; margin-bottom: 4px; color: var(--accent-2); letter-spacing: 0.1em; }
+
+/* ---------- Квесты ---------- */
+
+.btn.add { margin-top: 16px; }
+
+.quest {
+  display: flex;
+  align-items: flex-start;
+  gap: 4px;
+  margin-bottom: 10px;
+  padding: 8px 12px 10px 4px;
+  transition: border-color 0.25s, opacity 0.3s;
+}
+.qcheck {
+  flex: none;
+  width: 52px;
+  height: 52px;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  background: none;
+  border: 0;
+  cursor: pointer;
+}
+.qbox {
+  width: 28px;
+  height: 28px;
+  display: grid;
+  place-items: center;
+  border: 1.5px solid var(--line);
+  border-radius: 4px;
+  background: rgba(4, 10, 22, 0.75);
+  box-shadow: inset 0 0 8px rgba(100, 200, 255, 0.15);
+  transition: background 0.2s, box-shadow 0.2s;
+}
+.qbox::after {
+  content: "";
+  width: 13px;
+  height: 7px;
+  border-left: 2.5px solid var(--bg);
+  border-bottom: 2.5px solid var(--bg);
+  transform: translateY(-2px) rotate(-45deg) scale(0);
+  transition: transform 0.18s cubic-bezier(0.3, 1.6, 0.5, 1);
+}
+.quest.done .qbox { background: var(--accent); box-shadow: 0 0 14px var(--glow); }
+.quest.done .qbox::after { transform: translateY(-2px) rotate(-45deg) scale(1); }
+.qbody {
+  flex: 1;
+  min-width: 0;
+  padding: 12px 0 2px;
+  background: none;
+  border: 0;
+  text-align: left;
+  cursor: pointer;
+}
+.qtitle { display: block; font-size: 16px; font-weight: 600; line-height: 1.35; overflow-wrap: anywhere; }
+.quest.done .qtitle { color: var(--text-dim); text-decoration: line-through; text-decoration-color: rgba(120, 205, 255, 0.55); }
+.qnote {
+  display: block;
+  margin-top: 3px;
+  font-size: 13px;
+  color: var(--text-dim);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.qxp {
+  flex: none;
+  padding-top: 15px;
+  font-family: var(--mono);
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--accent-2);
+  text-shadow: 0 0 8px var(--glow);
+}
+.quest.done .qxp { color: var(--text-faint); text-shadow: none; }
+.quest.flash { animation: quest-flash 0.7s ease-out; }
+
+.chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+.chip {
+  padding: 3px 8px;
+  font-size: 12px;
+  line-height: 1.3;
+  color: var(--text-dim);
+  border: 1px solid var(--line-soft);
+  border-radius: 3px;
+  background: rgba(80, 170, 255, 0.06);
+}
+.t-chore { --tc: #9fb6c8; }
+.t-normal { --tc: #66d0ff; }
+.t-goal { --tc: #b99bff; }
+.t-epic { --tc: #ffc56b; }
+.chip[class*="t-"] { color: var(--tc); border-color: var(--tc); background: none; }
+
+.more {
+  display: block;
+  width: 100%;
+  min-height: 44px;
+  background: none;
+  border: 0;
+  color: var(--text-dim);
+  font-size: 14px;
+  cursor: pointer;
+}
+
+/* ---------- Характеристики ---------- */
+
+.stat {
+  display: block;
+  width: 100%;
+  margin-bottom: 10px;
+  padding: 14px 16px;
+  text-align: left;
+  cursor: pointer;
+}
+.stat-top { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; }
+.stat-name { font-size: 16px; font-weight: 600; overflow-wrap: anywhere; }
+.stat-lv {
+  flex: none;
+  font-family: var(--mono);
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--accent-2);
+  text-shadow: 0 0 8px var(--glow);
+}
+.bar {
+  position: relative;
+  display: block;
+  height: 8px;
+  margin-top: 10px;
+  overflow: hidden;
+  border: 1px solid rgba(120, 205, 255, 0.2);
+  border-radius: 4px;
+  background: rgba(100, 190, 255, 0.08);
+}
+.bar > i {
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 0;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #2f7fff, var(--accent-2));
+  box-shadow: 0 0 10px var(--accent);
+  transition: width 0.9s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.stat-xp {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 6px;
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--text-faint);
+}
+
+/* ---------- Настройки ---------- */
+
+.set-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 0;
+  border-bottom: 1px solid rgba(120, 205, 255, 0.12);
+}
+.set-row b { display: block; font-size: 15px; color: var(--tc, var(--text)); }
+.set-row small { display: block; margin-top: 2px; font-size: 12px; color: var(--text-faint); }
+.xp-input { flex: none; display: flex; align-items: center; gap: 8px; color: var(--text-dim); font-size: 13px; }
+.xp-input input {
+  width: 92px;
+  min-height: 44px;
+  padding: 8px 10px;
+  font-family: var(--mono);
+  font-size: 17px;
+  text-align: right;
+  background: rgba(4, 10, 22, 0.75);
+  border: 1px solid var(--line-soft);
+  border-radius: 4px;
+  outline: none;
+}
+.xp-input input:focus { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent), 0 0 12px var(--glow); }
+
+/* ---------- Окна поверх экрана ---------- */
+
+.layer {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: flex;
+  flex-direction: column;
+  padding: calc(16px + var(--safe-t)) 12px calc(12px + var(--safe-b));
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+  background: rgba(2, 4, 10, 0.82);
+  animation: fade 0.2s both;
+}
+.layer > .sys {
+  margin-top: auto;
+  align-self: center;
+  max-width: 480px;
+  background: linear-gradient(180deg, rgba(110, 200, 255, 0.07), transparent 40%), #07101f;
+}
+@media (min-width: 600px) { .layer > .sys { margin-bottom: auto; } }
+html.noscroll, html.noscroll body { overflow: hidden; }
+
+.field textarea {
+  width: 100%;
+  min-height: 72px;
+  padding: 12px 14px;
+  font-size: 17px;
+  line-height: 1.4;
+  resize: vertical;
+  background: rgba(4, 10, 22, 0.75);
+  border: 1px solid var(--line-soft);
+  border-radius: 4px;
+  outline: none;
+}
+.field textarea:focus { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent), 0 0 14px var(--glow); }
+
+.choices { display: flex; flex-wrap: wrap; gap: 8px; }
+.choices.types { display: grid; grid-template-columns: 1fr 1fr; }
+.choice { position: relative; }
+.choice input { position: absolute; opacity: 0; pointer-events: none; }
+.choice > span {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: 46px;
+  height: 100%;
+  padding: 8px 14px;
+  font-size: 15px;
+  color: var(--text);
+  border: 1px solid var(--line-soft);
+  border-radius: 4px;
+  background: rgba(4, 10, 22, 0.75);
+  cursor: pointer;
+  transition: border-color 0.15s, box-shadow 0.15s, color 0.15s;
+}
+.choice b { font-weight: 600; color: var(--tc, inherit); }
+.choice small { font-family: var(--mono); font-size: 12px; color: var(--text-faint); }
+.choice input:checked + span {
+  color: var(--accent-2);
+  border-color: var(--tc, var(--accent));
+  box-shadow: 0 0 12px var(--glow), inset 0 0 10px rgba(100, 200, 255, 0.18);
+}
+.choice input:focus-visible + span { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+.btn.ghost.danger-text { color: var(--danger); }
+.btn.armed { color: #fff; border-color: var(--danger); background: rgba(255, 60, 90, 0.2); text-shadow: 0 0 8px var(--danger); }
+
+/* ---------- Уведомления ---------- */
+
+.toasts {
+  position: fixed;
+  z-index: 60;
+  top: calc(74px + var(--safe-t));
+  left: 0;
+  right: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 0 16px;
+  pointer-events: none;
+}
+.toast {
+  pointer-events: auto;
+  width: 100%;
+  max-width: 420px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 12px 12px 16px;
+  background: #081325;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  box-shadow: 0 0 18px var(--glow), inset 0 0 16px rgba(70, 170, 255, 0.15);
+  animation: toast-in 0.4s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+.toast.out { animation: toast-out 0.25s ease-in both; }
+.toast .t-body { flex: 1; min-width: 0; }
+.toast .t-title { font-size: 11px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--accent); }
+.toast .t-main { font-size: 18px; font-weight: 800; color: var(--accent-2); text-shadow: 0 0 10px var(--accent); }
+.toast .t-sub { margin-top: 2px; font-size: 13px; color: var(--text-dim); }
+.toast button {
+  flex: none;
+  min-height: 44px;
+  padding: 0 14px;
+  font-size: 14px;
+  color: var(--accent-2);
+  background: none;
+  border: 1px solid var(--line-soft);
+  border-radius: 4px;
+  cursor: pointer;
+}
+.toast.up { border-color: var(--warn); box-shadow: 0 0 18px rgba(255, 197, 107, 0.45), inset 0 0 16px rgba(255, 197, 107, 0.12); }
+.toast.up .t-title { color: var(--warn); }
+.toast.up .t-main { color: #ffe2b0; text-shadow: 0 0 10px var(--warn); }
+.toast.minus { border-color: rgba(255, 95, 122, 0.6); box-shadow: 0 0 14px var(--danger-glow); }
+.toast.minus .t-title { color: var(--danger); }
+.toast.minus .t-main { color: #ffd6dd; text-shadow: none; }
 
 /* ---------- Анимации ---------- */
 
@@ -381,6 +811,14 @@ button { touch-action: manipulation; }
 @keyframes sys-content { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
 @keyframes scan { to { top: 100%; } }
 @keyframes spin { to { transform: rotate(360deg); } }
+@keyframes fade { from { opacity: 0; } }
+@keyframes toast-in { from { opacity: 0; transform: translateY(-14px) scaleY(0.6); } }
+@keyframes toast-out { to { opacity: 0; transform: translateY(-10px); } }
+@keyframes quest-flash {
+  0%   { box-shadow: 0 0 0 rgba(102, 208, 255, 0); }
+  30%  { box-shadow: 0 0 28px rgba(102, 208, 255, 0.85), inset 0 0 24px rgba(102, 208, 255, 0.35); border-color: var(--accent-2); }
+  100% { box-shadow: 0 0 12px rgba(40, 140, 255, 0.12); }
+}
 @keyframes shake {
   20% { transform: translateX(-8px); }
   40% { transform: translateX(7px); }
@@ -472,25 +910,29 @@ button { touch-action: manipulation; }
   </section>
 </template>
 
-<template id="tpl-home">
-  <section class="sys">
-    <div class="scan"></div>
-    <header class="sys-head"><div class="sys-icon">!</div><h1 class="sys-title">Статус</h1></header>
-    <p class="lead">Добро пожаловать, <span class="hl" data-bind="name"></span>.</p>
-    <label class="field"><span>Имя игрока</span>
-      <input data-input="name" type="text" autocomplete="off" autocapitalize="words" maxlength="40">
-    </label>
-    <div style="margin-top:18px">
-      <div class="stat-row"><span>Хранилище</span><span class="ok">Зашифровано</span></div>
-      <div class="stat-row"><span>Шифр</span><span class="mono">AES-GCM-256</span></div>
-      <div class="stat-row"><span>Ключ</span><span class="mono" data-bind="kdf"></span></div>
-      <div class="stat-row"><span>Сохранено</span><span class="mono" data-bind="saved">—</span></div>
-      <div class="stat-row"><span>Автоблокировка</span><span>5 мин или сворачивание</span></div>
-    </div>
-    <p class="error" data-error></p>
-    <button class="btn" type="button" data-action="lock">Заблокировать</button>
-    <p class="footer-note">Этап 1 из 6 · квесты и характеристики — на этапе 2</p>
-  </section>
+<template id="tpl-shell">
+  <header class="topbar">
+    <div class="who"><small>Игрок</small><b data-bind="name"></b></div>
+    <div class="xp-total" data-bind="xp"></div>
+    <button class="icon-btn" type="button" data-action="lock" aria-label="Заблокировать">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>
+    </button>
+  </header>
+  <div class="view" data-view></div>
+  <nav class="tabbar" aria-label="Разделы">
+    <button type="button" data-tab="quests">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M8 12l3 3 5-6"/></svg>
+      <span>Квесты</span>
+    </button>
+    <button type="button" data-tab="stats">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l8.5 5v10L12 22l-8.5-5V7z"/><path d="M12 7l4 2.5v5L12 17l-4-2.5v-5z"/></svg>
+      <span>Характеристики</span>
+    </button>
+    <button type="button" data-tab="settings">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>
+      <span>Настройки</span>
+    </button>
+  </nav>
 </template>
 
 <script>
@@ -592,12 +1034,122 @@ const Vault = {
    ДАННЫЕ ИГРОКА
    ===================================================================== */
 
+/** Типы задач. Опыт по умолчанию; текущие значения — в state.settings.xp. */
+const TASK_TYPES = [
+  { id: 'chore', name: 'Бытовая', xp: 10, hint: 'Покупки, мелкие дела' },
+  { id: 'normal', name: 'Обычная', xp: 25, hint: 'Средние задачи' },
+  { id: 'goal', name: 'Целевая', xp: 60, hint: 'Блог, деньги, карьера' },
+  { id: 'epic', name: 'Эпическая', xp: 200, hint: 'Босс: крупный рубеж' },
+];
+const TYPE_BY_ID = Object.fromEntries(TASK_TYPES.map((t) => [t.id, t]));
+
+const DEFAULT_STATS = ['Сила', 'Интеллект', 'Креатив', 'Дисциплина', 'Карьера', 'Творческая реализация', 'Проявленность', 'Харизма'];
+
+const REPEATS = { none: 'Разовый', daily: 'Каждый день', weekly: 'Каждую неделю' };
+
+function uid() {
+  return Array.from(crypto.getRandomValues(new Uint8Array(8)), (b) => b.toString(16).padStart(2, '0')).join('');
+}
+
 function defaultState(name) {
-  return {
-    schema: 1,
-    createdAt: Date.now(),
-    profile: { name: name || 'Игрок' },
-  };
+  return migrate({ schema: 1, createdAt: Date.now(), profile: { name: name || 'Игрок' } });
+}
+
+/**
+ * Доводит расшифрованные данные до текущей схемы.
+ * quests — список задач; log — журнал выполнений, из которого считается весь опыт:
+ * { id, questId, title, type, xp, stats: { statId: xp }, period, at }.
+ */
+function migrate(state) {
+  state.settings = state.settings || {};
+  state.settings.xp = Object.assign(Object.fromEntries(TASK_TYPES.map((t) => [t.id, t.xp])), state.settings.xp);
+  state.stats = state.stats || DEFAULT_STATS.map((name) => ({ id: uid(), name }));
+  state.quests = state.quests || [];
+  state.log = state.log || [];
+  state.schema = 2;
+  return state;
+}
+
+/* =====================================================================
+   ПРОКАЧКА
+   ===================================================================== */
+
+/** Опыт, нужный для перехода с уровня level на следующий. */
+function xpToNext(level) {
+  return Math.round(100 * Math.pow(level, 1.5));
+}
+
+function levelInfo(xp) {
+  let level = 1;
+  let into = xp;
+  while (into >= xpToNext(level)) {
+    into -= xpToNext(level);
+    level++;
+  }
+  return { level, into, need: xpToNext(level) };
+}
+
+/** Делит опыт поровну между характеристиками; остаток раздаётся по единице первым. */
+function splitXp(xp, statIds) {
+  const out = {};
+  if (!statIds.length) return out;
+  const base = Math.floor(xp / statIds.length);
+  let rest = xp - base * statIds.length;
+  for (const id of statIds) out[id] = base + (rest-- > 0 ? 1 : 0);
+  return out;
+}
+
+function totalXp() {
+  return session.state.log.reduce((sum, e) => sum + e.xp, 0);
+}
+
+function statXp() {
+  const map = new Map();
+  for (const e of session.state.log) {
+    for (const [id, xp] of Object.entries(e.stats)) map.set(id, (map.get(id) || 0) + xp);
+  }
+  return map;
+}
+
+function statName(id) {
+  const stat = session.state.stats.find((s) => s.id === id);
+  return stat ? stat.name : '—';
+}
+
+/* ---------- Периоды повторяющихся квестов ---------- */
+
+const pad = (n) => String(n).padStart(2, '0');
+
+function dayKey(d) {
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+}
+
+/** ISO-неделя: начинается в понедельник. */
+function weekKey(d) {
+  const t = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+  t.setDate(t.getDate() - ((t.getDay() + 6) % 7) + 3); // четверг этой недели
+  const jan4 = new Date(t.getFullYear(), 0, 4);
+  const week = 1 + Math.round(((t - jan4) / 864e5 - 3 + ((jan4.getDay() + 6) % 7)) / 7);
+  return `${t.getFullYear()}-W${pad(week)}`;
+}
+
+/** Текущий период квеста: null для разовых. */
+function periodKey(repeat, d = new Date()) {
+  if (repeat === 'daily') return 'd:' + dayKey(d);
+  if (repeat === 'weekly') return 'w:' + weekKey(d);
+  return null;
+}
+
+/** questId → запись журнала, которая отмечает квест выполненным сейчас. */
+function completionIndex() {
+  const { quests, log } = session.state;
+  const now = new Date();
+  const periods = new Map(quests.map((q) => [q.id, periodKey(q.repeat, now)]));
+  const map = new Map();
+  for (const e of log) {
+    if (periods.has(e.questId) && periods.get(e.questId) === e.period) map.set(e.questId, e);
+  }
+  return map;
 }
 
 /* =====================================================================
@@ -624,7 +1176,7 @@ async function unlockVault(password) {
   const record = Vault.read();
   const kdf = record.kdf;
   const key = await deriveKey(password, b64.decode(kdf.salt), kdf.iter);
-  const state = await decryptJSON(key, record); // неверный пароль → исключение
+  const state = migrate(await decryptJSON(key, record)); // неверный пароль → исключение
   session = { key, kdf, state };
   lastSavedAt = null;
 }
@@ -655,6 +1207,9 @@ function lock(reason) {
   if (!session) return;
   flushInputs();
   session = null; // ключ и расшифрованные данные больше недоступны
+  clearTimeout(renderTimer);
+  closeSheet();
+  clearToasts();
   if (document.activeElement) document.activeElement.blur();
   showLogin(reason);
 }
@@ -683,6 +1238,7 @@ const app = document.getElementById('app');
 
 function mount(templateId) {
   const node = document.getElementById(templateId).content.cloneNode(true);
+  app.className = '';
   app.replaceChildren(node);
   wireRevealButtons(app);
   return app.firstElementChild;
@@ -805,48 +1361,510 @@ function showWipe() {
   root.querySelector('[data-action="back"]').addEventListener('click', () => showLogin());
 }
 
-/* ---------- Главный экран (этап 1: статус хранилища) ---------- */
+/* ---------- Мелкие помощники интерфейса ---------- */
 
-let nameTimer = null;
+const ESC = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' };
+const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ESC[c]);
+const fmt = (n) => n.toLocaleString('ru-RU');
 
-function commitName() {
-  clearTimeout(nameTimer);
-  nameTimer = null;
-  const input = app.querySelector('[data-input="name"]');
-  if (!session || !input) return;
-  const name = input.value.trim() || 'Игрок';
-  if (name === session.state.profile.name) return;
-  session.state.profile.name = name;
-  save();
+/** Отложенное сохранение поля ввода; flushInputs() дописывает его перед блокировкой. */
+let pendingCommit = null;
+
+function commitLater(fn) {
+  if (pendingCommit) clearTimeout(pendingCommit.timer);
+  pendingCommit = { fn, timer: setTimeout(flushInputs, 500) };
 }
 
-/** Дописывает несохранённый ввод до блокировки. */
 function flushInputs() {
-  if (nameTimer) commitName();
+  if (!pendingCommit) return;
+  const { fn, timer } = pendingCommit;
+  clearTimeout(timer);
+  pendingCommit = null;
+  fn();
+}
+
+/** Кнопка опасного действия: первое нажатие спрашивает, второе выполняет. */
+function confirmPress(btn, question, action) {
+  if (btn.dataset.armed) return action();
+  const label = btn.textContent;
+  btn.dataset.armed = '1';
+  btn.classList.add('armed');
+  btn.textContent = question;
+  setTimeout(() => {
+    if (!btn.isConnected) return;
+    delete btn.dataset.armed;
+    btn.classList.remove('armed');
+    btn.textContent = label;
+  }, 3000);
+}
+
+/* ---------- Всплывающие уведомления ---------- */
+
+function toast({ title, main, sub, kind, action, ms = 4000 }) {
+  let box = document.getElementById('toasts');
+  if (!box) {
+    box = document.createElement('div');
+    box.id = 'toasts';
+    box.className = 'toasts';
+    document.body.append(box);
+  }
+  const el = document.createElement('div');
+  el.className = 'toast' + (kind ? ' ' + kind : '');
+  el.setAttribute('role', 'status');
+  el.innerHTML = '<div class="t-body"><div class="t-title"></div><div class="t-main"></div><div class="t-sub"></div></div>';
+  el.querySelector('.t-title').textContent = title;
+  el.querySelector('.t-main').textContent = main;
+  if (sub) el.querySelector('.t-sub').textContent = sub;
+  else el.querySelector('.t-sub').remove();
+
+  const dismiss = () => {
+    if (!el.isConnected || el.classList.contains('out')) return;
+    el.classList.add('out');
+    setTimeout(() => el.remove(), 250);
+  };
+  if (action) {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.textContent = action.label;
+    btn.addEventListener('click', () => { action.run(); dismiss(); });
+    el.append(btn);
+  }
+  box.append(el);
+  while (box.children.length > 3) box.firstElementChild.remove();
+  setTimeout(dismiss, ms);
+}
+
+function clearToasts() {
+  const box = document.getElementById('toasts');
+  if (box) box.replaceChildren();
+}
+
+/* ---------- Окно поверх экрана ---------- */
+
+let sheet = null;
+
+function openSheet(title, body) {
+  closeSheet();
+  sheet = document.createElement('div');
+  sheet.className = 'layer';
+  sheet.innerHTML = `<section class="sys" role="dialog" aria-modal="true" aria-label="${esc(title)}">
+      <div class="scan"></div>
+      <header class="sys-head"><div class="sys-icon">!</div><h2 class="sys-title">${esc(title)}</h2></header>
+      ${body}
+    </section>`;
+  sheet.addEventListener('click', (e) => {
+    if (e.target === sheet || e.target.closest('[data-action="close"]')) closeSheet();
+  });
+  document.body.append(sheet);
+  document.documentElement.classList.add('noscroll');
+  return sheet.querySelector('.sys');
+}
+
+function closeSheet() {
+  if (!sheet) return;
+  sheet.remove();
+  sheet = null;
+  document.documentElement.classList.remove('noscroll');
+}
+
+addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') closeSheet();
+});
+
+function sheetError(root, message) {
+  root.querySelector('[data-error]').textContent = message;
+  root.classList.remove('shake');
+  void root.offsetWidth;
+  root.classList.add('shake');
+}
+
+/* =====================================================================
+   ГЛАВНЫЙ ЭКРАН: вкладки «Квесты», «Характеристики», «Настройки»
+   ===================================================================== */
+
+const ui = { tab: 'quests', showAllDone: false };
+let renderTimer = null;
+
+function showHome() {
+  ui.tab = 'quests';
+  ui.showAllDone = false;
+  mount('tpl-shell');
+  app.classList.add('shell');
+  app.querySelector('.topbar [data-action="lock"]').addEventListener('click', () => lock('manual'));
+  app.querySelector('.tabbar').addEventListener('click', (e) => {
+    const btn = e.target.closest('[data-tab]');
+    if (!btn || btn.dataset.tab === ui.tab) return;
+    flushInputs();
+    ui.tab = btn.dataset.tab;
+    render();
+    scrollTo(0, 0);
+  });
+  app.querySelector('[data-view]').addEventListener('click', onViewClick);
+  render();
+}
+
+function renderTopbar() {
+  app.querySelector('.topbar [data-bind="name"]').textContent = session.state.profile.name;
+  app.querySelector('.topbar [data-bind="xp"]').textContent = fmt(totalXp()) + ' XP';
+}
+
+function render() {
+  clearTimeout(renderTimer);
+  if (!session || !app.classList.contains('shell')) return;
+  renderTopbar();
+  app.querySelectorAll('[data-tab]').forEach((b) => {
+    if (b.dataset.tab === ui.tab) b.setAttribute('aria-current', 'page');
+    else b.removeAttribute('aria-current');
+  });
+  const view = app.querySelector('[data-view]');
+  view.innerHTML = VIEWS[ui.tab]();
+  if (ui.tab === 'settings') wireSettings(view);
+  // Полоски заполняются с нуля — видно, сколько набрано
+  requestAnimationFrame(() => requestAnimationFrame(() => {
+    view.querySelectorAll('.bar > i[data-pct]').forEach((i) => { i.style.width = i.dataset.pct + '%'; });
+  }));
+}
+
+const VIEWS = { quests: questsView, stats: statsView, settings: settingsView };
+
+function onViewClick(e) {
+  const t = e.target.closest('[data-check], [data-edit], [data-stat], [data-action]');
+  if (!t || !session) return;
+  if (t.dataset.check) return toggleQuest(t.dataset.check, t);
+  if (t.dataset.edit) return openQuestEditor(findQuest(t.dataset.edit));
+  if (t.dataset.stat) return openStatEditor(session.state.stats.find((s) => s.id === t.dataset.stat));
+  switch (t.dataset.action) {
+    case 'new-quest': return openQuestEditor(null);
+    case 'new-stat': return openStatEditor(null);
+    case 'show-done': ui.showAllDone = !ui.showAllDone; return render();
+    case 'reset-xp': return resetXp();
+    case 'lock': return lock('manual');
+  }
+}
+
+/* ---------- Квесты ---------- */
+
+const DONE_PREVIEW = 5;
+
+function findQuest(id) {
+  return session.state.quests.find((q) => q.id === id);
+}
+
+function questsView() {
+  const { quests } = session.state;
+  const done = completionIndex();
+  const byNewest = (a, b) => b.createdAt - a.createdAt;
+  const recurring = quests.filter((q) => q.repeat !== 'none').sort(byNewest);
+  const active = quests.filter((q) => q.repeat === 'none' && !done.has(q.id)).sort(byNewest);
+  const finished = quests
+    .filter((q) => q.repeat === 'none' && done.has(q.id))
+    .sort((a, b) => done.get(b.id).at - done.get(a.id).at);
+
+  let html = '<button class="btn add" type="button" data-action="new-quest">+ Новый квест</button>';
+  if (!quests.length) {
+    return html + `<div class="section-h">Квесты</div>
+      <div class="panel empty"><b>Активных квестов нет</b>Добавьте первое дело — Система начислит опыт за выполнение.</div>`;
+  }
+  if (recurring.length) {
+    const left = recurring.filter((q) => !done.has(q.id)).length;
+    html += `<div class="section-h">Ежедневные квесты <span class="count">${recurring.length - left}/${recurring.length}</span></div>`;
+    html += recurring.map((q) => questCard(q, done.get(q.id))).join('');
+  }
+  html += `<div class="section-h">Квесты <span class="count">${active.length}</span></div>`;
+  html += active.length
+    ? active.map((q) => questCard(q, null)).join('')
+    : '<div class="panel empty">Все разовые квесты выполнены.</div>';
+  if (finished.length) {
+    const shown = ui.showAllDone ? finished : finished.slice(0, DONE_PREVIEW);
+    html += `<div class="section-h">Выполнено <span class="count">${finished.length}</span></div>`;
+    html += shown.map((q) => questCard(q, done.get(q.id))).join('');
+    if (finished.length > DONE_PREVIEW) {
+      html += `<button class="more" type="button" data-action="show-done">${ui.showAllDone ? 'Свернуть' : `Показать все (${finished.length})`}</button>`;
+    }
+  }
+  return html;
+}
+
+function questCard(q, entry) {
+  const xp = entry ? entry.xp : session.state.settings.xp[q.type];
+  const names = q.stats.map(statName).filter((n) => n !== '—');
+  const repeat = q.repeat === 'daily' ? '↻ день' : q.repeat === 'weekly' ? '↻ неделя' : '';
+  return `<article class="panel quest${entry ? ' done' : ''}">
+    <button class="qcheck" type="button" data-check="${q.id}" role="checkbox" aria-checked="${!!entry}" aria-label="${entry ? 'Снять отметку' : 'Выполнено'}: ${esc(q.title)}"><span class="qbox"></span></button>
+    <button class="qbody" type="button" data-edit="${q.id}">
+      <span class="qtitle">${esc(q.title)}</span>
+      ${q.note ? `<span class="qnote">${esc(q.note)}</span>` : ''}
+      <span class="chips">
+        <span class="chip t-${q.type}">${TYPE_BY_ID[q.type].name}</span>
+        ${repeat ? `<span class="chip">${repeat}</span>` : ''}
+        ${names.map((n) => `<span class="chip">${esc(n)}</span>`).join('')}
+      </span>
+    </button>
+    <span class="qxp">+${fmt(xp)}</span>
+  </article>`;
+}
+
+function toggleQuest(id, checkBtn) {
+  const q = findQuest(id);
+  if (!q) return;
+  const entry = completionIndex().get(id);
+  if (entry) return undoEntry(entry.id);
+
+  completeQuest(q);
+  // Даём досмотреть вспышку, потом квест переезжает в «Выполнено»
+  const card = checkBtn.closest('.quest');
+  card.classList.add('done', 'flash');
+  checkBtn.setAttribute('aria-checked', 'true');
+  renderTopbar();
+  clearTimeout(renderTimer);
+  renderTimer = setTimeout(render, 700);
+}
+
+function completeQuest(q) {
+  const { state } = session;
+  const xp = state.settings.xp[q.type];
+  const statIds = q.stats.filter((id) => state.stats.some((s) => s.id === id));
+  const before = statXp();
+  const entry = {
+    id: uid(),
+    questId: q.id,
+    title: q.title,
+    type: q.type,
+    xp,
+    stats: splitXp(xp, statIds),
+    period: periodKey(q.repeat),
+    at: Date.now(),
+  };
+  state.log.push(entry);
+  save();
+
+  const after = statXp();
+  toast({
+    title: 'Квест выполнен',
+    main: `+${fmt(xp)} XP`,
+    sub: Object.entries(entry.stats).map(([sid, v]) => `+${v} ${statName(sid)}`).join(' · '),
+    action: { label: 'Отменить', run: () => undoEntry(entry.id) },
+    ms: 6000,
+  });
+  for (const sid of statIds) {
+    const was = levelInfo(before.get(sid) || 0).level;
+    const now = levelInfo(after.get(sid) || 0).level;
+    if (now > was) toast({ title: 'Характеристика повышена', main: `${statName(sid)}: ур. ${now}`, kind: 'up', ms: 5000 });
+  }
+}
+
+/** Откат отметки: запись удаляется из журнала, опыт пересчитывается. */
+function undoEntry(entryId) {
+  if (!session) return;
+  const { log } = session.state;
+  const i = log.findIndex((e) => e.id === entryId);
+  if (i < 0) return;
+  const [entry] = log.splice(i, 1);
+  save();
+  toast({ title: 'Отметка снята', main: `−${fmt(entry.xp)} XP`, kind: 'minus', ms: 3000 });
+  render();
+}
+
+function openQuestEditor(quest) {
+  const { state } = session;
+  const q = quest || { title: '', note: '', type: 'normal', stats: [], repeat: 'none' };
+  const root = openSheet(quest ? 'Квест' : 'Новый квест', `
+    <form novalidate>
+      <label class="field"><span>Название</span>
+        <input name="title" type="text" maxlength="120" autocomplete="off" value="${esc(q.title)}">
+      </label>
+      <label class="field"><span>Заметка</span>
+        <textarea name="note" rows="2" maxlength="1000" placeholder="Необязательно">${esc(q.note)}</textarea>
+      </label>
+      <div class="field"><span>Тип</span>
+        <div class="choices types">${TASK_TYPES.map((t) => `
+          <label class="choice t-${t.id}"><input type="radio" name="type" value="${t.id}"${q.type === t.id ? ' checked' : ''}>
+            <span><b>${t.name}</b><small>+${fmt(state.settings.xp[t.id])} XP</small></span></label>`).join('')}
+        </div>
+      </div>
+      <div class="field"><span>Характеристики</span>
+        <div class="choices">${state.stats.map((s) => `
+          <label class="choice"><input type="checkbox" name="stats" value="${s.id}"${q.stats.includes(s.id) ? ' checked' : ''}>
+            <span>${esc(s.name)}</span></label>`).join('')}
+        </div>
+        <div class="hint" data-split></div>
+      </div>
+      <div class="field"><span>Повтор</span>
+        <div class="choices">${Object.entries(REPEATS).map(([v, label]) => `
+          <label class="choice"><input type="radio" name="repeat" value="${v}"${q.repeat === v ? ' checked' : ''}>
+            <span>${label}</span></label>`).join('')}
+        </div>
+      </div>
+      <p class="error" data-error></p>
+      <button class="btn" type="submit">${quest ? 'Сохранить' : 'Принять квест'}</button>
+      ${quest ? '<button class="btn ghost danger-text" type="button" data-action="delete">Удалить квест</button>' : ''}
+      <button class="btn ghost" type="button" data-action="close">Отмена</button>
+    </form>`);
+
+  const form = root.querySelector('form');
+  const f = form.elements;
+  const selectedStats = () => [...form.querySelectorAll('input[name="stats"]:checked')].map((i) => i.value);
+  const splitHint = root.querySelector('[data-split]');
+  const updateSplit = () => {
+    const parts = Object.entries(splitXp(state.settings.xp[f.type.value], selectedStats()));
+    splitHint.textContent = parts.length
+      ? parts.map(([id, v]) => `+${v} ${statName(id)}`).join(' · ')
+      : 'Опыт делится поровну между выбранными.';
+  };
+  form.addEventListener('change', updateSplit);
+  updateSplit();
+  if (!quest) f.title.focus();
+
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const title = f.title.value.trim();
+    const stats = selectedStats();
+    if (!title) return sheetError(root, 'Введите название квеста.');
+    if (!stats.length) return sheetError(root, 'Выберите хотя бы одну характеристику.');
+    const data = { title, note: f.note.value.trim(), type: f.type.value, stats, repeat: f.repeat.value };
+    if (quest) Object.assign(quest, data);
+    else state.quests.push({ id: uid(), createdAt: Date.now(), ...data });
+    save();
+    closeSheet();
+    render();
+  });
+
+  const del = root.querySelector('[data-action="delete"]');
+  if (del) {
+    del.addEventListener('click', () => confirmPress(del, 'Точно удалить? Нажмите ещё раз', () => {
+      // Заработанный опыт остаётся в журнале
+      state.quests = state.quests.filter((x) => x.id !== quest.id);
+      save();
+      closeSheet();
+      render();
+    }));
+  }
+}
+
+/* ---------- Характеристики ---------- */
+
+function statsView() {
+  const xpMap = statXp();
+  const cards = session.state.stats.map((s) => {
+    const xp = xpMap.get(s.id) || 0;
+    const info = levelInfo(xp);
+    return `<button class="panel stat" type="button" data-stat="${s.id}">
+      <span class="stat-top"><span class="stat-name">${esc(s.name)}</span><span class="stat-lv">Ур. ${info.level}</span></span>
+      <span class="bar"><i data-pct="${(info.into / info.need * 100).toFixed(1)}"></i></span>
+      <span class="stat-xp"><span>${fmt(info.into)} / ${fmt(info.need)} XP</span><span>всего ${fmt(xp)}</span></span>
+    </button>`;
+  }).join('');
+  return `<div class="section-h">Характеристики <span class="count">${session.state.stats.length}</span></div>
+    ${cards || '<div class="panel empty">Характеристик нет. Добавьте хотя бы одну, чтобы квесты могли её прокачивать.</div>'}
+    <button class="btn" type="button" data-action="new-stat">+ Характеристика</button>`;
+}
+
+function openStatEditor(stat) {
+  const { state } = session;
+  const root = openSheet(stat ? 'Характеристика' : 'Новая характеристика', `
+    <form novalidate>
+      <label class="field"><span>Название</span>
+        <input name="name" type="text" maxlength="32" autocomplete="off" autocapitalize="sentences" value="${stat ? esc(stat.name) : ''}">
+      </label>
+      <p class="error" data-error></p>
+      <button class="btn" type="submit">${stat ? 'Сохранить' : 'Добавить'}</button>
+      ${stat ? '<button class="btn ghost danger-text" type="button" data-action="delete">Удалить характеристику</button>' : ''}
+      <button class="btn ghost" type="button" data-action="close">Отмена</button>
+    </form>`);
+
+  const form = root.querySelector('form');
+  const input = form.elements.namedItem('name');
+  if (!stat) input.focus();
+
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const name = input.value.trim();
+    if (!name) return sheetError(root, 'Введите название.');
+    const taken = state.stats.some((s) => s !== stat && s.name.toLowerCase() === name.toLowerCase());
+    if (taken) return sheetError(root, 'Такая характеристика уже есть.');
+    if (stat) stat.name = name;
+    else state.stats.push({ id: uid(), name });
+    save();
+    closeSheet();
+    render();
+  });
+
+  const del = root.querySelector('[data-action="delete"]');
+  if (del) {
+    del.addEventListener('click', () => confirmPress(del, 'Опыт характеристики пропадёт. Удалить?', () => {
+      state.stats = state.stats.filter((s) => s.id !== stat.id);
+      for (const q of state.quests) q.stats = q.stats.filter((id) => id !== stat.id);
+      save();
+      closeSheet();
+      render();
+    }));
+  }
+}
+
+/* ---------- Настройки ---------- */
+
+function settingsView() {
+  const { state, kdf } = session;
+  return `<div class="section-h">Игрок</div>
+    <div class="panel pad">
+      <label class="field"><span>Имя игрока</span>
+        <input data-input="name" type="text" maxlength="40" autocomplete="off" autocapitalize="words" value="${esc(state.profile.name)}">
+      </label>
+    </div>
+
+    <div class="section-h">Опыт за задачи</div>
+    <div class="panel pad">
+      ${TASK_TYPES.map((t) => `
+        <label class="set-row t-${t.id}">
+          <span><b>${t.name}</b><small>${t.hint}</small></span>
+          <span class="xp-input"><input type="number" inputmode="numeric" min="1" max="10000" step="1" data-xp="${t.id}" value="${state.settings.xp[t.id]}">XP</span>
+        </label>`).join('')}
+      <button class="btn ghost" type="button" data-action="reset-xp">Вернуть значения по умолчанию</button>
+    </div>
+
+    <div class="section-h">Безопасность</div>
+    <div class="panel pad">
+      <div class="stat-row"><span>Хранилище</span><span class="ok">Зашифровано</span></div>
+      <div class="stat-row"><span>Шифр</span><span class="mono">AES-GCM-256</span></div>
+      <div class="stat-row"><span>Ключ</span><span class="mono">PBKDF2 · ${fmt(kdf.iter)}</span></div>
+      <div class="stat-row"><span>Сохранено</span><span class="mono" data-bind="saved">—</span></div>
+      <div class="stat-row"><span>Автоблокировка</span><span>5 мин или сворачивание</span></div>
+      <button class="btn" type="button" data-action="lock">Заблокировать</button>
+    </div>
+    <p class="footer-note">Этап 2 из 6 · общий уровень и ранги — на этапе 3</p>`;
+}
+
+function wireSettings(view) {
+  renderSavedAt();
+  const nameIn = view.querySelector('[data-input="name"]');
+  nameIn.addEventListener('input', () => {
+    app.querySelector('.topbar [data-bind="name"]').textContent = nameIn.value.trim() || 'Игрок';
+    commitLater(() => {
+      if (!session) return;
+      session.state.profile.name = nameIn.value.trim() || 'Игрок';
+      save();
+    });
+  });
+  view.querySelectorAll('[data-xp]').forEach((input) => {
+    input.addEventListener('change', () => {
+      const value = Math.min(10000, Math.max(1, Math.round(Number(input.value)) || TYPE_BY_ID[input.dataset.xp].xp));
+      input.value = value;
+      session.state.settings.xp[input.dataset.xp] = value;
+      save();
+    });
+  });
+}
+
+function resetXp() {
+  session.state.settings.xp = Object.fromEntries(TASK_TYPES.map((t) => [t.id, t.xp]));
+  save();
+  render();
+  toast({ title: 'Настройки', main: 'Опыт по умолчанию', ms: 2500 });
 }
 
 function renderSavedAt() {
   const el = app.querySelector('[data-bind="saved"]');
   if (el && lastSavedAt) el.textContent = new Date(lastSavedAt).toLocaleTimeString('ru-RU');
-}
-
-function showHome() {
-  const root = mount('tpl-home');
-  const { state, kdf } = session;
-  const nameOut = root.querySelector('[data-bind="name"]');
-  const nameIn = root.querySelector('[data-input="name"]');
-  nameOut.textContent = state.profile.name;
-  nameIn.value = state.profile.name;
-  root.querySelector('[data-bind="kdf"]').textContent = `PBKDF2 · ${kdf.iter.toLocaleString('ru-RU')}`;
-  renderSavedAt();
-
-  nameIn.addEventListener('input', () => {
-    nameOut.textContent = nameIn.value.trim() || 'Игрок';
-    clearTimeout(nameTimer);
-    nameTimer = setTimeout(commitName, 500);
-  });
-  nameIn.addEventListener('change', commitName);
-  root.querySelector('[data-action="lock"]').addEventListener('click', () => lock('manual'));
 }
 
 /* =====================================================================
