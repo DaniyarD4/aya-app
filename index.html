@@ -6,7 +6,7 @@
 <meta name="robots" content="noindex, nofollow">
 <meta name="referrer" content="no-referrer">
 <!-- Никаких сетевых запросов со страницы: CSP запрещает fetch/XHR, внешние скрипты, стили, шрифты и картинки -->
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src data: blob:; media-src data: blob:; manifest-src 'self'; worker-src 'self'; connect-src 'none'; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src 'self' data: blob:; media-src data: blob:; manifest-src 'self'; worker-src 'self'; connect-src 'none'; base-uri 'none'; form-action 'none'">
 <meta name="theme-color" content="#05070d">
 <meta name="color-scheme" content="dark">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -14,6 +14,8 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Система">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%2305070d'/%3E%3Crect x='10' y='10' width='44' height='44' rx='4' fill='none' stroke='%2366d0ff' stroke-width='4'/%3E%3Cpath d='M32 19v18' stroke='%2366d0ff' stroke-width='6' stroke-linecap='round'/%3E%3Ccircle cx='32' cy='45' r='3.5' fill='%2366d0ff'/%3E%3C/svg%3E">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <title>Система</title>
 <style>
 :root {
@@ -836,6 +838,23 @@ b[class^="r-"] { color: var(--rc); text-shadow: 0 0 8px var(--rc); }
 .log-sub { grid-column: 2 / 4; font-size: 12px; color: var(--text-faint); }
 .log-sub .chip { margin-right: 6px; padding: 1px 6px; font-size: 11px; }
 
+/* ---------- Бэкап ---------- */
+
+.backup-banner {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 16px;
+  padding: 12px 12px 12px 16px;
+  border-color: rgba(255, 197, 107, 0.55);
+  box-shadow: 0 0 14px rgba(255, 197, 107, 0.18), inset 0 0 16px rgba(255, 197, 107, 0.06);
+}
+.backup-banner p { flex: 1; margin: 0; font-size: 14px; line-height: 1.4; color: #ffe2b0; }
+.backup-banner p b { display: block; font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--warn); }
+.backup-banner .btn { width: auto; min-height: 44px; margin: 0; padding: 8px 14px; font-size: 13px; letter-spacing: 0.08em; }
+.warn-text { color: var(--warn); }
+.ios-hint { color: var(--text-dim); margin-top: 14px !important; padding: 12px; border: 1px dashed var(--line-soft); border-radius: 4px; font-size: 13px !important; }
+
 /* ---------- Настройки ---------- */
 
 .set-row {
@@ -1294,6 +1313,8 @@ html.noscroll, html.noscroll body { overflow: hidden; }
       <p class="error" data-error></p>
       <button class="btn" type="submit" data-submit>Принять</button>
     </form>
+    <button class="btn ghost" type="button" data-action="restore">Восстановить из бэкапа</button>
+    <p class="dim center ios-hint" data-ios-hint hidden>На iPhone сначала добавьте приложение на экран «Домой» (Поделиться → На экран «Домой») и задайте пароль уже там: у иконки своё хранилище, отдельное от Safari.</p>
   </section>
 </template>
 
@@ -1311,6 +1332,7 @@ html.noscroll, html.noscroll body { overflow: hidden; }
       <p class="error" data-error></p>
       <button class="btn" type="submit" data-submit>Войти</button>
     </form>
+    <button class="btn ghost" type="button" data-action="restore">Восстановить из бэкапа</button>
     <button class="btn ghost" type="button" data-action="forgot">Забыли пароль?</button>
   </section>
 </template>
@@ -1329,6 +1351,28 @@ html.noscroll, html.noscroll body { overflow: hidden; }
       <button class="btn danger" type="submit" data-submit>Стереть всё</button>
     </form>
     <button class="btn ghost" type="button" data-action="back">Назад</button>
+  </section>
+</template>
+
+<template id="tpl-import">
+  <section class="sys">
+    <div class="scan"></div>
+    <header class="sys-head"><div class="sys-icon">!</div><h1 class="sys-title">Восстановление</h1></header>
+    <p class="lead">Найден бэкап Системы.</p>
+    <p class="dim center" data-bind="exported"></p>
+    <form data-form="import" novalidate>
+      <input type="text" name="username" autocomplete="username" value="Система" hidden>
+      <label class="field"><span>Пароль бэкапа</span>
+        <span class="input-wrap"><input name="pw" type="password" autocomplete="current-password" required><button type="button" class="reveal" aria-label="Показать пароль" aria-pressed="false"></button></span>
+      </label>
+      <div class="warn" role="note" data-replace hidden>
+        <b>Замена данных</b>
+        <p>Данные на этом устройстве заменятся данными из бэкапа. Мастер-паролем станет пароль бэкапа.</p>
+      </div>
+      <p class="error" data-error></p>
+      <button class="btn" type="submit" data-submit>Восстановить</button>
+    </form>
+    <button class="btn ghost" type="button" data-action="back">Отмена</button>
   </section>
 </template>
 
@@ -1720,6 +1764,12 @@ function save() {
 
 function lock(reason) {
   if (!session) return;
+  endSession();
+  showLogin(reason);
+}
+
+/** Закрывает сессию: забывает ключ и данные, убирает всё, что было на экране. */
+function endSession() {
   flushInputs();
   session = null; // ключ и расшифрованные данные больше недоступны
   clearTimeout(renderTimer);
@@ -1727,7 +1777,6 @@ function lock(reason) {
   closeFx();
   clearToasts();
   if (document.activeElement) document.activeElement.blur();
-  showLogin(reason);
 }
 
 /* =====================================================================
@@ -1803,6 +1852,8 @@ function setBusy(button, busyText) {
 function showSetup() {
   const root = mount('tpl-setup');
   const form = root.querySelector('form');
+  root.querySelector('[data-action="restore"]').addEventListener('click', pickBackup);
+  if (isIOS() && !isStandalone()) root.querySelector('[data-ios-hint]').hidden = false;
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
     const name = form.player.value.trim();
@@ -1861,6 +1912,7 @@ function showLogin(reason) {
     }
   });
   root.querySelector('[data-action="forgot"]').addEventListener('click', showWipe);
+  root.querySelector('[data-action="restore"]').addEventListener('click', pickBackup);
 }
 
 /* ---------- Сброс ---------- */
@@ -2428,6 +2480,8 @@ function onViewClick(e) {
     case 'new-stat': return openStatEditor(null);
     case 'show-done': ui.showAllDone = !ui.showAllDone; return render();
     case 'more-log': ui.logLimit += LOG_PAGE; return render();
+    case 'export': return exportBackup();
+    case 'import': return pickBackup();
     case 'reset-xp': return resetXp();
     case 'reset-ranks': return resetRanks();
     case 'preview-level': return previewLevelUp();
@@ -2786,7 +2840,11 @@ function statusView() {
     </button>`;
   }).join('');
 
-  return `<section class="panel status r-${p.rank}">
+  const banner = backupDue()
+    ? `<div class="panel backup-banner"><p><b>Напоминание</b>Бэкап ${backupAge() === null ? 'ещё не делали' : `делали ${backupAgeText()}`}. Сохраните файл на случай потери телефона.</p>
+        <button class="btn" type="button" data-action="export">Бэкап</button></div>`
+    : '';
+  return `${banner}<section class="panel status r-${p.rank}">
       <header class="status-head"><span class="sys-icon">!</span><span>Статус</span></header>
       <div class="status-main">
         <div class="rank-badge"><small>Ранг</small><b>${p.rank}</b></div>
@@ -2893,6 +2951,21 @@ function settingsView() {
       </div>
     </div>
 
+    <div class="section-h">Данные</div>
+    <div class="panel pad">
+      <div class="stat-row"><span>Последний бэкап</span><span class="${backupDue() || backupAge() === null ? 'warn-text' : ''}">${backupAgeText()}</span></div>
+      <p class="hint">Файл зашифрован текущим мастер-паролем: без пароля его не открыть. Храните в «Файлах» или iCloud Drive.</p>
+      <button class="btn" type="button" data-action="export">Сохранить бэкап</button>
+      <button class="btn ghost" type="button" data-action="import">Восстановить из бэкапа</button>
+    </div>
+
+    <div class="section-h">Приложение</div>
+    <div class="panel pad">
+      <div class="stat-row"><span>Режим</span><span>${isStandalone() ? '<span class="ok">На экране «Домой»</span>' : 'Вкладка браузера'}</span></div>
+      <div class="stat-row"><span>Офлайн</span><span>${'serviceWorker' in navigator && navigator.serviceWorker.controller ? '<span class="ok">Готово</span>' : 'После перезапуска'}</span></div>
+      ${isIOS() && !isStandalone() ? '<p class="dim ios-hint">Чтобы поставить на iPhone: Safari → «Поделиться» → «На экран „Домой“». Данные вкладки и иконки хранятся отдельно — перенесите их бэкапом.</p>' : ''}
+    </div>
+
     <div class="section-h">Безопасность</div>
     <div class="panel pad">
       <div class="stat-row"><span>Хранилище</span><span class="ok">Зашифровано</span></div>
@@ -2902,7 +2975,7 @@ function settingsView() {
       <div class="stat-row"><span>Автоблокировка</span><span>5 мин или сворачивание</span></div>
       <button class="btn" type="button" data-action="lock">Заблокировать</button>
     </div>
-    <p class="footer-note">Этап 5 из 6 · бэкап, PWA и офлайн — на этапе 6</p>`;
+    <p class="footer-note">Система 1.0 · данные только на этом устройстве</p>`;
 }
 
 function wireSettings(view) {
@@ -2990,6 +3063,163 @@ function renderSavedAt() {
 }
 
 /* =====================================================================
+   БЭКАП: экспорт и импорт зашифрованного файла
+   В файле лежит та же зашифрованная запись, что и в хранилище, плюс дата экспорта.
+   ===================================================================== */
+
+const BACKUP_FORMAT = 'sistema-backup';
+const BACKUP_EVERY_MS = 7 * 864e5;
+
+const isIOS = () => /iPhone|iPad|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+const isStandalone = () => navigator.standalone === true || matchMedia('(display-mode: standalone)').matches;
+
+function backupAge() {
+  const { lastBackupAt } = session.state.settings;
+  return lastBackupAt ? Date.now() - lastBackupAt : null;
+}
+
+/** Пора ли напомнить о бэкапе: раз в неделю, если есть что терять. */
+function backupDue() {
+  const { state } = session;
+  if (!state.log.length) return false;
+  return Date.now() - (state.settings.lastBackupAt || state.createdAt) > BACKUP_EVERY_MS;
+}
+
+function backupAgeText() {
+  const age = backupAge();
+  if (age === null) return 'ещё не делали';
+  const days = Math.floor(age / 864e5);
+  if (days === 0) return 'сегодня';
+  if (days === 1) return 'вчера';
+  return `${days} ${plural(days, ['день', 'дня', 'дней'])} назад`;
+}
+
+async function exportBackup() {
+  flushInputs();
+  await saveChain; // в файл попадает последнее сохранённое состояние
+  const backup = { format: BACKUP_FORMAT, v: 1, exportedAt: Date.now(), vault: Vault.read() };
+  const name = `sistema-backup-${dayKey(new Date())}.json`;
+  const file = new File([JSON.stringify(backup)], name, { type: 'application/json' });
+  try {
+    // На телефоне — меню «Поделиться» («Сохранить в Файлы»), на компьютере — обычная загрузка
+    if (matchMedia('(pointer: coarse)').matches && navigator.canShare && navigator.canShare({ files: [file] })) {
+      await navigator.share({ files: [file], title: 'Бэкап Системы' });
+    } else {
+      const url = URL.createObjectURL(file);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = name;
+      document.body.append(a);
+      a.click();
+      a.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 10000);
+    }
+  } catch (err) {
+    if (err && err.name === 'AbortError') return; // закрыли меню «Поделиться»
+    console.error(err);
+    toast({ title: 'Бэкап', main: 'Не удалось сохранить файл', kind: 'minus' });
+    return;
+  }
+  if (!session) return;
+  session.state.settings.lastBackupAt = Date.now();
+  save();
+  toast({ title: 'Бэкап', main: 'Файл сохранён', sub: 'Зашифрован текущим паролем', ms: 4000 });
+  render();
+}
+
+/* Одно поле выбора файла на всё приложение — живёт вне #app и переживает блокировку */
+const fileInput = document.createElement('input');
+fileInput.type = 'file';
+fileInput.accept = '.json,application/json';
+fileInput.style.cssText = 'position:fixed;left:-1000px;top:0;width:1px;height:1px;opacity:0';
+fileInput.tabIndex = -1;
+fileInput.setAttribute('aria-hidden', 'true');
+document.body.append(fileInput);
+fileInput.addEventListener('change', () => {
+  const file = fileInput.files[0];
+  fileInput.value = '';
+  if (file) startImport(file);
+});
+
+function pickBackup() {
+  fileInput.click();
+}
+
+async function startImport(file) {
+  let backup = null;
+  if (file.size < 20 * 1024 * 1024) {
+    try { backup = JSON.parse(await file.text()); } catch (err) { backup = null; }
+  }
+  const v = backup && backup.vault;
+  const valid = backup && backup.format === BACKUP_FORMAT && v && v.kdf && v.kdf.salt && v.kdf.iter && v.iv && v.ct;
+  if (!valid) {
+    if (session) toast({ title: 'Импорт', main: 'Это не бэкап Системы', kind: 'minus' });
+    else showError('Этот файл не похож на бэкап Системы.');
+    return;
+  }
+  if (session) endSession();
+  showImport(backup);
+}
+
+function showImport(backup) {
+  const root = mount('tpl-import');
+  const form = root.querySelector('form');
+  const when = new Date(backup.exportedAt);
+  root.querySelector('[data-bind="exported"]').textContent = isNaN(when)
+    ? 'Введите пароль, которым он зашифрован.'
+    : `Сделан ${when.toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' })}, ${when.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' })}. Введите пароль, которым он зашифрован.`;
+  if (Vault.exists()) root.querySelector('[data-replace]').hidden = false;
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const pw = form.pw.value;
+    if (!pw) return showError('Введите пароль бэкапа.');
+    const btn = form.querySelector('[data-submit]');
+    setBusy(btn, 'Расшифровка…');
+    try {
+      const { kdf } = backup.vault;
+      const key = await deriveKey(pw, b64.decode(kdf.salt), kdf.iter);
+      const state = migrate(await decryptJSON(key, backup.vault));
+      Vault.write(backup.vault);
+      session = { key, kdf, state };
+      lastSavedAt = null;
+      // Данные совпадают с файлом — значит, бэкап этих данных уже есть
+      if (backup.exportedAt > (state.settings.lastBackupAt || 0)) {
+        state.settings.lastBackupAt = backup.exportedAt;
+        save();
+      }
+      if (navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(() => {});
+      showHome();
+      toast({ title: 'Восстановление', main: 'Бэкап восстановлен', sub: `${fmt(state.log.length)} ${plural(state.log.length, ['запись', 'записи', 'записей'])} в журнале`, kind: 'up', ms: 4500 });
+    } catch (err) {
+      setBusy(btn, null);
+      if (err && err.name === 'OperationError') {
+        form.pw.value = '';
+        showError('Неверный пароль бэкапа.');
+      } else {
+        console.error(err);
+        showError('Бэкап повреждён или в неизвестном формате.');
+      }
+    }
+  });
+  root.querySelector('[data-action="back"]').addEventListener('click', boot);
+}
+
+/* =====================================================================
+   PWA: офлайн через service worker
+   ===================================================================== */
+
+function registerServiceWorker() {
+  if (!('serviceWorker' in navigator) || !window.isSecureContext) return;
+  const hadController = !!navigator.serviceWorker.controller;
+  navigator.serviceWorker.register('sw.js').catch(() => {});
+  // Новая версия встала — старый код работает до перезапуска
+  navigator.serviceWorker.addEventListener('controllerchange', () => {
+    if (hadController && session) toast({ title: 'Система', main: 'Обновление установлено', sub: 'Перезапустите приложение', ms: 6000 });
+  });
+}
+
+/* =====================================================================
    ЗАПУСК
    ===================================================================== */
 
@@ -2999,6 +3229,7 @@ function boot() {
   else showSetup();
 }
 
+registerServiceWorker();
 boot();
 </script>
 </body>
