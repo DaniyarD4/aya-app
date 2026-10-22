@@ -753,6 +753,89 @@ b[class^="r-"] { color: var(--rc); text-shadow: 0 0 8px var(--rc); }
 .stat-grid + .btn { margin-top: 16px; }
 @media (max-width: 340px) { .stat-grid { grid-template-columns: 1fr; } }
 
+/* ---------- Журнал и статистика ---------- */
+
+.counters.four { grid-template-columns: 1fr 1fr; }
+.counters .streak b { color: #ffc56b; text-shadow: 0 0 10px rgba(255, 197, 107, 0.6); }
+.counters .streak.cold b { color: var(--text-dim); text-shadow: none; }
+.streak-hint { margin: 10px 0 0; font-size: 13px; text-align: center; color: var(--text-dim); }
+.streak-hint.warn { color: var(--warn); }
+
+.chart { padding: 14px 16px 12px; margin-top: 12px; }
+.chart-head { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; }
+.chart-head b { font-size: 14px; font-weight: 600; }
+.chart-head span { font-family: var(--mono); font-size: 13px; color: var(--text-dim); }
+.bars {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  align-items: end;
+  height: 150px;
+  margin-top: 10px;
+  border-bottom: 1px solid rgba(120, 205, 255, 0.18);
+}
+.bar-col {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  padding: 0;
+  background: none;
+  border: 0;
+  cursor: pointer;
+}
+.bar-val {
+  min-height: 18px;
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--text);
+  visibility: hidden;
+}
+.bar-col.lbl .bar-val, .bar-col.sel .bar-val { visibility: visible; }
+.bar-track { position: relative; width: 22px; height: calc(100% - 22px); display: flex; align-items: flex-end; }
+.bar-track > i {
+  display: block;
+  width: 100%;
+  height: 0;
+  border-radius: 4px 4px 0 0;
+  background: var(--accent);
+  box-shadow: 0 0 10px rgba(102, 208, 255, 0.45);
+  transition: height 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.bar-col.sel .bar-track > i { background: var(--accent-2); }
+.bar-days { display: grid; grid-template-columns: repeat(7, 1fr); margin-top: 6px; }
+.bar-days span { font-size: 11px; text-align: center; color: var(--text-faint); }
+.bar-days span.today { color: var(--text); font-weight: 600; }
+
+.day-h {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 10px;
+  margin: 22px 0 8px;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+.day-h span { font-family: var(--mono); font-weight: 400; letter-spacing: 0; text-transform: none; color: var(--text-dim); }
+.log-list { padding: 2px 14px; }
+.log-row {
+  display: grid;
+  grid-template-columns: 44px 1fr auto;
+  gap: 4px 10px;
+  align-items: baseline;
+  padding: 11px 0;
+  border-bottom: 1px solid rgba(120, 205, 255, 0.1);
+}
+.log-row:last-child { border-bottom: 0; }
+.log-time { font-family: var(--mono); font-size: 12px; color: var(--text-faint); }
+.log-title { font-size: 15px; overflow-wrap: anywhere; }
+.log-xp { font-family: var(--mono); font-size: 14px; font-weight: 700; color: var(--accent-2); }
+.log-sub { grid-column: 2 / 4; font-size: 12px; color: var(--text-faint); }
+.log-sub .chip { margin-right: 6px; padding: 1px 6px; font-size: 11px; }
+
 /* ---------- Настройки ---------- */
 
 .set-row {
@@ -1268,6 +1351,10 @@ html.noscroll, html.noscroll body { overflow: hidden; }
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M8 12l3 3 5-6"/></svg>
       <span>Квесты</span>
     </button>
+    <button type="button" data-tab="journal">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19V5"/><path d="M4 19h16"/><path d="M8 16v-4"/><path d="M12 16V8"/><path d="M16 16v-6"/></svg>
+      <span>Журнал</span>
+    </button>
     <button type="button" data-tab="settings">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>
       <span>Настройки</span>
@@ -1481,6 +1568,67 @@ function playerInfo(xp = totalXp()) {
 function statName(id) {
   const stat = session.state.stats.find((s) => s.id === id);
   return stat ? stat.name : '—';
+}
+
+/* ---------- Статистика: опыт за день и неделю, серия дней ---------- */
+
+/** Русское склонение: plural(3, ['день', 'дня', 'дней']) → 'дня'. */
+function plural(n, forms) {
+  const m10 = n % 10;
+  const m100 = n % 100;
+  if (m10 === 1 && m100 !== 11) return forms[0];
+  if (m10 >= 2 && m10 <= 4 && (m100 < 12 || m100 > 14)) return forms[1];
+  return forms[2];
+}
+
+function addDays(d, n) {
+  const t = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+  t.setDate(t.getDate() + n);
+  return t;
+}
+
+/** dayKey → { xp, count } по журналу. */
+function xpByDay() {
+  const map = new Map();
+  for (const e of session.state.log) {
+    const key = dayKey(new Date(e.at));
+    const day = map.get(key) || { xp: 0, count: 0 };
+    day.xp += e.xp;
+    day.count++;
+    map.set(key, day);
+  }
+  return map;
+}
+
+function weekXp(now = new Date()) {
+  const week = weekKey(now);
+  return session.state.log.reduce((sum, e) => sum + (weekKey(new Date(e.at)) === week ? e.xp : 0), 0);
+}
+
+/**
+ * Серия — дни подряд хотя бы с одним выполненным квестом.
+ * Если сегодня ещё ничего не сделано, серия жива до конца дня и считается со вчера.
+ */
+function streakInfo(now = new Date()) {
+  const days = xpByDay();
+  const todayDone = days.has(dayKey(now));
+  let d = todayDone ? now : addDays(now, -1);
+  let current = 0;
+  while (days.has(dayKey(d))) {
+    current++;
+    d = addDays(d, -1);
+  }
+  let best = 0;
+  let run = 0;
+  let prev = null;
+  for (const key of [...days.keys()].sort()) {
+    const [y, m, dd] = key.split('-').map(Number);
+    const date = new Date(y, m - 1, dd);
+    run = prev && dayKey(addDays(prev, 1)) === key ? run + 1 : 1;
+    best = Math.max(best, run);
+    prev = date;
+  }
+  return { current, best, todayDone };
 }
 
 /* ---------- Периоды повторяющихся квестов ---------- */
@@ -2210,12 +2358,14 @@ function setTopbarBar(level, pct) {
    ГЛАВНЫЙ ЭКРАН: вкладки «Статус», «Квесты», «Настройки»
    ===================================================================== */
 
-const ui = { tab: 'status', showAllDone: false };
+const LOG_PAGE = 50;
+const ui = { tab: 'status', showAllDone: false, logLimit: LOG_PAGE };
 let renderTimer = null;
 
 function showHome() {
   ui.tab = 'status';
   ui.showAllDone = false;
+  ui.logLimit = LOG_PAGE;
   mount('tpl-shell');
   app.classList.add('shell');
   app.querySelector('.topbar [data-action="lock"]').addEventListener('click', () => lock('manual'));
@@ -2224,6 +2374,7 @@ function showHome() {
     if (!btn || btn.dataset.tab === ui.tab) return;
     flushInputs();
     ui.tab = btn.dataset.tab;
+    ui.logLimit = LOG_PAGE;
     render();
     scrollTo(0, 0);
   });
@@ -2253,14 +2404,22 @@ function render() {
   // Полоски заполняются с нуля — видно, сколько набрано
   requestAnimationFrame(() => requestAnimationFrame(() => {
     view.querySelectorAll('.bar > i[data-pct]').forEach((i) => { i.style.width = i.dataset.pct + '%'; });
+    view.querySelectorAll('.bar-track > i[data-h]').forEach((i) => { i.style.height = i.dataset.h + '%'; });
   }));
 }
 
-const VIEWS = { status: statusView, quests: questsView, settings: settingsView };
+const VIEWS = { status: statusView, quests: questsView, journal: journalView, settings: settingsView };
 
 function onViewClick(e) {
-  const t = e.target.closest('[data-check], [data-edit], [data-stat], [data-action]');
+  const t = e.target.closest('[data-check], [data-edit], [data-stat], [data-action], [data-day]');
   if (!t || !session) return;
+  if (t.dataset.day !== undefined) {
+    // Нажатие на столбик показывает его значение
+    const was = t.classList.contains('sel');
+    t.parentElement.querySelectorAll('.sel').forEach((c) => c.classList.remove('sel'));
+    if (!was) t.classList.add('sel');
+    return;
+  }
   if (t.dataset.check) return toggleQuest(t.dataset.check, t);
   if (t.dataset.edit) return openQuestEditor(findQuest(t.dataset.edit));
   if (t.dataset.stat) return openStatEditor(session.state.stats.find((s) => s.id === t.dataset.stat));
@@ -2268,6 +2427,7 @@ function onViewClick(e) {
     case 'new-quest': return openQuestEditor(null);
     case 'new-stat': return openStatEditor(null);
     case 'show-done': ui.showAllDone = !ui.showAllDone; return render();
+    case 'more-log': ui.logLimit += LOG_PAGE; return render();
     case 'reset-xp': return resetXp();
     case 'reset-ranks': return resetRanks();
     case 'preview-level': return previewLevelUp();
@@ -2365,6 +2525,7 @@ function completeQuest(q) {
   const statIds = q.stats.filter((id) => state.stats.some((s) => s.id === id));
   const before = statXp();
   const playerBefore = playerInfo();
+  const firstToday = !streakInfo().todayDone;
   const entry = {
     id: uid(),
     questId: q.id,
@@ -2396,6 +2557,18 @@ function completeQuest(q) {
     action: { label: 'Отменить', run: () => undoEntry(entry.id) },
     ms: 6000,
   });
+
+  if (firstToday) {
+    const { current, best } = streakInfo();
+    if (current >= 2) {
+      toast({
+        title: current >= best ? 'Серия · рекорд' : 'Серия продлена',
+        main: `${current} ${plural(current, ['день', 'дня', 'дней'])} подряд`,
+        kind: 'up',
+        ms: 4500,
+      });
+    }
+  }
 
   // Ранг важнее уровня: при повышении ранга показываем одно, самое эффектное окно
   if (rankUp) {
@@ -2500,6 +2673,98 @@ function openQuestEditor(quest) {
   }
 }
 
+/* ---------- Журнал ---------- */
+
+const WEEKDAYS = ['Вс', 'Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб'];
+
+function countersHtml() {
+  const days = xpByDay();
+  const today = days.get(dayKey(new Date()));
+  const st = streakInfo();
+  return `<div class="counters four">
+      <div><b>${fmt(today ? today.xp : 0)}</b><small>XP сегодня</small></div>
+      <div><b>${fmt(weekXp())}</b><small>XP за неделю</small></div>
+      <div class="streak${st.todayDone ? '' : ' cold'}"><b>${st.current}</b><small>${plural(st.current, ['день', 'дня', 'дней'])} подряд</small></div>
+      <div><b>${fmt(session.state.log.length)}</b><small>Квестов выполнено</small></div>
+    </div>
+    ${st.current > 0 && !st.todayDone ? '<p class="streak-hint warn">Выполните квест сегодня, чтобы не прервать серию.</p>' : ''}`;
+}
+
+function dayTitle(date) {
+  const key = dayKey(date);
+  if (key === dayKey(new Date())) return 'Сегодня';
+  if (key === dayKey(addDays(new Date(), -1))) return 'Вчера';
+  return date.toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', weekday: 'short' });
+}
+
+function chartHtml() {
+  const days = xpByDay();
+  const now = new Date();
+  const cols = [];
+  for (let i = 6; i >= 0; i--) {
+    const d = addDays(now, -i);
+    const day = days.get(dayKey(d));
+    cols.push({ d, xp: day ? day.xp : 0, today: i === 0 });
+  }
+  const max = Math.max(...cols.map((c) => c.xp));
+  const maxIdx = max > 0 ? cols.findIndex((c) => c.xp === max) : -1;
+  const sum = cols.reduce((a, c) => a + c.xp, 0);
+  return `<div class="panel chart">
+      <div class="chart-head"><b>Опыт за 7 дней</b><span>${fmt(sum)} XP</span></div>
+      <div class="bars">${cols.map((c, i) => `
+        <button class="bar-col${c.today || i === maxIdx ? ' lbl' : ''}" type="button" data-day="${i}" aria-label="${dayTitle(c.d)}: ${fmt(c.xp)} XP">
+          <span class="bar-val">${fmt(c.xp)}</span>
+          <span class="bar-track"><i data-h="${max ? (c.xp / max * 100).toFixed(1) : 0}"></i></span>
+        </button>`).join('')}
+      </div>
+      <div class="bar-days">${cols.map((c) => `<span${c.today ? ' class="today"' : ''}>${WEEKDAYS[c.d.getDay()]}</span>`).join('')}</div>
+    </div>`;
+}
+
+function journalView() {
+  const { log } = session.state;
+  const st = streakInfo();
+  let html = `<div class="section-h">Статистика</div>
+    <div class="panel pad">
+      ${countersHtml()}
+      <p class="streak-hint">Рекорд серии: ${st.best} ${plural(st.best, ['день', 'дня', 'дней'])}</p>
+    </div>
+    ${chartHtml()}
+    <div class="section-h">Журнал <span class="count">${log.length}</span></div>`;
+  if (!log.length) {
+    return html + '<div class="panel empty"><b>Записей пока нет</b>Здесь появится каждый выполненный квест с датой и опытом.</div>';
+  }
+  const entries = log.slice().sort((a, b) => b.at - a.at);
+  const shown = entries.slice(0, ui.logLimit);
+  const days = xpByDay();
+  let currentKey = null;
+  let rows = '';
+  const flush = () => { if (rows) html += `<div class="panel log-list">${rows}</div>`; rows = ''; };
+  for (const e of shown) {
+    const date = new Date(e.at);
+    const key = dayKey(date);
+    if (key !== currentKey) {
+      flush();
+      const day = days.get(key);
+      html += `<div class="day-h">${dayTitle(date)}<span>+${fmt(day.xp)} XP · ${day.count} ${plural(day.count, ['квест', 'квеста', 'квестов'])}</span></div>`;
+      currentKey = key;
+    }
+    const stats = Object.entries(e.stats).map(([id, v]) => `+${v} ${esc(statName(id))}`).join(' · ');
+    const type = TYPE_BY_ID[e.type];
+    rows += `<div class="log-row">
+        <span class="log-time">${date.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' })}</span>
+        <span class="log-title">${esc(e.title)}</span>
+        <span class="log-xp">+${fmt(e.xp)}</span>
+        <span class="log-sub">${type ? `<span class="chip t-${e.type}">${type.name}</span>` : ''}${stats}</span>
+      </div>`;
+  }
+  flush();
+  if (entries.length > shown.length) {
+    html += `<button class="more" type="button" data-action="more-log">Показать ещё (${entries.length - shown.length})</button>`;
+  }
+  return html;
+}
+
 /* ---------- Статус: персонаж и характеристики ---------- */
 
 function statusView() {
@@ -2534,10 +2799,7 @@ function statusView() {
       <span class="bar big"><i data-pct="${(p.into / p.need * 100).toFixed(1)}"></i></span>
       <div class="stat-xp"><span>${fmt(p.into)} / ${fmt(p.need)} XP</span><span>до ур. ${p.level + 1}: ${fmt(p.need - p.into)}</span></div>
       <p class="status-next">${nextLine}</p>
-      <div class="counters">
-        <div><b>${fmt(p.xp)}</b><small>Всего опыта</small></div>
-        <div><b>${fmt(state.log.length)}</b><small>Квестов выполнено</small></div>
-      </div>
+      ${countersHtml()}
     </section>
 
     <div class="section-h">Характеристики <span class="count">${state.stats.length}</span></div>
@@ -2640,7 +2902,7 @@ function settingsView() {
       <div class="stat-row"><span>Автоблокировка</span><span>5 мин или сворачивание</span></div>
       <button class="btn" type="button" data-action="lock">Заблокировать</button>
     </div>
-    <p class="footer-note">Этап 4 из 6 · история, статистика и серия дней — на этапе 5</p>`;
+    <p class="footer-note">Этап 5 из 6 · бэкап, PWA и офлайн — на этапе 6</p>`;
 }
 
 function wireSettings(view) {
