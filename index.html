@@ -1,0 +1,3236 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<meta name="referrer" content="no-referrer">
+<!-- Никаких сетевых запросов со страницы: CSP запрещает fetch/XHR, внешние скрипты, стили, шрифты и картинки -->
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src 'self' data: blob:; media-src data: blob:; manifest-src 'self'; worker-src 'self'; connect-src 'none'; base-uri 'none'; form-action 'none'">
+<meta name="theme-color" content="#05070d">
+<meta name="color-scheme" content="dark">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Система">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%2305070d'/%3E%3Crect x='10' y='10' width='44' height='44' rx='4' fill='none' stroke='%2366d0ff' stroke-width='4'/%3E%3Cpath d='M32 19v18' stroke='%2366d0ff' stroke-width='6' stroke-linecap='round'/%3E%3Ccircle cx='32' cy='45' r='3.5' fill='%2366d0ff'/%3E%3C/svg%3E">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<title>Система</title>
+<style>
+:root {
+  --bg: #05070d;
+  --bg-2: #0a1222;
+  --panel: rgba(8, 18, 36, 0.86);
+  --line: rgba(120, 205, 255, 0.75);
+  --line-soft: rgba(120, 205, 255, 0.28);
+  --glow: rgba(64, 170, 255, 0.55);
+  --accent: #66d0ff;
+  --accent-2: #a9e6ff;
+  --text: #e6f4ff;
+  --text-dim: #8fb0c8;
+  --text-faint: #56738a;
+  --danger: #ff5f7a;
+  --danger-glow: rgba(255, 80, 110, 0.45);
+  --warn: #ffc56b;
+  --ok: #6dffc0;
+  --font: -apple-system, "SF Pro Display", system-ui, "Segoe UI", Roboto, sans-serif;
+  --mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  --safe-t: env(safe-area-inset-top, 0px);
+  --safe-b: env(safe-area-inset-bottom, 0px);
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  min-height: 100%;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font);
+  -webkit-font-smoothing: antialiased;
+  -webkit-text-size-adjust: 100%;
+  -webkit-tap-highlight-color: transparent;
+}
+
+body {
+  min-height: 100vh;
+  min-height: 100dvh;
+  overflow-x: hidden;
+  background:
+    radial-gradient(120% 70% at 50% -10%, rgba(40, 110, 220, 0.28), transparent 60%),
+    radial-gradient(90% 60% at 50% 115%, rgba(30, 80, 190, 0.22), transparent 60%),
+    var(--bg);
+}
+
+/* Тонкая голографическая сетка на фоне */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background-image:
+    linear-gradient(rgba(100, 190, 255, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(100, 190, 255, 0.05) 1px, transparent 1px);
+  background-size: 32px 32px;
+  mask-image: radial-gradient(ellipse at center, #000 30%, transparent 80%);
+  -webkit-mask-image: radial-gradient(ellipse at center, #000 30%, transparent 80%);
+}
+
+button, input { font: inherit; color: inherit; }
+button { touch-action: manipulation; }
+
+#app {
+  position: relative;
+  min-height: 100vh;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: calc(24px + var(--safe-t)) 16px calc(24px + var(--safe-b));
+}
+
+/* ---------- Окно «Система» ---------- */
+
+.sys {
+  position: relative;
+  width: 100%;
+  max-width: 440px;
+  padding: 22px 20px 24px;
+  background:
+    linear-gradient(180deg, rgba(110, 200, 255, 0.07), transparent 40%),
+    var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  box-shadow:
+    0 0 0 1px rgba(120, 205, 255, 0.12),
+    0 0 18px var(--glow),
+    0 0 60px rgba(40, 130, 255, 0.18),
+    inset 0 0 28px rgba(70, 170, 255, 0.14);
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+  animation: sys-open 0.55s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  transform-origin: center;
+}
+
+/* Уголки-скобки */
+.sys::before, .sys::after {
+  content: "";
+  position: absolute;
+  width: 18px;
+  height: 18px;
+  border: 2px solid var(--accent-2);
+  filter: drop-shadow(0 0 6px var(--accent));
+  pointer-events: none;
+}
+.sys::before { top: -3px; left: -3px; border-right: 0; border-bottom: 0; }
+.sys::after { bottom: -3px; right: -3px; border-left: 0; border-top: 0; }
+
+/* Бегущая полоса сканирования */
+.sys > .scan {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  border-radius: inherit;
+  pointer-events: none;
+}
+.sys > .scan::after {
+  content: "";
+  position: absolute;
+  left: 0; right: 0;
+  height: 40%;
+  top: -40%;
+  background: linear-gradient(180deg, transparent, rgba(120, 210, 255, 0.07), transparent);
+  animation: scan 5s linear infinite;
+}
+
+.sys > *:not(.scan) { animation: sys-content 0.4s 0.35s ease-out both; }
+
+.sys-head {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding-bottom: 14px;
+  margin-bottom: 18px;
+  border-bottom: 1px solid var(--line-soft);
+}
+.sys-icon {
+  flex: none;
+  width: 30px;
+  height: 30px;
+  display: grid;
+  place-items: center;
+  border: 1.5px solid var(--accent-2);
+  border-radius: 4px;
+  font-weight: 800;
+  color: var(--accent-2);
+  text-shadow: 0 0 8px var(--accent);
+  box-shadow: 0 0 10px var(--glow), inset 0 0 8px rgba(100, 200, 255, 0.25);
+}
+.sys-title {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  color: var(--accent-2);
+  text-shadow: 0 0 10px var(--accent);
+}
+
+.sys p { margin: 0 0 12px; line-height: 1.5; color: var(--text); }
+.sys .lead { font-size: 17px; text-align: center; }
+.sys .dim { color: var(--text-dim); font-size: 14px; }
+.sys .hl { color: var(--accent-2); text-shadow: 0 0 8px rgba(102, 208, 255, 0.6); font-weight: 600; }
+.center { text-align: center; }
+
+/* ---------- Поля ---------- */
+
+.field { display: block; margin: 16px 0 0; }
+.field > span {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 12px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+.input-wrap { position: relative; }
+.field input {
+  width: 100%;
+  min-height: 52px;
+  padding: 12px 14px;
+  font-size: 17px; /* ≥16px: iOS не зумит при фокусе */
+  background: rgba(4, 10, 22, 0.75);
+  border: 1px solid var(--line-soft);
+  border-radius: 4px;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.field input:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 1px var(--accent), 0 0 14px var(--glow);
+}
+.input-wrap input { padding-right: 56px; }
+.reveal {
+  position: absolute;
+  top: 0; right: 0;
+  width: 52px;
+  height: 52px;
+  display: grid;
+  place-items: center;
+  background: none;
+  border: 0;
+  color: var(--text-dim);
+  cursor: pointer;
+}
+.reveal svg { width: 22px; height: 22px; }
+.reveal[aria-pressed="true"] { color: var(--accent); }
+
+.hint { margin-top: 6px; font-size: 13px; color: var(--text-faint); }
+
+.warn {
+  margin: 20px 0 0;
+  padding: 14px;
+  border: 1px solid rgba(255, 95, 122, 0.55);
+  border-radius: 4px;
+  background: rgba(255, 60, 90, 0.08);
+  box-shadow: inset 0 0 18px rgba(255, 60, 90, 0.08);
+}
+.warn b {
+  display: block;
+  margin-bottom: 4px;
+  color: var(--danger);
+  letter-spacing: 0.12em;
+  font-size: 13px;
+  text-transform: uppercase;
+}
+.warn p { margin: 0; font-size: 14px; color: #ffd6dd; }
+
+.check {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  margin-top: 14px;
+  min-height: 44px;
+  cursor: pointer;
+  font-size: 15px;
+  line-height: 1.4;
+}
+.check input {
+  flex: none;
+  appearance: none;
+  -webkit-appearance: none;
+  width: 26px;
+  height: 26px;
+  margin: 0;
+  border: 1.5px solid var(--line);
+  border-radius: 4px;
+  background: rgba(4, 10, 22, 0.75);
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+}
+.check input::after {
+  content: "";
+  width: 12px;
+  height: 7px;
+  border-left: 2.5px solid var(--bg);
+  border-bottom: 2.5px solid var(--bg);
+  transform: translateY(-2px) rotate(-45deg) scale(0);
+  transition: transform 0.15s;
+}
+.check input:checked { background: var(--accent); box-shadow: 0 0 12px var(--glow); }
+.check input:checked::after { transform: translateY(-2px) rotate(-45deg) scale(1); }
+
+/* ---------- Кнопки ---------- */
+
+.btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  min-height: 54px;
+  margin-top: 22px;
+  padding: 12px 18px;
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--accent-2);
+  background: linear-gradient(180deg, rgba(80, 180, 255, 0.18), rgba(40, 120, 220, 0.1));
+  border: 1px solid var(--accent);
+  border-radius: 4px;
+  box-shadow: 0 0 14px var(--glow), inset 0 0 14px rgba(100, 200, 255, 0.18);
+  text-shadow: 0 0 8px var(--accent);
+  cursor: pointer;
+  transition: transform 0.12s, box-shadow 0.2s, opacity 0.2s;
+}
+.btn:active { transform: scale(0.98); box-shadow: 0 0 24px var(--glow), inset 0 0 20px rgba(100, 200, 255, 0.3); }
+.btn:disabled { opacity: 0.45; cursor: default; transform: none; }
+.btn.danger {
+  color: #ffd6dd;
+  border-color: var(--danger);
+  background: rgba(255, 60, 90, 0.12);
+  box-shadow: 0 0 14px var(--danger-glow), inset 0 0 14px rgba(255, 80, 110, 0.15);
+  text-shadow: 0 0 8px var(--danger);
+}
+.btn.ghost {
+  min-height: 48px;
+  margin-top: 12px;
+  font-size: 14px;
+  letter-spacing: 0.08em;
+  text-transform: none;
+  font-weight: 500;
+  color: var(--text-dim);
+  background: none;
+  border-color: transparent;
+  box-shadow: none;
+  text-shadow: none;
+}
+.btn .spin {
+  width: 16px;
+  height: 16px;
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
+.error {
+  min-height: 1.4em;
+  margin: 12px 0 0;
+  font-size: 14px;
+  color: var(--danger);
+  text-align: center;
+  text-shadow: 0 0 8px var(--danger-glow);
+}
+.shake { animation: shake 0.4s; }
+
+/* ---------- Статус (временный главный экран этапа 1) ---------- */
+
+.stat-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 0;
+  border-bottom: 1px solid rgba(120, 205, 255, 0.12);
+  font-size: 15px;
+}
+.stat-row:last-of-type { border-bottom: 0; }
+.stat-row > span:first-child { color: var(--text-dim); }
+.stat-row > span:last-child { text-align: right; }
+.mono { font-family: var(--mono); font-size: 13px; }
+.ok { color: var(--ok); text-shadow: 0 0 8px rgba(109, 255, 192, 0.5); }
+
+.footer-note {
+  margin: 22px 0 0;
+  font-size: 12px;
+  color: var(--text-faint);
+  text-align: center;
+  letter-spacing: 0.06em;
+}
+
+/* ---------- Оболочка приложения ---------- */
+
+#app.shell { justify-content: flex-start; padding: 0; }
+
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: calc(10px + var(--safe-t)) 16px 10px;
+  background: linear-gradient(180deg, rgba(5, 7, 13, 0.97), rgba(5, 7, 13, 0.85));
+  border-bottom: 1px solid var(--line-soft);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+}
+.topbar .who { flex: 1; min-width: 0; }
+.topbar .who small {
+  display: block;
+  font-size: 11px;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--accent);
+  text-shadow: 0 0 8px var(--glow);
+}
+.topbar .who b {
+  display: block;
+  font-size: 17px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.xp-total {
+  font-family: var(--mono);
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--accent-2);
+  text-shadow: 0 0 8px var(--glow);
+  white-space: nowrap;
+}
+.icon-btn {
+  flex: none;
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  background: none;
+  border: 1px solid var(--line-soft);
+  border-radius: 4px;
+  color: var(--accent-2);
+  cursor: pointer;
+}
+.icon-btn svg { width: 20px; height: 20px; }
+
+.view {
+  width: 100%;
+  max-width: 560px;
+  padding: 8px 16px calc(100px + var(--safe-b));
+}
+
+.section-h {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 24px 0 10px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--accent);
+  text-shadow: 0 0 8px var(--glow);
+}
+.section-h::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, var(--line-soft), transparent);
+}
+.section-h .count { color: var(--text-faint); letter-spacing: 0.08em; text-shadow: none; }
+
+.tabbar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 20;
+  display: flex;
+  justify-content: center;
+  padding: 4px 8px calc(4px + var(--safe-b));
+  background: rgba(5, 7, 13, 0.95);
+  border-top: 1px solid var(--line-soft);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+}
+.tabbar button {
+  flex: 1;
+  max-width: 170px;
+  min-height: 56px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  background: none;
+  border: 0;
+  color: var(--text-faint);
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  cursor: pointer;
+}
+.tabbar svg { width: 24px; height: 24px; }
+.tabbar button[aria-current="page"] { color: var(--accent-2); text-shadow: 0 0 8px var(--glow); }
+.tabbar button[aria-current="page"] svg { filter: drop-shadow(0 0 6px var(--accent)); }
+
+/* Панель — рамка окна Системы без анимации открытия */
+.panel {
+  position: relative;
+  background: var(--panel);
+  border: 1px solid var(--line-soft);
+  border-radius: 6px;
+  box-shadow: 0 0 12px rgba(40, 140, 255, 0.12), inset 0 0 20px rgba(70, 170, 255, 0.06);
+}
+.panel.pad { padding: 4px 16px 16px; }
+
+.empty { padding: 26px 18px; text-align: center; color: var(--text-dim); line-height: 1.5; }
+.empty b { display: block; margin-bottom: 4px; color: var(--accent-2); letter-spacing: 0.1em; }
+
+/* ---------- Квесты ---------- */
+
+.btn.add { margin-top: 16px; }
+
+.quest {
+  display: flex;
+  align-items: flex-start;
+  gap: 4px;
+  margin-bottom: 10px;
+  padding: 8px 12px 10px 4px;
+  transition: border-color 0.25s, opacity 0.3s;
+}
+.qcheck {
+  flex: none;
+  width: 52px;
+  height: 52px;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  background: none;
+  border: 0;
+  cursor: pointer;
+}
+.qbox {
+  width: 28px;
+  height: 28px;
+  display: grid;
+  place-items: center;
+  border: 1.5px solid var(--line);
+  border-radius: 4px;
+  background: rgba(4, 10, 22, 0.75);
+  box-shadow: inset 0 0 8px rgba(100, 200, 255, 0.15);
+  transition: background 0.2s, box-shadow 0.2s;
+}
+.qbox::after {
+  content: "";
+  width: 13px;
+  height: 7px;
+  border-left: 2.5px solid var(--bg);
+  border-bottom: 2.5px solid var(--bg);
+  transform: translateY(-2px) rotate(-45deg) scale(0);
+  transition: transform 0.18s cubic-bezier(0.3, 1.6, 0.5, 1);
+}
+.quest.done .qbox { background: var(--accent); box-shadow: 0 0 14px var(--glow); }
+.quest.done .qbox::after { transform: translateY(-2px) rotate(-45deg) scale(1); }
+.qbody {
+  flex: 1;
+  min-width: 0;
+  padding: 12px 0 2px;
+  background: none;
+  border: 0;
+  text-align: left;
+  cursor: pointer;
+}
+.qtitle { display: block; font-size: 16px; font-weight: 600; line-height: 1.35; overflow-wrap: anywhere; }
+.quest.done .qtitle { color: var(--text-dim); text-decoration: line-through; text-decoration-color: rgba(120, 205, 255, 0.55); }
+.qnote {
+  display: block;
+  margin-top: 3px;
+  font-size: 13px;
+  color: var(--text-dim);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.qxp {
+  flex: none;
+  padding-top: 15px;
+  font-family: var(--mono);
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--accent-2);
+  text-shadow: 0 0 8px var(--glow);
+}
+.quest.done .qxp { color: var(--text-faint); text-shadow: none; }
+.quest.flash { animation: quest-flash 0.7s ease-out; }
+
+.chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+.chip {
+  padding: 3px 8px;
+  font-size: 12px;
+  line-height: 1.3;
+  color: var(--text-dim);
+  border: 1px solid var(--line-soft);
+  border-radius: 3px;
+  background: rgba(80, 170, 255, 0.06);
+}
+.t-chore { --tc: #9fb6c8; }
+.t-normal { --tc: #66d0ff; }
+.t-goal { --tc: #b99bff; }
+.t-epic { --tc: #ffc56b; }
+.chip[class*="t-"] { color: var(--tc); border-color: var(--tc); background: none; }
+
+.more {
+  display: block;
+  width: 100%;
+  min-height: 44px;
+  background: none;
+  border: 0;
+  color: var(--text-dim);
+  font-size: 14px;
+  cursor: pointer;
+}
+
+/* ---------- Характеристики ---------- */
+
+.stat {
+  display: block;
+  width: 100%;
+  margin-bottom: 10px;
+  padding: 14px 16px;
+  text-align: left;
+  cursor: pointer;
+}
+.stat-top { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; }
+.stat-name { font-size: 16px; font-weight: 600; overflow-wrap: anywhere; }
+.stat-lv {
+  flex: none;
+  font-family: var(--mono);
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--accent-2);
+  text-shadow: 0 0 8px var(--glow);
+}
+.bar {
+  position: relative;
+  display: block;
+  height: 8px;
+  margin-top: 10px;
+  overflow: hidden;
+  border: 1px solid rgba(120, 205, 255, 0.2);
+  border-radius: 4px;
+  background: rgba(100, 190, 255, 0.08);
+}
+.bar > i {
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 0;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #2f7fff, var(--accent-2));
+  box-shadow: 0 0 10px var(--accent);
+  transition: width 0.9s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.stat-xp {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 6px;
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--text-faint);
+}
+
+/* ---------- Статус ---------- */
+
+.r-E { --rc: #9fb6c8; }
+.r-D { --rc: #6dffc0; }
+.r-C { --rc: #66d0ff; }
+.r-B { --rc: #b99bff; }
+.r-A { --rc: #ff8a5c; }
+.r-S { --rc: #ffd36b; }
+b[class^="r-"] { color: var(--rc); text-shadow: 0 0 8px var(--rc); }
+
+.status {
+  margin-top: 16px;
+  padding: 0 16px 16px;
+  border-color: var(--line);
+  box-shadow:
+    0 0 18px var(--glow),
+    0 0 50px rgba(40, 130, 255, 0.16),
+    inset 0 0 28px rgba(70, 170, 255, 0.12);
+}
+.status::before, .status::after {
+  content: "";
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  border: 2px solid var(--accent-2);
+  filter: drop-shadow(0 0 6px var(--accent));
+}
+.status::before { top: -3px; left: -3px; border-right: 0; border-bottom: 0; }
+.status::after { bottom: -3px; right: -3px; border-left: 0; border-top: 0; }
+.status-head {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 14px 0 12px;
+  margin-bottom: 16px;
+  border-bottom: 1px solid var(--line-soft);
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  color: var(--accent-2);
+  text-shadow: 0 0 10px var(--accent);
+}
+.status-head .sys-icon { width: 26px; height: 26px; }
+
+.status-main { display: flex; align-items: center; gap: 14px; }
+.rank-badge {
+  flex: none;
+  width: 76px;
+  height: 76px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid var(--rc);
+  border-radius: 6px;
+  background: radial-gradient(circle at 50% 40%, color-mix(in srgb, var(--rc) 22%, transparent), transparent 70%);
+  box-shadow: 0 0 16px color-mix(in srgb, var(--rc) 55%, transparent), inset 0 0 16px color-mix(in srgb, var(--rc) 25%, transparent);
+}
+.rank-badge small { font-size: 10px; letter-spacing: 0.24em; text-transform: uppercase; color: var(--rc); opacity: 0.85; }
+.rank-badge b { font-size: 40px; line-height: 1; font-weight: 900; color: var(--rc); text-shadow: 0 0 14px var(--rc); }
+.r-S .rank-badge { animation: rank-pulse 2.4s ease-in-out infinite; }
+
+.status-who { flex: 1; min-width: 0; }
+.status-name { font-size: 21px; font-weight: 700; line-height: 1.2; overflow-wrap: anywhere; }
+.status-title { margin-top: 4px; font-size: 13px; color: var(--rc); letter-spacing: 0.04em; }
+.status-level { flex: none; text-align: center; }
+.status-level small { display: block; font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--text-dim); }
+.status-level b {
+  display: block;
+  font-family: var(--mono);
+  font-size: 40px;
+  line-height: 1;
+  font-weight: 800;
+  color: var(--accent-2);
+  text-shadow: 0 0 14px var(--accent);
+}
+.bar.big { height: 12px; margin-top: 18px; border-radius: 6px; }
+.status-next { margin: 12px 0 0; font-size: 14px; color: var(--text-dim); text-align: center; }
+
+.counters { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 14px; }
+.counters > div {
+  padding: 10px 8px;
+  text-align: center;
+  border: 1px solid var(--line-soft);
+  border-radius: 4px;
+  background: rgba(4, 10, 22, 0.5);
+}
+.counters b { display: block; font-family: var(--mono); font-size: 18px; color: var(--accent-2); }
+.counters small { display: block; margin-top: 2px; font-size: 11px; color: var(--text-faint); letter-spacing: 0.04em; }
+
+.stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.stat-grid .stat { margin: 0; padding: 12px; }
+.stat-grid .stat-name { font-size: 14px; line-height: 1.25; }
+.stat-grid .stat-lv { font-size: 18px; }
+.stat-lv small { margin-right: 3px; font-size: 11px; font-weight: 400; color: var(--text-dim); text-shadow: none; }
+.stat-grid + .btn { margin-top: 16px; }
+@media (max-width: 340px) { .stat-grid { grid-template-columns: 1fr; } }
+
+/* ---------- Журнал и статистика ---------- */
+
+.counters.four { grid-template-columns: 1fr 1fr; }
+.counters .streak b { color: #ffc56b; text-shadow: 0 0 10px rgba(255, 197, 107, 0.6); }
+.counters .streak.cold b { color: var(--text-dim); text-shadow: none; }
+.streak-hint { margin: 10px 0 0; font-size: 13px; text-align: center; color: var(--text-dim); }
+.streak-hint.warn { color: var(--warn); }
+
+.chart { padding: 14px 16px 12px; margin-top: 12px; }
+.chart-head { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; }
+.chart-head b { font-size: 14px; font-weight: 600; }
+.chart-head span { font-family: var(--mono); font-size: 13px; color: var(--text-dim); }
+.bars {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  align-items: end;
+  height: 150px;
+  margin-top: 10px;
+  border-bottom: 1px solid rgba(120, 205, 255, 0.18);
+}
+.bar-col {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  padding: 0;
+  background: none;
+  border: 0;
+  cursor: pointer;
+}
+.bar-val {
+  min-height: 18px;
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--text);
+  visibility: hidden;
+}
+.bar-col.lbl .bar-val, .bar-col.sel .bar-val { visibility: visible; }
+.bar-track { position: relative; width: 22px; height: calc(100% - 22px); display: flex; align-items: flex-end; }
+.bar-track > i {
+  display: block;
+  width: 100%;
+  height: 0;
+  border-radius: 4px 4px 0 0;
+  background: var(--accent);
+  box-shadow: 0 0 10px rgba(102, 208, 255, 0.45);
+  transition: height 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.bar-col.sel .bar-track > i { background: var(--accent-2); }
+.bar-days { display: grid; grid-template-columns: repeat(7, 1fr); margin-top: 6px; }
+.bar-days span { font-size: 11px; text-align: center; color: var(--text-faint); }
+.bar-days span.today { color: var(--text); font-weight: 600; }
+
+.day-h {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 10px;
+  margin: 22px 0 8px;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+.day-h span { font-family: var(--mono); font-weight: 400; letter-spacing: 0; text-transform: none; color: var(--text-dim); }
+.log-list { padding: 2px 14px; }
+.log-row {
+  display: grid;
+  grid-template-columns: 44px 1fr auto;
+  gap: 4px 10px;
+  align-items: baseline;
+  padding: 11px 0;
+  border-bottom: 1px solid rgba(120, 205, 255, 0.1);
+}
+.log-row:last-child { border-bottom: 0; }
+.log-time { font-family: var(--mono); font-size: 12px; color: var(--text-faint); }
+.log-title { font-size: 15px; overflow-wrap: anywhere; }
+.log-xp { font-family: var(--mono); font-size: 14px; font-weight: 700; color: var(--accent-2); }
+.log-sub { grid-column: 2 / 4; font-size: 12px; color: var(--text-faint); }
+.log-sub .chip { margin-right: 6px; padding: 1px 6px; font-size: 11px; }
+
+/* ---------- Бэкап ---------- */
+
+.backup-banner {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 16px;
+  padding: 12px 12px 12px 16px;
+  border-color: rgba(255, 197, 107, 0.55);
+  box-shadow: 0 0 14px rgba(255, 197, 107, 0.18), inset 0 0 16px rgba(255, 197, 107, 0.06);
+}
+.backup-banner p { flex: 1; margin: 0; font-size: 14px; line-height: 1.4; color: #ffe2b0; }
+.backup-banner p b { display: block; font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--warn); }
+.backup-banner .btn { width: auto; min-height: 44px; margin: 0; padding: 8px 14px; font-size: 13px; letter-spacing: 0.08em; }
+.warn-text { color: var(--warn); }
+.ios-hint { color: var(--text-dim); margin-top: 14px !important; padding: 12px; border: 1px dashed var(--line-soft); border-radius: 4px; font-size: 13px !important; }
+
+/* ---------- Настройки ---------- */
+
+.set-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 0;
+  border-bottom: 1px solid rgba(120, 205, 255, 0.12);
+}
+.set-row b { display: block; font-size: 15px; color: var(--tc, var(--text)); }
+.set-row small { display: block; margin-top: 2px; font-size: 12px; color: var(--text-faint); }
+.xp-input { flex: none; display: flex; align-items: center; gap: 8px; color: var(--text-dim); font-size: 13px; }
+.xp-input input {
+  width: 92px;
+  min-height: 44px;
+  padding: 8px 10px;
+  font-family: var(--mono);
+  font-size: 17px;
+  text-align: right;
+  background: rgba(4, 10, 22, 0.75);
+  border: 1px solid var(--line-soft);
+  border-radius: 4px;
+  outline: none;
+}
+.xp-input input:disabled { opacity: 0.5; }
+.xp-input input:focus { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent), 0 0 12px var(--glow); }
+
+/* ---------- Окна поверх экрана ---------- */
+
+.layer {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: flex;
+  flex-direction: column;
+  padding: calc(16px + var(--safe-t)) 12px calc(12px + var(--safe-b));
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+  background: rgba(2, 4, 10, 0.82);
+  animation: fade 0.2s both;
+}
+.layer > .sys {
+  margin-top: auto;
+  align-self: center;
+  max-width: 480px;
+  background: linear-gradient(180deg, rgba(110, 200, 255, 0.07), transparent 40%), #07101f;
+}
+@media (min-width: 600px) { .layer > .sys { margin-bottom: auto; } }
+html.noscroll, html.noscroll body { overflow: hidden; }
+
+.field textarea {
+  width: 100%;
+  min-height: 72px;
+  padding: 12px 14px;
+  font-size: 17px;
+  line-height: 1.4;
+  resize: vertical;
+  background: rgba(4, 10, 22, 0.75);
+  border: 1px solid var(--line-soft);
+  border-radius: 4px;
+  outline: none;
+}
+.field textarea:focus { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent), 0 0 14px var(--glow); }
+
+.choices { display: flex; flex-wrap: wrap; gap: 8px; }
+.choices.types { display: grid; grid-template-columns: 1fr 1fr; }
+.choice { position: relative; }
+.choice input { position: absolute; opacity: 0; pointer-events: none; }
+.choice > span {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: 46px;
+  height: 100%;
+  padding: 8px 14px;
+  font-size: 15px;
+  color: var(--text);
+  border: 1px solid var(--line-soft);
+  border-radius: 4px;
+  background: rgba(4, 10, 22, 0.75);
+  cursor: pointer;
+  transition: border-color 0.15s, box-shadow 0.15s, color 0.15s;
+}
+.choice b { font-weight: 600; color: var(--tc, inherit); }
+.choice small { font-family: var(--mono); font-size: 12px; color: var(--text-faint); }
+.choice input:checked + span {
+  color: var(--accent-2);
+  border-color: var(--tc, var(--accent));
+  box-shadow: 0 0 12px var(--glow), inset 0 0 10px rgba(100, 200, 255, 0.18);
+}
+.choice input:focus-visible + span { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+.btn.ghost.danger-text { color: var(--danger); }
+.btn.armed { color: #fff; border-color: var(--danger); background: rgba(255, 60, 90, 0.2); text-shadow: 0 0 8px var(--danger); }
+
+/* ---------- Уведомления ---------- */
+
+.toasts {
+  position: fixed;
+  z-index: 60;
+  top: calc(74px + var(--safe-t));
+  left: 0;
+  right: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 0 16px;
+  pointer-events: none;
+}
+.toast {
+  pointer-events: auto;
+  width: 100%;
+  max-width: 420px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 12px 12px 16px;
+  background: #081325;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  box-shadow: 0 0 18px var(--glow), inset 0 0 16px rgba(70, 170, 255, 0.15);
+  animation: toast-in 0.4s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+.toast.out { animation: toast-out 0.25s ease-in both; }
+.toast .t-body { flex: 1; min-width: 0; }
+.toast .t-title { font-size: 11px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--accent); }
+.toast .t-main { font-size: 18px; font-weight: 800; color: var(--accent-2); text-shadow: 0 0 10px var(--accent); }
+.toast .t-sub { margin-top: 2px; font-size: 13px; color: var(--text-dim); }
+.toast button {
+  flex: none;
+  min-height: 44px;
+  padding: 0 14px;
+  font-size: 14px;
+  color: var(--accent-2);
+  background: none;
+  border: 1px solid var(--line-soft);
+  border-radius: 4px;
+  cursor: pointer;
+}
+.toast.up { border-color: var(--warn); box-shadow: 0 0 18px rgba(255, 197, 107, 0.45), inset 0 0 16px rgba(255, 197, 107, 0.12); }
+.toast.up .t-title { color: var(--warn); }
+.toast.up .t-main { color: #ffe2b0; text-shadow: 0 0 10px var(--warn); }
+.toast.minus { border-color: rgba(255, 95, 122, 0.6); box-shadow: 0 0 14px var(--danger-glow); }
+.toast.minus .t-title { color: var(--danger); }
+.toast.minus .t-main { color: #ffd6dd; text-shadow: none; }
+
+/* ---------- Отклик: полоса опыта в шапке, всплывающий опыт ---------- */
+
+.topbar-xp {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -1px;
+  height: 2px;
+  background: rgba(100, 190, 255, 0.1);
+}
+.topbar-xp > i {
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 0;
+  background: linear-gradient(90deg, #2f7fff, var(--accent-2));
+  box-shadow: 0 0 8px var(--accent), 0 0 2px var(--accent-2);
+  transition: width 0.9s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.float-xp {
+  position: fixed;
+  z-index: 95;
+  pointer-events: none;
+  transform: translate(-50%, -50%);
+  font-family: var(--mono);
+  font-size: 20px;
+  font-weight: 800;
+  white-space: nowrap;
+  color: var(--accent-2);
+  text-shadow: 0 0 10px var(--accent), 0 0 22px var(--accent);
+  animation: float-xp 1.1s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+.quest.flash .qbox { animation: check-pop 0.45s cubic-bezier(0.3, 1.6, 0.5, 1); }
+
+#fx-canvas {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+/* ---------- Полноэкранные окна «Система» ---------- */
+
+.fx-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: calc(16px + var(--safe-t)) 16px calc(16px + var(--safe-b));
+  overflow: hidden;
+  background: radial-gradient(70% 55% at 50% 50%, color-mix(in srgb, var(--fxc) 22%, transparent), transparent 70%), rgba(2, 4, 10, 0.9);
+  animation: fade 0.3s both;
+  --fxc: var(--accent);
+}
+.fx-overlay.rank { --fxc: var(--rc); }
+.fx-overlay.out { animation: fade-out 0.3s both; }
+.fx-overlay .fx-win {
+  max-width: 400px;
+  text-align: center;
+  border-color: var(--fxc);
+  box-shadow: 0 0 24px color-mix(in srgb, var(--fxc) 60%, transparent), 0 0 80px color-mix(in srgb, var(--fxc) 25%, transparent), inset 0 0 30px color-mix(in srgb, var(--fxc) 18%, transparent);
+}
+.fx-overlay.rank .fx-win { animation-delay: 0.55s; }
+.fx-overlay.rank .fx-win > *:not(.scan) { animation-delay: 0.9s; }
+.fx-overlay.rank.shake-hard .fx-win { animation: sys-open 0.55s 0.55s cubic-bezier(0.2, 0.8, 0.2, 1) both, hard-shake 0.5s 1.25s; }
+
+.fx-beam {
+  position: absolute;
+  left: 50%;
+  top: -10%;
+  bottom: -10%;
+  width: 180px;
+  margin-left: -90px;
+  background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--fxc) 35%, transparent), transparent);
+  filter: blur(6px);
+  transform-origin: 50% 100%;
+  animation: beam 1.2s cubic-bezier(0.2, 0.8, 0.2, 1) both, beam-breathe 3s 1.2s ease-in-out infinite;
+  pointer-events: none;
+}
+.fx-big {
+  margin: 4px 0 6px;
+  font-size: 44px;
+  font-weight: 900;
+  font-style: italic;
+  line-height: 1.05;
+  letter-spacing: 0.08em;
+  color: #fff;
+  text-shadow: 0 0 10px var(--fxc), 0 0 28px var(--fxc), 0 0 54px var(--fxc);
+}
+.fx-overlay .sys > .fx-big { animation: big-in 0.7s 0.4s cubic-bezier(0.2, 0.8, 0.2, 1) both, glow-pulse 2s 1.1s ease-in-out infinite; }
+.fx-level {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 14px;
+  margin: 6px 0 4px;
+  font-family: var(--mono);
+}
+.fx-level .from { font-size: 26px; color: var(--text-faint); }
+.fx-level .arrow { font-size: 22px; color: var(--accent); }
+.fx-level .to {
+  font-size: 54px;
+  font-weight: 800;
+  color: var(--accent-2);
+  text-shadow: 0 0 16px var(--accent);
+  animation: num-pop 0.6s 0.85s cubic-bezier(0.3, 1.6, 0.5, 1) both;
+}
+.fx-sub { margin: 10px 0 0 !important; color: var(--text-dim) !important; font-size: 15px; }
+.fx-list {
+  margin: 14px 0 0;
+  padding: 10px 12px;
+  list-style: none;
+  font-size: 14px;
+  line-height: 1.7;
+  color: #ffe2b0;
+  border: 1px solid rgba(255, 197, 107, 0.35);
+  border-radius: 4px;
+  background: rgba(255, 197, 107, 0.06);
+}
+.fx-list li::before { content: "▲ "; color: var(--warn); }
+.fx-overlay .btn[disabled] { opacity: 0.35; }
+
+.fx-flash {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 50% 50%, #fff, color-mix(in srgb, var(--fxc) 70%, #fff) 40%, transparent 75%);
+  animation: flash 0.9s ease-out both;
+  pointer-events: none;
+}
+.fx-ring {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 160px;
+  height: 160px;
+  margin: -80px 0 0 -80px;
+  border: 3px solid var(--fxc);
+  border-radius: 50%;
+  box-shadow: 0 0 30px var(--fxc), inset 0 0 30px var(--fxc);
+  animation: ring 1.3s 0.1s cubic-bezier(0.1, 0.7, 0.3, 1) both;
+  pointer-events: none;
+}
+.fx-ring.d2 { animation-delay: 0.35s; border-width: 2px; }
+.fx-rank {
+  position: relative;
+  height: 120px;
+  margin: 4px 0;
+  display: grid;
+  place-items: center;
+}
+.fx-rank > * {
+  grid-area: 1 / 1;
+  font-size: 104px;
+  font-weight: 900;
+  line-height: 1;
+}
+.fx-rank .old { color: var(--text-faint); animation: rank-old 0.8s 0.9s ease-in both; }
+.fx-rank .new {
+  color: var(--rc);
+  text-shadow: 0 0 18px var(--rc), 0 0 44px var(--rc), 0 0 90px var(--rc);
+  animation: rank-new 0.75s 1.45s cubic-bezier(0.2, 1.4, 0.4, 1) both, rank-glow 2.4s 2.2s ease-in-out infinite;
+}
+.fx-big.small { font-size: 30px; letter-spacing: 0.2em; }
+.fx-overlay.rank .sys > .fx-big { animation-delay: 1.7s, 2.4s; }
+.fx-title { margin: 8px 0 0 !important; font-size: 18px; font-weight: 700; color: var(--rc) !important; text-shadow: 0 0 10px var(--rc); }
+
+/* ---------- Переключатели ---------- */
+
+.toggle {
+  flex: none;
+  appearance: none;
+  -webkit-appearance: none;
+  position: relative;
+  width: 54px;
+  height: 32px;
+  margin: 0;
+  border: 1px solid var(--line-soft);
+  border-radius: 16px;
+  background: rgba(4, 10, 22, 0.75);
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s, box-shadow 0.2s;
+}
+.toggle::after {
+  content: "";
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--text-dim);
+  transition: transform 0.2s cubic-bezier(0.3, 1.4, 0.5, 1), background 0.2s;
+}
+.toggle:checked { background: rgba(80, 180, 255, 0.25); border-color: var(--accent); box-shadow: 0 0 12px var(--glow); }
+.toggle:checked::after { transform: translateX(22px); background: var(--accent-2); box-shadow: 0 0 10px var(--accent); }
+.btn-pair { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.btn-pair .btn { margin-top: 16px; font-size: 13px; letter-spacing: 0.1em; min-height: 48px; padding: 8px; }
+
+/* ---------- Анимации ---------- */
+
+@keyframes sys-open {
+  0%   { opacity: 0; transform: scaleX(0.02) scaleY(0.006); }
+  45%  { opacity: 1; transform: scaleX(1) scaleY(0.006); }
+  100% { opacity: 1; transform: scale(1); }
+}
+@keyframes sys-content { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+@keyframes scan { to { top: 100%; } }
+@keyframes spin { to { transform: rotate(360deg); } }
+@keyframes fade { from { opacity: 0; } }
+@keyframes fade-out { to { opacity: 0; } }
+@keyframes float-xp {
+  0% { opacity: 0; transform: translate(-50%, -30%) scale(0.6); }
+  20% { opacity: 1; transform: translate(-50%, -80%) scale(1.15); }
+  100% { opacity: 0; transform: translate(-50%, -260%) scale(1); }
+}
+@keyframes check-pop { 0% { transform: scale(1); } 40% { transform: scale(1.35); } 100% { transform: scale(1); } }
+@keyframes beam { from { transform: scaleY(0); opacity: 0; } 40% { opacity: 1; } to { transform: scaleY(1); opacity: 0.7; } }
+@keyframes beam-breathe { 50% { opacity: 0.35; } }
+@keyframes big-in {
+  from { opacity: 0; transform: scale(1.8); letter-spacing: 0.5em; filter: blur(8px); }
+  to { opacity: 1; transform: none; letter-spacing: 0.08em; filter: none; }
+}
+@keyframes glow-pulse { 50% { text-shadow: 0 0 14px var(--fxc), 0 0 40px var(--fxc), 0 0 80px var(--fxc); } }
+@keyframes num-pop { from { opacity: 0; transform: scale(0.3); } }
+@keyframes flash { 0% { opacity: 0; } 12% { opacity: 1; } 100% { opacity: 0; } }
+@keyframes ring { from { transform: scale(0); opacity: 1; } to { transform: scale(6); opacity: 0; } }
+@keyframes rank-old {
+  0% { transform: none; opacity: 1; }
+  30% { transform: translateX(-4px) rotate(-3deg); }
+  50% { transform: translateX(4px) rotate(3deg); opacity: 1; filter: none; }
+  100% { transform: scale(1.8); opacity: 0; filter: blur(12px); }
+}
+@keyframes rank-new {
+  from { opacity: 0; transform: scale(3.2); filter: blur(10px); }
+  to { opacity: 1; transform: none; filter: none; }
+}
+@keyframes rank-glow { 50% { text-shadow: 0 0 24px var(--rc), 0 0 60px var(--rc), 0 0 120px var(--rc); } }
+@keyframes hard-shake {
+  10%, 50% { transform: translate(-6px, 3px); }
+  30%, 70% { transform: translate(6px, -3px); }
+  90% { transform: translate(-2px, 1px); }
+}
+@keyframes rank-pulse {
+  50% { box-shadow: 0 0 30px color-mix(in srgb, var(--rc) 80%, transparent), inset 0 0 22px color-mix(in srgb, var(--rc) 40%, transparent); }
+}
+@keyframes toast-in { from { opacity: 0; transform: translateY(-14px) scaleY(0.6); } }
+@keyframes toast-out { to { opacity: 0; transform: translateY(-10px); } }
+@keyframes quest-flash {
+  0%   { box-shadow: 0 0 0 rgba(102, 208, 255, 0); }
+  30%  { box-shadow: 0 0 28px rgba(102, 208, 255, 0.85), inset 0 0 24px rgba(102, 208, 255, 0.35); border-color: var(--accent-2); }
+  100% { box-shadow: 0 0 12px rgba(40, 140, 255, 0.12); }
+}
+@keyframes shake {
+  20% { transform: translateX(-8px); }
+  40% { transform: translateX(7px); }
+  60% { transform: translateX(-5px); }
+  80% { transform: translateX(3px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
+}
+</style>
+</head>
+<body>
+<main id="app" aria-live="polite"></main>
+
+<!-- ===== Экраны (клонируются в #app) ===== -->
+
+<template id="tpl-unsupported">
+  <section class="sys">
+    <div class="scan"></div>
+    <header class="sys-head"><div class="sys-icon">!</div><h1 class="sys-title">Ошибка</h1></header>
+    <p class="lead">Шифрование недоступно в этом браузере.</p>
+    <p class="dim center">Откройте приложение по адресу <span class="hl">https://</span> или через <span class="hl">localhost</span> в Safari или Chrome — без этого Web Crypto API отключён.</p>
+  </section>
+</template>
+
+<template id="tpl-setup">
+  <section class="sys">
+    <div class="scan"></div>
+    <header class="sys-head"><div class="sys-icon">!</div><h1 class="sys-title">Уведомление</h1></header>
+    <p class="lead">Вы выполнили скрытые условия,<br>чтобы стать <span class="hl">Игроком</span>.</p>
+    <p class="dim center">Задайте мастер-пароль. Он шифрует все данные на этом устройстве и нигде не сохраняется.</p>
+    <form data-form="setup" novalidate>
+      <label class="field"><span>Имя игрока</span>
+        <input name="player" type="text" autocomplete="nickname" autocapitalize="words" maxlength="40" placeholder="Игрок">
+      </label>
+      <!-- Скрытый логин нужен, чтобы Связка ключей iOS могла предложить сохранить пароль -->
+      <input type="text" name="username" autocomplete="username" value="Система" hidden>
+      <label class="field"><span>Мастер-пароль</span>
+        <span class="input-wrap"><input name="pw" type="password" autocomplete="new-password" minlength="8" required><button type="button" class="reveal" aria-label="Показать пароль" aria-pressed="false"></button></span>
+      </label>
+      <div class="hint">Минимум 8 символов. Лучше — фраза из нескольких слов.</div>
+      <label class="field"><span>Повторите пароль</span>
+        <span class="input-wrap"><input name="pw2" type="password" autocomplete="new-password" required><button type="button" class="reveal" aria-label="Показать пароль" aria-pressed="false"></button></span>
+      </label>
+      <div class="warn" role="note">
+        <b>Внимание</b>
+        <p>Забытый пароль восстановить невозможно. Копии нет ни у кого — без пароля данные останутся зашифрованными навсегда.</p>
+      </div>
+      <label class="check"><input name="ack" type="checkbox"><span>Я понимаю, что восстановить пароль нельзя</span></label>
+      <p class="error" data-error></p>
+      <button class="btn" type="submit" data-submit>Принять</button>
+    </form>
+    <button class="btn ghost" type="button" data-action="restore">Восстановить из бэкапа</button>
+    <p class="dim center ios-hint" data-ios-hint hidden>На iPhone сначала добавьте приложение на экран «Домой» (Поделиться → На экран «Домой») и задайте пароль уже там: у иконки своё хранилище, отдельное от Safari.</p>
+  </section>
+</template>
+
+<template id="tpl-login">
+  <section class="sys">
+    <div class="scan"></div>
+    <header class="sys-head"><div class="sys-icon">!</div><h1 class="sys-title">Система</h1></header>
+    <p class="lead">Подтвердите личность <span class="hl">Игрока</span>.</p>
+    <p class="dim center" data-reason hidden></p>
+    <form data-form="login" novalidate>
+      <input type="text" name="username" autocomplete="username" value="Система" hidden>
+      <label class="field"><span>Мастер-пароль</span>
+        <span class="input-wrap"><input name="pw" type="password" autocomplete="current-password" required><button type="button" class="reveal" aria-label="Показать пароль" aria-pressed="false"></button></span>
+      </label>
+      <p class="error" data-error></p>
+      <button class="btn" type="submit" data-submit>Войти</button>
+    </form>
+    <button class="btn ghost" type="button" data-action="restore">Восстановить из бэкапа</button>
+    <button class="btn ghost" type="button" data-action="forgot">Забыли пароль?</button>
+  </section>
+</template>
+
+<template id="tpl-wipe">
+  <section class="sys">
+    <div class="scan"></div>
+    <header class="sys-head"><div class="sys-icon">!</div><h1 class="sys-title">Предупреждение</h1></header>
+    <p class="lead">Пароль восстановить нельзя.</p>
+    <p class="dim center">Можно только стереть все данные на этом устройстве и начать заново. Если есть файл бэкапа, его можно будет импортировать — но тоже только с паролем, которым он зашифрован.</p>
+    <form data-form="wipe" novalidate>
+      <label class="field"><span>Введите «СТЕРЕТЬ» для подтверждения</span>
+        <input name="confirm" type="text" autocomplete="off" autocapitalize="characters" spellcheck="false">
+      </label>
+      <p class="error" data-error></p>
+      <button class="btn danger" type="submit" data-submit>Стереть всё</button>
+    </form>
+    <button class="btn ghost" type="button" data-action="back">Назад</button>
+  </section>
+</template>
+
+<template id="tpl-import">
+  <section class="sys">
+    <div class="scan"></div>
+    <header class="sys-head"><div class="sys-icon">!</div><h1 class="sys-title">Восстановление</h1></header>
+    <p class="lead">Найден бэкап Системы.</p>
+    <p class="dim center" data-bind="exported"></p>
+    <form data-form="import" novalidate>
+      <input type="text" name="username" autocomplete="username" value="Система" hidden>
+      <label class="field"><span>Пароль бэкапа</span>
+        <span class="input-wrap"><input name="pw" type="password" autocomplete="current-password" required><button type="button" class="reveal" aria-label="Показать пароль" aria-pressed="false"></button></span>
+      </label>
+      <div class="warn" role="note" data-replace hidden>
+        <b>Замена данных</b>
+        <p>Данные на этом устройстве заменятся данными из бэкапа. Мастер-паролем станет пароль бэкапа.</p>
+      </div>
+      <p class="error" data-error></p>
+      <button class="btn" type="submit" data-submit>Восстановить</button>
+    </form>
+    <button class="btn ghost" type="button" data-action="back">Отмена</button>
+  </section>
+</template>
+
+<template id="tpl-shell">
+  <header class="topbar">
+    <div class="who"><small data-bind="rankline"></small><b data-bind="name"></b></div>
+    <div class="xp-total" data-bind="xp"></div>
+    <button class="icon-btn" type="button" data-action="lock" aria-label="Заблокировать">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>
+    </button>
+    <span class="topbar-xp" aria-hidden="true"><i></i></span>
+  </header>
+  <div class="view" data-view></div>
+  <nav class="tabbar" aria-label="Разделы">
+    <button type="button" data-tab="status">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l8.5 5v10L12 22l-8.5-5V7z"/><path d="M12 7l4 2.5v5L12 17l-4-2.5v-5z"/></svg>
+      <span>Статус</span>
+    </button>
+    <button type="button" data-tab="quests">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M8 12l3 3 5-6"/></svg>
+      <span>Квесты</span>
+    </button>
+    <button type="button" data-tab="journal">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19V5"/><path d="M4 19h16"/><path d="M8 16v-4"/><path d="M12 16V8"/><path d="M16 16v-6"/></svg>
+      <span>Журнал</span>
+    </button>
+    <button type="button" data-tab="settings">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>
+      <span>Настройки</span>
+    </button>
+  </nav>
+</template>
+
+<script>
+'use strict';
+
+/* =====================================================================
+   НАСТРОЙКИ
+   ===================================================================== */
+
+const CONFIG = {
+  storageKey: 'system.vault.v1',
+  kdfIterations: 310000,        // PBKDF2-SHA-256, ТЗ требует ≥ 200 000
+  minPasswordLength: 8,
+  autoLockMs: 5 * 60 * 1000,    // 5 минут бездействия
+};
+
+/* =====================================================================
+   КРИПТОГРАФИЯ (Web Crypto API)
+   Ключ AES-GCM-256 выводится из пароля через PBKDF2 со случайной солью.
+   На каждое сохранение — новый случайный IV. Пароль нигде не хранится;
+   в памяти живёт только неизвлекаемый CryptoKey, пока сессия открыта.
+   ===================================================================== */
+
+const AAD = new TextEncoder().encode('system-vault-v1');
+
+const b64 = {
+  encode(bytes) {
+    let s = '';
+    for (let i = 0; i < bytes.length; i += 0x8000) s += String.fromCharCode.apply(null, bytes.subarray(i, i + 0x8000));
+    return btoa(s);
+  },
+  decode(str) {
+    const s = atob(str);
+    const out = new Uint8Array(s.length);
+    for (let i = 0; i < s.length; i++) out[i] = s.charCodeAt(i);
+    return out;
+  },
+};
+
+async function deriveKey(password, salt, iterations) {
+  const base = await crypto.subtle.importKey('raw', new TextEncoder().encode(password), 'PBKDF2', false, ['deriveKey']);
+  return crypto.subtle.deriveKey(
+    { name: 'PBKDF2', hash: 'SHA-256', salt, iterations },
+    base,
+    { name: 'AES-GCM', length: 256 },
+    false,
+    ['encrypt', 'decrypt'],
+  );
+}
+
+async function encryptJSON(key, kdf, data) {
+  const iv = crypto.getRandomValues(new Uint8Array(12));
+  const plain = new TextEncoder().encode(JSON.stringify(data));
+  const ct = new Uint8Array(await crypto.subtle.encrypt({ name: 'AES-GCM', iv, additionalData: AAD }, key, plain));
+  return { v: 1, kdf, iv: b64.encode(iv), ct: b64.encode(ct) };
+}
+
+/** Бросает ошибку, если пароль неверный (не сошёлся тег GCM). */
+async function decryptJSON(key, record) {
+  const plain = await crypto.subtle.decrypt(
+    { name: 'AES-GCM', iv: b64.decode(record.iv), additionalData: AAD },
+    key,
+    b64.decode(record.ct),
+  );
+  return JSON.parse(new TextDecoder().decode(plain));
+}
+
+function newKdfParams() {
+  return {
+    name: 'PBKDF2',
+    hash: 'SHA-256',
+    iter: CONFIG.kdfIterations,
+    salt: b64.encode(crypto.getRandomValues(new Uint8Array(16))),
+  };
+}
+
+/* =====================================================================
+   ХРАНИЛИЩЕ
+   В localStorage лежит только зашифрованная запись { v, kdf, iv, ct }.
+   ===================================================================== */
+
+const Vault = {
+  read() {
+    const raw = localStorage.getItem(CONFIG.storageKey);
+    return raw ? JSON.parse(raw) : null;
+  },
+  exists() {
+    return localStorage.getItem(CONFIG.storageKey) !== null;
+  },
+  write(record) {
+    localStorage.setItem(CONFIG.storageKey, JSON.stringify(record));
+  },
+  wipe() {
+    localStorage.removeItem(CONFIG.storageKey);
+  },
+};
+
+/* =====================================================================
+   ДАННЫЕ ИГРОКА
+   ===================================================================== */
+
+/** Типы задач. Опыт по умолчанию; текущие значения — в state.settings.xp. */
+const TASK_TYPES = [
+  { id: 'chore', name: 'Бытовая', xp: 10, hint: 'Покупки, мелкие дела' },
+  { id: 'normal', name: 'Обычная', xp: 25, hint: 'Средние задачи' },
+  { id: 'goal', name: 'Целевая', xp: 60, hint: 'Блог, деньги, карьера' },
+  { id: 'epic', name: 'Эпическая', xp: 200, hint: 'Босс: крупный рубеж' },
+];
+const TYPE_BY_ID = Object.fromEntries(TASK_TYPES.map((t) => [t.id, t]));
+
+const DEFAULT_STATS = ['Сила', 'Интеллект', 'Креатив', 'Дисциплина', 'Карьера', 'Творческая реализация', 'Проявленность', 'Харизма'];
+
+const REPEATS = { none: 'Разовый', daily: 'Каждый день', weekly: 'Каждую неделю' };
+
+/** Ранги охотника и общий уровень, с которого они даются. Текущие пороги — в state.settings.ranks. */
+const RANKS = [
+  { id: 'E', from: 1 },
+  { id: 'D', from: 5 },
+  { id: 'C', from: 10 },
+  { id: 'B', from: 15 },
+  { id: 'A', from: 20 },
+  { id: 'S', from: 30 },
+];
+const defaultRankThresholds = () => Object.fromEntries(RANKS.slice(1).map((r) => [r.id, r.from]));
+
+function uid() {
+  return Array.from(crypto.getRandomValues(new Uint8Array(8)), (b) => b.toString(16).padStart(2, '0')).join('');
+}
+
+function defaultState(name) {
+  return migrate({ schema: 1, createdAt: Date.now(), profile: { name: name || 'Игрок' } });
+}
+
+/**
+ * Доводит расшифрованные данные до текущей схемы.
+ * quests — список задач; log — журнал выполнений, из которого считается весь опыт:
+ * { id, questId, title, type, xp, stats: { statId: xp }, period, at }.
+ */
+function migrate(state) {
+  state.settings = state.settings || {};
+  state.settings.xp = Object.assign(Object.fromEntries(TASK_TYPES.map((t) => [t.id, t.xp])), state.settings.xp);
+  state.stats = state.stats || DEFAULT_STATS.map((name) => ({ id: uid(), name }));
+  state.quests = state.quests || [];
+  state.log = state.log || [];
+  state.settings.ranks = Object.assign(defaultRankThresholds(), state.settings.ranks);
+  if (state.settings.sound === undefined) state.settings.sound = true;
+  if (state.settings.haptics === undefined) state.settings.haptics = true;
+  state.schema = 4;
+  return state;
+}
+
+/* =====================================================================
+   ПРОКАЧКА
+   ===================================================================== */
+
+/** Опыт, нужный для перехода с уровня level на следующий. */
+function xpToNext(level) {
+  return Math.round(100 * Math.pow(level, 1.5));
+}
+
+function levelInfo(xp) {
+  let level = 1;
+  let into = xp;
+  while (into >= xpToNext(level)) {
+    into -= xpToNext(level);
+    level++;
+  }
+  return { level, into, need: xpToNext(level) };
+}
+
+/** Делит опыт поровну между характеристиками; остаток раздаётся по единице первым. */
+function splitXp(xp, statIds) {
+  const out = {};
+  if (!statIds.length) return out;
+  const base = Math.floor(xp / statIds.length);
+  let rest = xp - base * statIds.length;
+  for (const id of statIds) out[id] = base + (rest-- > 0 ? 1 : 0);
+  return out;
+}
+
+function totalXp() {
+  return session.state.log.reduce((sum, e) => sum + e.xp, 0);
+}
+
+function statXp() {
+  const map = new Map();
+  for (const e of session.state.log) {
+    for (const [id, xp] of Object.entries(e.stats)) map.set(id, (map.get(id) || 0) + xp);
+  }
+  return map;
+}
+
+function rankOf(level) {
+  const thresholds = session.state.settings.ranks;
+  let rank = RANKS[0].id;
+  for (const r of RANKS.slice(1)) if (level >= thresholds[r.id]) rank = r.id;
+  return rank;
+}
+
+/** Общий уровень и ранг персонажа. */
+function playerInfo(xp = totalXp()) {
+  const info = levelInfo(xp);
+  return { ...info, xp, rank: rankOf(info.level) };
+}
+
+function statName(id) {
+  const stat = session.state.stats.find((s) => s.id === id);
+  return stat ? stat.name : '—';
+}
+
+/* ---------- Статистика: опыт за день и неделю, серия дней ---------- */
+
+/** Русское склонение: plural(3, ['день', 'дня', 'дней']) → 'дня'. */
+function plural(n, forms) {
+  const m10 = n % 10;
+  const m100 = n % 100;
+  if (m10 === 1 && m100 !== 11) return forms[0];
+  if (m10 >= 2 && m10 <= 4 && (m100 < 12 || m100 > 14)) return forms[1];
+  return forms[2];
+}
+
+function addDays(d, n) {
+  const t = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+  t.setDate(t.getDate() + n);
+  return t;
+}
+
+/** dayKey → { xp, count } по журналу. */
+function xpByDay() {
+  const map = new Map();
+  for (const e of session.state.log) {
+    const key = dayKey(new Date(e.at));
+    const day = map.get(key) || { xp: 0, count: 0 };
+    day.xp += e.xp;
+    day.count++;
+    map.set(key, day);
+  }
+  return map;
+}
+
+function weekXp(now = new Date()) {
+  const week = weekKey(now);
+  return session.state.log.reduce((sum, e) => sum + (weekKey(new Date(e.at)) === week ? e.xp : 0), 0);
+}
+
+/**
+ * Серия — дни подряд хотя бы с одним выполненным квестом.
+ * Если сегодня ещё ничего не сделано, серия жива до конца дня и считается со вчера.
+ */
+function streakInfo(now = new Date()) {
+  const days = xpByDay();
+  const todayDone = days.has(dayKey(now));
+  let d = todayDone ? now : addDays(now, -1);
+  let current = 0;
+  while (days.has(dayKey(d))) {
+    current++;
+    d = addDays(d, -1);
+  }
+  let best = 0;
+  let run = 0;
+  let prev = null;
+  for (const key of [...days.keys()].sort()) {
+    const [y, m, dd] = key.split('-').map(Number);
+    const date = new Date(y, m - 1, dd);
+    run = prev && dayKey(addDays(prev, 1)) === key ? run + 1 : 1;
+    best = Math.max(best, run);
+    prev = date;
+  }
+  return { current, best, todayDone };
+}
+
+/* ---------- Периоды повторяющихся квестов ---------- */
+
+const pad = (n) => String(n).padStart(2, '0');
+
+function dayKey(d) {
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+}
+
+/** ISO-неделя: начинается в понедельник. */
+function weekKey(d) {
+  const t = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+  t.setDate(t.getDate() - ((t.getDay() + 6) % 7) + 3); // четверг этой недели
+  const jan4 = new Date(t.getFullYear(), 0, 4);
+  const week = 1 + Math.round(((t - jan4) / 864e5 - 3 + ((jan4.getDay() + 6) % 7)) / 7);
+  return `${t.getFullYear()}-W${pad(week)}`;
+}
+
+/** Текущий период квеста: null для разовых. */
+function periodKey(repeat, d = new Date()) {
+  if (repeat === 'daily') return 'd:' + dayKey(d);
+  if (repeat === 'weekly') return 'w:' + weekKey(d);
+  return null;
+}
+
+/** questId → запись журнала, которая отмечает квест выполненным сейчас. */
+function completionIndex() {
+  const { quests, log } = session.state;
+  const now = new Date();
+  const periods = new Map(quests.map((q) => [q.id, periodKey(q.repeat, now)]));
+  const map = new Map();
+  for (const e of log) {
+    if (periods.has(e.questId) && periods.get(e.questId) === e.period) map.set(e.questId, e);
+  }
+  return map;
+}
+
+/* =====================================================================
+   СЕССИЯ
+   session = { key, kdf, state } пока приложение разблокировано, иначе null.
+   ===================================================================== */
+
+let session = null;
+let saveChain = Promise.resolve();
+let lastSavedAt = null;
+
+async function createVault(password, name) {
+  const kdf = newKdfParams();
+  const key = await deriveKey(password, b64.decode(kdf.salt), kdf.iter);
+  const state = defaultState(name);
+  Vault.write(await encryptJSON(key, kdf, state));
+  lastSavedAt = Date.now();
+  session = { key, kdf, state };
+  // Просим браузер не вычищать хранилище при нехватке места
+  if (navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(() => {});
+}
+
+async function unlockVault(password) {
+  const record = Vault.read();
+  const kdf = record.kdf;
+  const key = await deriveKey(password, b64.decode(kdf.salt), kdf.iter);
+  const state = migrate(await decryptJSON(key, record)); // неверный пароль → исключение
+  session = { key, kdf, state };
+  lastSavedAt = null;
+}
+
+/**
+ * Шифрует и сохраняет текущее состояние. Снимок и ключ берутся синхронно,
+ * поэтому сохранение завершится, даже если сразу после вызова сработает блокировка.
+ */
+function save() {
+  if (!session) return saveChain;
+  const { key, kdf } = session;
+  const snapshot = JSON.parse(JSON.stringify(session.state));
+  saveChain = saveChain
+    .then(() => encryptJSON(key, kdf, snapshot))
+    .then((record) => {
+      Vault.write(record);
+      lastSavedAt = Date.now();
+      if (session) renderSavedAt();
+    })
+    .catch((err) => {
+      console.error(err);
+      showError('Не удалось сохранить данные: ' + (err && err.name === 'QuotaExceededError' ? 'нет места в хранилище.' : 'ошибка записи.'));
+    });
+  return saveChain;
+}
+
+function lock(reason) {
+  if (!session) return;
+  endSession();
+  showLogin(reason);
+}
+
+/** Закрывает сессию: забывает ключ и данные, убирает всё, что было на экране. */
+function endSession() {
+  flushInputs();
+  session = null; // ключ и расшифрованные данные больше недоступны
+  clearTimeout(renderTimer);
+  closeSheet();
+  closeFx();
+  clearToasts();
+  if (document.activeElement) document.activeElement.blur();
+}
+
+/* =====================================================================
+   АВТОБЛОКИРОВКА
+   ===================================================================== */
+
+let lastActivity = Date.now();
+for (const ev of ['pointerdown', 'keydown', 'touchstart', 'wheel', 'scroll', 'input']) {
+  addEventListener(ev, () => { lastActivity = Date.now(); }, { passive: true, capture: true });
+}
+setInterval(() => {
+  if (session && Date.now() - lastActivity > CONFIG.autoLockMs) lock('idle');
+}, 5000);
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden) lock('hidden');
+});
+addEventListener('pagehide', () => lock('hidden'));
+
+/* =====================================================================
+   ИНТЕРФЕЙС
+   ===================================================================== */
+
+const app = document.getElementById('app');
+
+function mount(templateId) {
+  const node = document.getElementById(templateId).content.cloneNode(true);
+  app.className = '';
+  app.replaceChildren(node);
+  wireRevealButtons(app);
+  return app.firstElementChild;
+}
+
+const EYE = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>';
+
+function wireRevealButtons(root) {
+  root.querySelectorAll('.reveal').forEach((btn) => {
+    btn.innerHTML = EYE;
+    btn.addEventListener('click', () => {
+      const input = btn.previousElementSibling;
+      const show = input.type === 'password';
+      input.type = show ? 'text' : 'password';
+      btn.setAttribute('aria-pressed', String(show));
+      btn.setAttribute('aria-label', show ? 'Скрыть пароль' : 'Показать пароль');
+    });
+  });
+}
+
+function showError(message, shakeEl) {
+  const el = app.querySelector('[data-error]');
+  if (el) el.textContent = message;
+  const target = shakeEl || app.querySelector('.sys');
+  if (message && target) {
+    target.classList.remove('shake');
+    void target.offsetWidth;
+    target.classList.add('shake');
+  }
+}
+
+function setBusy(button, busyText) {
+  if (busyText) {
+    button.dataset.label = button.textContent;
+    button.disabled = true;
+    button.innerHTML = '<span class="spin"></span>';
+    button.append(busyText);
+  } else {
+    button.disabled = false;
+    button.textContent = button.dataset.label;
+  }
+}
+
+/* ---------- Первый запуск ---------- */
+
+function showSetup() {
+  const root = mount('tpl-setup');
+  const form = root.querySelector('form');
+  root.querySelector('[data-action="restore"]').addEventListener('click', pickBackup);
+  if (isIOS() && !isStandalone()) root.querySelector('[data-ios-hint]').hidden = false;
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const name = form.player.value.trim();
+    const pw = form.pw.value;
+    if (pw.length < CONFIG.minPasswordLength) return showError(`Пароль должен быть не короче ${CONFIG.minPasswordLength} символов.`);
+    if (pw !== form.pw2.value) return showError('Пароли не совпадают.');
+    if (!form.ack.checked) return showError('Подтвердите, что понимаете: пароль восстановить нельзя.');
+    const btn = form.querySelector('[data-submit]');
+    setBusy(btn, 'Инициализация…');
+    try {
+      await createVault(pw, name);
+      showHome();
+    } catch (err) {
+      console.error(err);
+      setBusy(btn, null);
+      showError('Не удалось создать хранилище. Проверьте, что приватный режим выключен.');
+    }
+  });
+}
+
+/* ---------- Вход ---------- */
+
+const LOCK_REASONS = {
+  idle: 'Сеанс заблокирован: 5 минут без активности.',
+  hidden: 'Сеанс заблокирован при сворачивании.',
+  manual: 'Сеанс заблокирован.',
+};
+
+function showLogin(reason) {
+  const root = mount('tpl-login');
+  const form = root.querySelector('form');
+  const reasonEl = root.querySelector('[data-reason]');
+  if (reason && LOCK_REASONS[reason]) {
+    reasonEl.textContent = LOCK_REASONS[reason];
+    reasonEl.hidden = false;
+  }
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const pw = form.pw.value;
+    if (!pw) return showError('Введите пароль.');
+    const btn = form.querySelector('[data-submit]');
+    setBusy(btn, 'Расшифровка…');
+    try {
+      await unlockVault(pw);
+      showHome();
+    } catch (err) {
+      setBusy(btn, null);
+      if (err && err.name === 'OperationError') {
+        form.pw.value = '';
+        showError('Неверный пароль.');
+        form.pw.focus();
+      } else {
+        console.error(err);
+        showError('Хранилище повреждено или в неизвестном формате.');
+      }
+    }
+  });
+  root.querySelector('[data-action="forgot"]').addEventListener('click', showWipe);
+  root.querySelector('[data-action="restore"]').addEventListener('click', pickBackup);
+}
+
+/* ---------- Сброс ---------- */
+
+function showWipe() {
+  const root = mount('tpl-wipe');
+  const form = root.querySelector('form');
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+    if (form.confirm.value.trim().toUpperCase() !== 'СТЕРЕТЬ') return showError('Введите слово «СТЕРЕТЬ».');
+    Vault.wipe();
+    showSetup();
+  });
+  root.querySelector('[data-action="back"]').addEventListener('click', () => showLogin());
+}
+
+/* ---------- Мелкие помощники интерфейса ---------- */
+
+const ESC = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' };
+const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ESC[c]);
+const fmt = (n) => n.toLocaleString('ru-RU');
+
+/** Отложенное сохранение поля ввода; flushInputs() дописывает его перед блокировкой. */
+let pendingCommit = null;
+
+function commitLater(fn) {
+  if (pendingCommit) clearTimeout(pendingCommit.timer);
+  pendingCommit = { fn, timer: setTimeout(flushInputs, 500) };
+}
+
+function flushInputs() {
+  if (!pendingCommit) return;
+  const { fn, timer } = pendingCommit;
+  clearTimeout(timer);
+  pendingCommit = null;
+  fn();
+}
+
+/** Кнопка опасного действия: первое нажатие спрашивает, второе выполняет. */
+function confirmPress(btn, question, action) {
+  if (btn.dataset.armed) return action();
+  const label = btn.textContent;
+  btn.dataset.armed = '1';
+  btn.classList.add('armed');
+  btn.textContent = question;
+  setTimeout(() => {
+    if (!btn.isConnected) return;
+    delete btn.dataset.armed;
+    btn.classList.remove('armed');
+    btn.textContent = label;
+  }, 3000);
+}
+
+/* ---------- Всплывающие уведомления ---------- */
+
+function toast({ title, main, sub, kind, action, ms = 4000 }) {
+  let box = document.getElementById('toasts');
+  if (!box) {
+    box = document.createElement('div');
+    box.id = 'toasts';
+    box.className = 'toasts';
+    document.body.append(box);
+  }
+  const el = document.createElement('div');
+  el.className = 'toast' + (kind ? ' ' + kind : '');
+  el.setAttribute('role', 'status');
+  el.innerHTML = '<div class="t-body"><div class="t-title"></div><div class="t-main"></div><div class="t-sub"></div></div>';
+  el.querySelector('.t-title').textContent = title;
+  el.querySelector('.t-main').textContent = main;
+  if (sub) el.querySelector('.t-sub').textContent = sub;
+  else el.querySelector('.t-sub').remove();
+
+  const dismiss = () => {
+    if (!el.isConnected || el.classList.contains('out')) return;
+    el.classList.add('out');
+    setTimeout(() => el.remove(), 250);
+  };
+  if (action) {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.textContent = action.label;
+    btn.addEventListener('click', () => { action.run(); dismiss(); });
+    el.append(btn);
+  }
+  box.append(el);
+  while (box.children.length > 3) box.firstElementChild.remove();
+  setTimeout(dismiss, ms);
+}
+
+function clearToasts() {
+  const box = document.getElementById('toasts');
+  if (box) box.replaceChildren();
+}
+
+/* ---------- Окно поверх экрана ---------- */
+
+let sheet = null;
+
+function openSheet(title, body) {
+  closeSheet();
+  sheet = document.createElement('div');
+  sheet.className = 'layer';
+  sheet.innerHTML = `<section class="sys" role="dialog" aria-modal="true" aria-label="${esc(title)}">
+      <div class="scan"></div>
+      <header class="sys-head"><div class="sys-icon">!</div><h2 class="sys-title">${esc(title)}</h2></header>
+      ${body}
+    </section>`;
+  sheet.addEventListener('click', (e) => {
+    if (e.target === sheet || e.target.closest('[data-action="close"]')) closeSheet();
+  });
+  document.body.append(sheet);
+  document.documentElement.classList.add('noscroll');
+  return sheet.querySelector('.sys');
+}
+
+function closeSheet() {
+  if (!sheet) return;
+  sheet.remove();
+  sheet = null;
+  document.documentElement.classList.remove('noscroll');
+}
+
+addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') closeSheet();
+});
+
+function sheetError(root, message) {
+  root.querySelector('[data-error]').textContent = message;
+  root.classList.remove('shake');
+  void root.offsetWidth;
+  root.classList.add('shake');
+}
+
+/* =====================================================================
+   ОТКЛИК: звук, вибрация, частицы, окна «Система»
+   ===================================================================== */
+
+const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
+
+/* ---------- Звук: синтез через Web Audio, без файлов ---------- */
+
+const Sound = {
+  ctx: null,
+  master: null,
+
+  /** Контекст создаётся и «будится» по нажатию — иначе iOS не даст играть звук. */
+  context() {
+    if (!this.ctx) {
+      const AC = window.AudioContext || window.webkitAudioContext;
+      if (!AC) return null;
+      this.ctx = new AC();
+      this.master = this.ctx.createGain();
+      this.master.gain.value = 0.55;
+      this.master.connect(this.ctx.destination);
+    }
+    if (this.ctx.state === 'suspended') this.ctx.resume();
+    return this.ctx;
+  },
+
+  tone(at, freq, dur, { type = 'sine', gain = 0.2, attack = 0.008, to = null } = {}) {
+    const osc = this.ctx.createOscillator();
+    const amp = this.ctx.createGain();
+    osc.type = type;
+    osc.frequency.setValueAtTime(freq, at);
+    if (to) osc.frequency.exponentialRampToValueAtTime(to, at + dur);
+    amp.gain.setValueAtTime(0.0001, at);
+    amp.gain.exponentialRampToValueAtTime(gain, at + attack);
+    amp.gain.exponentialRampToValueAtTime(0.0001, at + dur);
+    osc.connect(amp).connect(this.master);
+    osc.start(at);
+    osc.stop(at + dur + 0.05);
+  },
+
+  /** delay — в секундах; отсчёт по часам аудио, поэтому звук сыграет и без нового нажатия. */
+  play(name, delay = 0) {
+    if (!session || !session.state.settings.sound) return;
+    const ctx = this.context();
+    if (!ctx) return;
+    SOUNDS[name](ctx.currentTime + 0.02 + delay);
+  },
+};
+
+const SOUNDS = {
+  quest(t) {
+    Sound.tone(t, 1318.5, 0.16, { gain: 0.16 });
+    Sound.tone(t + 0.07, 1975.5, 0.32, { gain: 0.14 });
+    Sound.tone(t, 659.25, 0.2, { type: 'triangle', gain: 0.06 });
+  },
+  undo(t) {
+    Sound.tone(t, 740, 0.18, { gain: 0.1, to: 420 });
+  },
+  levelUp(t) {
+    [523.25, 659.25, 783.99, 1046.5, 1318.5].forEach((f, i) => {
+      Sound.tone(t + i * 0.075, f, 0.42, { type: 'triangle', gain: 0.16 });
+    });
+    Sound.tone(t + 0.38, 2093, 0.9, { gain: 0.05, attack: 0.05 });
+    Sound.tone(t + 0.38, 1046.5, 1.0, { gain: 0.07, attack: 0.05 });
+  },
+  rankUp(t) {
+    Sound.tone(t, 160, 1.1, { gain: 0.4, to: 38 });
+    Sound.tone(t, 80, 1.3, { type: 'triangle', gain: 0.18, to: 30 });
+    [392, 493.88, 587.33, 783.99].forEach((f) => {
+      Sound.tone(t + 0.9, f, 1.8, { type: 'triangle', gain: 0.07, attack: 0.35 });
+    });
+    [1568, 1975.5, 2349.3, 3136].forEach((f, i) => {
+      Sound.tone(t + 1.45 + i * 0.07, f, 0.6, { gain: 0.05 });
+    });
+  },
+};
+
+/* ---------- Вибрация ---------- */
+
+let hapticLabel = null;
+
+/**
+ * Android — Vibration API. В Safari на iPhone его нет; там iOS 18+ даёт короткий
+ * тактильный щелчок при переключении системного свитча — им и пользуемся.
+ */
+function haptic(pattern) {
+  if (!session || !session.state.settings.haptics) return;
+  if (navigator.vibrate) {
+    navigator.vibrate(pattern);
+    return;
+  }
+  if (!hapticLabel) {
+    const box = document.createElement('div');
+    box.setAttribute('aria-hidden', 'true');
+    box.style.cssText = 'position:fixed;left:-100px;top:0;width:1px;height:1px;overflow:hidden;opacity:0;pointer-events:none';
+    box.innerHTML = '<input type="checkbox" switch id="haptic-switch" tabindex="-1"><label for="haptic-switch"></label>';
+    document.body.append(box);
+    hapticLabel = box.querySelector('label');
+  }
+  hapticLabel.click();
+}
+
+/* ---------- Частицы: один холст поверх всего, работает только пока есть искры ---------- */
+
+const FX = {
+  canvas: null,
+  ctx: null,
+  parts: [],
+  emitter: null,
+  frame: 0,
+  last: 0,
+
+  ensure() {
+    if (this.canvas) return;
+    this.canvas = document.createElement('canvas');
+    this.canvas.id = 'fx-canvas';
+    document.body.append(this.canvas);
+    this.ctx = this.canvas.getContext('2d');
+    this.resize();
+    addEventListener('resize', () => this.resize());
+  },
+
+  resize() {
+    const dpr = Math.min(2, devicePixelRatio || 1);
+    this.dpr = dpr;
+    this.canvas.width = innerWidth * dpr;
+    this.canvas.height = innerHeight * dpr;
+  },
+
+  /** Взрыв искр из точки. */
+  burst(x, y, { count = 24, color = '#66d0ff', speed = 260, life = 0.9, size = 2.4, gravity = 220, up = 0 } = {}) {
+    if (reducedMotion.matches) return;
+    this.ensure();
+    for (let i = 0; i < count; i++) {
+      const a = Math.random() * Math.PI * 2;
+      const v = speed * (0.35 + Math.random() * 0.65);
+      this.parts.push({
+        x, y,
+        vx: Math.cos(a) * v,
+        vy: Math.sin(a) * v - up,
+        g: gravity,
+        life: life * (0.6 + Math.random() * 0.4),
+        age: 0,
+        size: size * (0.6 + Math.random() * 0.8),
+        color,
+      });
+    }
+    this.start();
+  },
+
+  /** Поток искр, поднимающихся снизу, — фон окна LEVEL UP. */
+  rise(color, perSecond = 40) {
+    if (reducedMotion.matches) return;
+    this.ensure();
+    this.emitter = (dt) => {
+      const n = perSecond * dt + Math.random() * 0.5;
+      for (let i = 0; i < n; i++) {
+        this.parts.push({
+          x: Math.random() * innerWidth,
+          y: innerHeight + 10,
+          vx: (Math.random() - 0.5) * 30,
+          vy: -(90 + Math.random() * 180),
+          g: 0,
+          life: 2 + Math.random() * 1.8,
+          age: 0,
+          size: 0.8 + Math.random() * 1.6,
+          color,
+        });
+      }
+    };
+    this.start();
+  },
+
+  start() {
+    if (this.frame) return;
+    this.last = performance.now();
+    this.frame = requestAnimationFrame((t) => this.tick(t));
+  },
+
+  tick(now) {
+    const dt = Math.min(0.05, (now - this.last) / 1000);
+    this.last = now;
+    if (this.emitter) this.emitter(dt);
+    const { ctx, dpr } = this;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctx.clearRect(0, 0, innerWidth, innerHeight);
+    ctx.globalCompositeOperation = 'lighter';
+    this.parts = this.parts.filter((p) => (p.age += dt) < p.life);
+    for (const p of this.parts) {
+      p.vy += p.g * dt;
+      p.vx *= 0.985;
+      p.x += p.vx * dt;
+      p.y += p.vy * dt;
+      const k = 1 - p.age / p.life;
+      ctx.fillStyle = p.color;
+      ctx.globalAlpha = k * 0.16;
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.size * 2.2, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.globalAlpha = k;
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    ctx.globalAlpha = 1;
+    if (this.parts.length || this.emitter) {
+      this.frame = requestAnimationFrame((t) => this.tick(t));
+    } else {
+      this.frame = 0;
+      ctx.clearRect(0, 0, innerWidth, innerHeight);
+    }
+  },
+
+  stopRise() {
+    this.emitter = null;
+  },
+
+  clear() {
+    this.emitter = null;
+    this.parts = [];
+  },
+};
+
+/** «+25 XP», всплывающее над точкой. */
+function floatXp(x, y, text) {
+  const el = document.createElement('div');
+  el.className = 'float-xp';
+  el.textContent = text;
+  el.style.left = x + 'px';
+  el.style.top = y + 'px';
+  document.body.append(el);
+  setTimeout(() => el.remove(), 1200);
+}
+
+/* ---------- Полноэкранные окна LEVEL UP и повышения ранга ---------- */
+
+let fxOverlay = null;
+const fxQueue = [];
+
+function closeFx() {
+  fxQueue.length = 0;
+  FX.clear();
+  if (fxOverlay) fxOverlay.remove();
+  fxOverlay = null;
+}
+
+/** Окна идут по очереди: следующее открывается, когда закрыли предыдущее. */
+function queueFx(show) {
+  if (!session) return;
+  fxQueue.push(show);
+  if (!fxOverlay) fxQueue.shift()();
+}
+
+function openFx(className, html, armAfterMs) {
+  fxOverlay = document.createElement('div');
+  fxOverlay.className = 'fx-overlay ' + className;
+  fxOverlay.setAttribute('role', 'alertdialog');
+  fxOverlay.innerHTML = html;
+  document.body.append(fxOverlay);
+  const btn = fxOverlay.querySelector('[data-action="accept"]');
+  btn.disabled = true;
+  setTimeout(() => { btn.disabled = false; }, reducedMotion.matches ? 0 : armAfterMs);
+  btn.addEventListener('click', () => {
+    const el = fxOverlay;
+    fxOverlay = null;
+    FX.stopRise();
+    el.classList.add('out');
+    setTimeout(() => el.remove(), 300);
+    if (fxQueue.length) setTimeout(() => fxQueue.shift()(), 320);
+  });
+  return fxOverlay;
+}
+
+function statUpList(statUps) {
+  return statUps.length ? `<ul class="fx-list">${statUps.map((s) => `<li>${esc(s)}</li>`).join('')}</ul>` : '';
+}
+
+function showLevelUp({ from, to, statUps = [] }) {
+  openFx('lvl', `
+    <div class="fx-beam"></div>
+    <section class="sys fx-win">
+      <div class="scan"></div>
+      <header class="sys-head"><div class="sys-icon">!</div><h2 class="sys-title">Уведомление</h2></header>
+      <div class="fx-big">LEVEL UP!</div>
+      <div class="fx-level"><span class="from">${from}</span><span class="arrow">→</span><b class="to">${to}</b></div>
+      <p class="fx-sub">Уровень повышен. Продолжайте, Игрок.</p>
+      ${statUpList(statUps)}
+      <button class="btn" type="button" data-action="accept">Принять</button>
+    </section>`, 900);
+  Sound.play('levelUp');
+  FX.rise('#66d0ff', 36);
+  setTimeout(() => FX.burst(innerWidth / 2, innerHeight * 0.42, { count: 70, speed: 420, life: 1.3, gravity: 120, color: '#a9e6ff' }), 450);
+}
+
+const RANK_COLORS = { E: '#9fb6c8', D: '#6dffc0', C: '#66d0ff', B: '#b99bff', A: '#ff8a5c', S: '#ffd36b' };
+
+function showRankUp({ fromRank, toRank, level, statUps = [] }) {
+  const color = RANK_COLORS[toRank];
+  const el = openFx(`rank r-${toRank}`, `
+    <div class="fx-flash"></div>
+    <div class="fx-ring"></div><div class="fx-ring d2"></div>
+    <div class="fx-beam"></div>
+    <section class="sys fx-win">
+      <div class="scan"></div>
+      <header class="sys-head"><div class="sys-icon">!</div><h2 class="sys-title">Повышение ранга</h2></header>
+      <div class="fx-rank"><span class="old">${fromRank}</span><b class="new">${toRank}</b></div>
+      <div class="fx-big small">RANK UP</div>
+      <p class="fx-title">Охотник ранга ${toRank}</p>
+      <p class="fx-sub">Уровень ${level}. Система признала ваш рост.</p>
+      ${statUpList(statUps)}
+      <button class="btn" type="button" data-action="accept">Принять</button>
+    </section>`, 2300);
+  if (!reducedMotion.matches) el.classList.add('shake-hard');
+  Sound.play('rankUp');
+  setTimeout(() => FX.burst(innerWidth / 2, innerHeight / 2, { count: 90, speed: 520, life: 1.2, gravity: 60, color: '#ffffff' }), 80);
+  setTimeout(() => {
+    FX.burst(innerWidth / 2, innerHeight * 0.38, { count: 160, speed: 640, life: 1.6, gravity: 160, size: 2.8, color });
+    FX.rise(color, 44);
+  }, 1450);
+}
+
+/** Счётчик опыта плавно докручивается до нового значения. */
+function countTo(el, to) {
+  const from = el.dataset.value === undefined ? to : Number(el.dataset.value);
+  el.dataset.value = to;
+  const token = (el._count = (el._count || 0) + 1);
+  if (from === to || reducedMotion.matches) {
+    el.textContent = fmt(to) + ' XP';
+    return;
+  }
+  const t0 = performance.now();
+  const step = (now) => {
+    if (el._count !== token) return;
+    const k = Math.min(1, (now - t0) / 800);
+    el.textContent = fmt(Math.round(from + (to - from) * (1 - Math.pow(1 - k, 3)))) + ' XP';
+    if (k < 1) requestAnimationFrame(step);
+  };
+  requestAnimationFrame(step);
+}
+
+/** Полоса уровня в шапке; при повышении сначала доливается до конца. */
+function setTopbarBar(level, pct) {
+  const bar = app.querySelector('.topbar-xp > i');
+  const prev = bar.dataset.level === undefined ? level : Number(bar.dataset.level);
+  bar.dataset.level = level;
+  clearTimeout(bar._reset);
+  if (level > prev && !reducedMotion.matches) {
+    bar.style.width = '100%';
+    bar._reset = setTimeout(() => {
+      bar.style.transition = 'none';
+      bar.style.width = '0%';
+      void bar.offsetWidth;
+      bar.style.transition = '';
+      bar.style.width = pct + '%';
+    }, 900);
+  } else {
+    requestAnimationFrame(() => { bar.style.width = pct + '%'; });
+  }
+}
+
+/* =====================================================================
+   ГЛАВНЫЙ ЭКРАН: вкладки «Статус», «Квесты», «Настройки»
+   ===================================================================== */
+
+const LOG_PAGE = 50;
+const ui = { tab: 'status', showAllDone: false, logLimit: LOG_PAGE };
+let renderTimer = null;
+
+function showHome() {
+  ui.tab = 'status';
+  ui.showAllDone = false;
+  ui.logLimit = LOG_PAGE;
+  mount('tpl-shell');
+  app.classList.add('shell');
+  app.querySelector('.topbar [data-action="lock"]').addEventListener('click', () => lock('manual'));
+  app.querySelector('.tabbar').addEventListener('click', (e) => {
+    const btn = e.target.closest('[data-tab]');
+    if (!btn || btn.dataset.tab === ui.tab) return;
+    flushInputs();
+    ui.tab = btn.dataset.tab;
+    ui.logLimit = LOG_PAGE;
+    render();
+    scrollTo(0, 0);
+  });
+  app.querySelector('[data-view]').addEventListener('click', onViewClick);
+  render();
+}
+
+function renderTopbar() {
+  const p = playerInfo();
+  app.querySelector('.topbar [data-bind="rankline"]').textContent = `Ранг ${p.rank} · Ур. ${p.level}`;
+  app.querySelector('.topbar [data-bind="name"]').textContent = session.state.profile.name;
+  countTo(app.querySelector('.topbar [data-bind="xp"]'), p.xp);
+  setTopbarBar(p.level, (p.into / p.need * 100).toFixed(1));
+}
+
+function render() {
+  clearTimeout(renderTimer);
+  if (!session || !app.classList.contains('shell')) return;
+  renderTopbar();
+  app.querySelectorAll('[data-tab]').forEach((b) => {
+    if (b.dataset.tab === ui.tab) b.setAttribute('aria-current', 'page');
+    else b.removeAttribute('aria-current');
+  });
+  const view = app.querySelector('[data-view]');
+  view.innerHTML = VIEWS[ui.tab]();
+  if (ui.tab === 'settings') wireSettings(view);
+  // Полоски заполняются с нуля — видно, сколько набрано
+  requestAnimationFrame(() => requestAnimationFrame(() => {
+    view.querySelectorAll('.bar > i[data-pct]').forEach((i) => { i.style.width = i.dataset.pct + '%'; });
+    view.querySelectorAll('.bar-track > i[data-h]').forEach((i) => { i.style.height = i.dataset.h + '%'; });
+  }));
+}
+
+const VIEWS = { status: statusView, quests: questsView, journal: journalView, settings: settingsView };
+
+function onViewClick(e) {
+  const t = e.target.closest('[data-check], [data-edit], [data-stat], [data-action], [data-day]');
+  if (!t || !session) return;
+  if (t.dataset.day !== undefined) {
+    // Нажатие на столбик показывает его значение
+    const was = t.classList.contains('sel');
+    t.parentElement.querySelectorAll('.sel').forEach((c) => c.classList.remove('sel'));
+    if (!was) t.classList.add('sel');
+    return;
+  }
+  if (t.dataset.check) return toggleQuest(t.dataset.check, t);
+  if (t.dataset.edit) return openQuestEditor(findQuest(t.dataset.edit));
+  if (t.dataset.stat) return openStatEditor(session.state.stats.find((s) => s.id === t.dataset.stat));
+  switch (t.dataset.action) {
+    case 'new-quest': return openQuestEditor(null);
+    case 'new-stat': return openStatEditor(null);
+    case 'show-done': ui.showAllDone = !ui.showAllDone; return render();
+    case 'more-log': ui.logLimit += LOG_PAGE; return render();
+    case 'export': return exportBackup();
+    case 'import': return pickBackup();
+    case 'reset-xp': return resetXp();
+    case 'reset-ranks': return resetRanks();
+    case 'preview-level': return previewLevelUp();
+    case 'preview-rank': return previewRankUp();
+    case 'lock': return lock('manual');
+  }
+}
+
+/* ---------- Квесты ---------- */
+
+const DONE_PREVIEW = 5;
+
+function findQuest(id) {
+  return session.state.quests.find((q) => q.id === id);
+}
+
+function questsView() {
+  const { quests } = session.state;
+  const done = completionIndex();
+  const byNewest = (a, b) => b.createdAt - a.createdAt;
+  const recurring = quests.filter((q) => q.repeat !== 'none').sort(byNewest);
+  const active = quests.filter((q) => q.repeat === 'none' && !done.has(q.id)).sort(byNewest);
+  const finished = quests
+    .filter((q) => q.repeat === 'none' && done.has(q.id))
+    .sort((a, b) => done.get(b.id).at - done.get(a.id).at);
+
+  let html = '<button class="btn add" type="button" data-action="new-quest">+ Новый квест</button>';
+  if (!quests.length) {
+    return html + `<div class="section-h">Квесты</div>
+      <div class="panel empty"><b>Активных квестов нет</b>Добавьте первое дело — Система начислит опыт за выполнение.</div>`;
+  }
+  if (recurring.length) {
+    const left = recurring.filter((q) => !done.has(q.id)).length;
+    html += `<div class="section-h">Ежедневные квесты <span class="count">${recurring.length - left}/${recurring.length}</span></div>`;
+    html += recurring.map((q) => questCard(q, done.get(q.id))).join('');
+  }
+  html += `<div class="section-h">Квесты <span class="count">${active.length}</span></div>`;
+  html += active.length
+    ? active.map((q) => questCard(q, null)).join('')
+    : '<div class="panel empty">Все разовые квесты выполнены.</div>';
+  if (finished.length) {
+    const shown = ui.showAllDone ? finished : finished.slice(0, DONE_PREVIEW);
+    html += `<div class="section-h">Выполнено <span class="count">${finished.length}</span></div>`;
+    html += shown.map((q) => questCard(q, done.get(q.id))).join('');
+    if (finished.length > DONE_PREVIEW) {
+      html += `<button class="more" type="button" data-action="show-done">${ui.showAllDone ? 'Свернуть' : `Показать все (${finished.length})`}</button>`;
+    }
+  }
+  return html;
+}
+
+function questCard(q, entry) {
+  const xp = entry ? entry.xp : session.state.settings.xp[q.type];
+  const names = q.stats.map(statName).filter((n) => n !== '—');
+  const repeat = q.repeat === 'daily' ? '↻ день' : q.repeat === 'weekly' ? '↻ неделя' : '';
+  return `<article class="panel quest${entry ? ' done' : ''}">
+    <button class="qcheck" type="button" data-check="${q.id}" role="checkbox" aria-checked="${!!entry}" aria-label="${entry ? 'Снять отметку' : 'Выполнено'}: ${esc(q.title)}"><span class="qbox"></span></button>
+    <button class="qbody" type="button" data-edit="${q.id}">
+      <span class="qtitle">${esc(q.title)}</span>
+      ${q.note ? `<span class="qnote">${esc(q.note)}</span>` : ''}
+      <span class="chips">
+        <span class="chip t-${q.type}">${TYPE_BY_ID[q.type].name}</span>
+        ${repeat ? `<span class="chip">${repeat}</span>` : ''}
+        ${names.map((n) => `<span class="chip">${esc(n)}</span>`).join('')}
+      </span>
+    </button>
+    <span class="qxp">+${fmt(xp)}</span>
+  </article>`;
+}
+
+function toggleQuest(id, checkBtn) {
+  const q = findQuest(id);
+  if (!q) return;
+  const entry = completionIndex().get(id);
+  if (entry) return undoEntry(entry.id);
+
+  const box = checkBtn.querySelector('.qbox').getBoundingClientRect();
+  const x = box.left + box.width / 2;
+  const y = box.top + box.height / 2;
+  const xp = completeQuest(q);
+  floatXp(x + 40, y - 6, `+${fmt(xp)} XP`);
+  FX.burst(x, y, { count: 26, speed: 300, life: 0.8, gravity: 260 });
+  // Даём досмотреть вспышку, потом квест переезжает в «Выполнено»
+  const card = checkBtn.closest('.quest');
+  card.classList.add('done', 'flash');
+  checkBtn.setAttribute('aria-checked', 'true');
+  renderTopbar();
+  clearTimeout(renderTimer);
+  renderTimer = setTimeout(render, 700);
+}
+
+function completeQuest(q) {
+  const { state } = session;
+  const xp = state.settings.xp[q.type];
+  const statIds = q.stats.filter((id) => state.stats.some((s) => s.id === id));
+  const before = statXp();
+  const playerBefore = playerInfo();
+  const firstToday = !streakInfo().todayDone;
+  const entry = {
+    id: uid(),
+    questId: q.id,
+    title: q.title,
+    type: q.type,
+    xp,
+    stats: splitXp(xp, statIds),
+    period: periodKey(q.repeat),
+    at: Date.now(),
+  };
+  state.log.push(entry);
+  save();
+
+  const after = statXp();
+  const statUps = statIds
+    .map((sid) => [sid, levelInfo(before.get(sid) || 0).level, levelInfo(after.get(sid) || 0).level])
+    .filter(([, was, now]) => now > was)
+    .map(([sid, , now]) => `${statName(sid)}: ур. ${now}`);
+  const playerAfter = playerInfo();
+  const rankUp = playerAfter.rank !== playerBefore.rank;
+  const levelUp = playerAfter.level > playerBefore.level;
+
+  Sound.play('quest');
+  haptic(rankUp ? [30, 60, 30, 60, 80] : levelUp ? [30, 60, 50] : 25);
+  toast({
+    title: '[Квест выполнен]',
+    main: `+${fmt(xp)} XP`,
+    sub: Object.entries(entry.stats).map(([sid, v]) => `+${v} ${statName(sid)}`).join(' · '),
+    action: { label: 'Отменить', run: () => undoEntry(entry.id) },
+    ms: 6000,
+  });
+
+  if (firstToday) {
+    const { current, best } = streakInfo();
+    if (current >= 2) {
+      toast({
+        title: current >= best ? 'Серия · рекорд' : 'Серия продлена',
+        main: `${current} ${plural(current, ['день', 'дня', 'дней'])} подряд`,
+        kind: 'up',
+        ms: 4500,
+      });
+    }
+  }
+
+  // Ранг важнее уровня: при повышении ранга показываем одно, самое эффектное окно
+  if (rankUp) {
+    setTimeout(() => queueFx(() => showRankUp({ fromRank: playerBefore.rank, toRank: playerAfter.rank, level: playerAfter.level, statUps })), 550);
+  } else if (levelUp) {
+    setTimeout(() => queueFx(() => showLevelUp({ from: playerBefore.level, to: playerAfter.level, statUps })), 550);
+  } else if (statUps.length === 1) {
+    toast({ title: 'Характеристика повышена', main: statUps[0], kind: 'up', ms: 5000 });
+  } else if (statUps.length > 1) {
+    toast({ title: 'Характеристики повышены', main: `+${statUps.length}`, sub: statUps.join(' · '), kind: 'up', ms: 5000 });
+  }
+  return xp;
+}
+
+/** Откат отметки: запись удаляется из журнала, опыт пересчитывается. */
+function undoEntry(entryId) {
+  if (!session) return;
+  const { log } = session.state;
+  const i = log.findIndex((e) => e.id === entryId);
+  if (i < 0) return;
+  const [entry] = log.splice(i, 1);
+  save();
+  Sound.play('undo');
+  haptic(15);
+  toast({ title: 'Отметка снята', main: `−${fmt(entry.xp)} XP`, kind: 'minus', ms: 3000 });
+  render();
+}
+
+function openQuestEditor(quest) {
+  const { state } = session;
+  const q = quest || { title: '', note: '', type: 'normal', stats: [], repeat: 'none' };
+  const root = openSheet(quest ? 'Квест' : 'Новый квест', `
+    <form novalidate>
+      <label class="field"><span>Название</span>
+        <input name="title" type="text" maxlength="120" autocomplete="off" value="${esc(q.title)}">
+      </label>
+      <label class="field"><span>Заметка</span>
+        <textarea name="note" rows="2" maxlength="1000" placeholder="Необязательно">${esc(q.note)}</textarea>
+      </label>
+      <div class="field"><span>Тип</span>
+        <div class="choices types">${TASK_TYPES.map((t) => `
+          <label class="choice t-${t.id}"><input type="radio" name="type" value="${t.id}"${q.type === t.id ? ' checked' : ''}>
+            <span><b>${t.name}</b><small>+${fmt(state.settings.xp[t.id])} XP</small></span></label>`).join('')}
+        </div>
+      </div>
+      <div class="field"><span>Характеристики</span>
+        <div class="choices">${state.stats.map((s) => `
+          <label class="choice"><input type="checkbox" name="stats" value="${s.id}"${q.stats.includes(s.id) ? ' checked' : ''}>
+            <span>${esc(s.name)}</span></label>`).join('')}
+        </div>
+        <div class="hint" data-split></div>
+      </div>
+      <div class="field"><span>Повтор</span>
+        <div class="choices">${Object.entries(REPEATS).map(([v, label]) => `
+          <label class="choice"><input type="radio" name="repeat" value="${v}"${q.repeat === v ? ' checked' : ''}>
+            <span>${label}</span></label>`).join('')}
+        </div>
+      </div>
+      <p class="error" data-error></p>
+      <button class="btn" type="submit">${quest ? 'Сохранить' : 'Принять квест'}</button>
+      ${quest ? '<button class="btn ghost danger-text" type="button" data-action="delete">Удалить квест</button>' : ''}
+      <button class="btn ghost" type="button" data-action="close">Отмена</button>
+    </form>`);
+
+  const form = root.querySelector('form');
+  const f = form.elements;
+  const selectedStats = () => [...form.querySelectorAll('input[name="stats"]:checked')].map((i) => i.value);
+  const splitHint = root.querySelector('[data-split]');
+  const updateSplit = () => {
+    const parts = Object.entries(splitXp(state.settings.xp[f.type.value], selectedStats()));
+    splitHint.textContent = parts.length
+      ? parts.map(([id, v]) => `+${v} ${statName(id)}`).join(' · ')
+      : 'Опыт делится поровну между выбранными.';
+  };
+  form.addEventListener('change', updateSplit);
+  updateSplit();
+  if (!quest) f.title.focus();
+
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const title = f.title.value.trim();
+    const stats = selectedStats();
+    if (!title) return sheetError(root, 'Введите название квеста.');
+    if (!stats.length) return sheetError(root, 'Выберите хотя бы одну характеристику.');
+    const data = { title, note: f.note.value.trim(), type: f.type.value, stats, repeat: f.repeat.value };
+    if (quest) Object.assign(quest, data);
+    else state.quests.push({ id: uid(), createdAt: Date.now(), ...data });
+    save();
+    closeSheet();
+    render();
+  });
+
+  const del = root.querySelector('[data-action="delete"]');
+  if (del) {
+    del.addEventListener('click', () => confirmPress(del, 'Точно удалить? Нажмите ещё раз', () => {
+      // Заработанный опыт остаётся в журнале
+      state.quests = state.quests.filter((x) => x.id !== quest.id);
+      save();
+      closeSheet();
+      render();
+    }));
+  }
+}
+
+/* ---------- Журнал ---------- */
+
+const WEEKDAYS = ['Вс', 'Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб'];
+
+function countersHtml() {
+  const days = xpByDay();
+  const today = days.get(dayKey(new Date()));
+  const st = streakInfo();
+  return `<div class="counters four">
+      <div><b>${fmt(today ? today.xp : 0)}</b><small>XP сегодня</small></div>
+      <div><b>${fmt(weekXp())}</b><small>XP за неделю</small></div>
+      <div class="streak${st.todayDone ? '' : ' cold'}"><b>${st.current}</b><small>${plural(st.current, ['день', 'дня', 'дней'])} подряд</small></div>
+      <div><b>${fmt(session.state.log.length)}</b><small>Квестов выполнено</small></div>
+    </div>
+    ${st.current > 0 && !st.todayDone ? '<p class="streak-hint warn">Выполните квест сегодня, чтобы не прервать серию.</p>' : ''}`;
+}
+
+function dayTitle(date) {
+  const key = dayKey(date);
+  if (key === dayKey(new Date())) return 'Сегодня';
+  if (key === dayKey(addDays(new Date(), -1))) return 'Вчера';
+  return date.toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', weekday: 'short' });
+}
+
+function chartHtml() {
+  const days = xpByDay();
+  const now = new Date();
+  const cols = [];
+  for (let i = 6; i >= 0; i--) {
+    const d = addDays(now, -i);
+    const day = days.get(dayKey(d));
+    cols.push({ d, xp: day ? day.xp : 0, today: i === 0 });
+  }
+  const max = Math.max(...cols.map((c) => c.xp));
+  const maxIdx = max > 0 ? cols.findIndex((c) => c.xp === max) : -1;
+  const sum = cols.reduce((a, c) => a + c.xp, 0);
+  return `<div class="panel chart">
+      <div class="chart-head"><b>Опыт за 7 дней</b><span>${fmt(sum)} XP</span></div>
+      <div class="bars">${cols.map((c, i) => `
+        <button class="bar-col${c.today || i === maxIdx ? ' lbl' : ''}" type="button" data-day="${i}" aria-label="${dayTitle(c.d)}: ${fmt(c.xp)} XP">
+          <span class="bar-val">${fmt(c.xp)}</span>
+          <span class="bar-track"><i data-h="${max ? (c.xp / max * 100).toFixed(1) : 0}"></i></span>
+        </button>`).join('')}
+      </div>
+      <div class="bar-days">${cols.map((c) => `<span${c.today ? ' class="today"' : ''}>${WEEKDAYS[c.d.getDay()]}</span>`).join('')}</div>
+    </div>`;
+}
+
+function journalView() {
+  const { log } = session.state;
+  const st = streakInfo();
+  let html = `<div class="section-h">Статистика</div>
+    <div class="panel pad">
+      ${countersHtml()}
+      <p class="streak-hint">Рекорд серии: ${st.best} ${plural(st.best, ['день', 'дня', 'дней'])}</p>
+    </div>
+    ${chartHtml()}
+    <div class="section-h">Журнал <span class="count">${log.length}</span></div>`;
+  if (!log.length) {
+    return html + '<div class="panel empty"><b>Записей пока нет</b>Здесь появится каждый выполненный квест с датой и опытом.</div>';
+  }
+  const entries = log.slice().sort((a, b) => b.at - a.at);
+  const shown = entries.slice(0, ui.logLimit);
+  const days = xpByDay();
+  let currentKey = null;
+  let rows = '';
+  const flush = () => { if (rows) html += `<div class="panel log-list">${rows}</div>`; rows = ''; };
+  for (const e of shown) {
+    const date = new Date(e.at);
+    const key = dayKey(date);
+    if (key !== currentKey) {
+      flush();
+      const day = days.get(key);
+      html += `<div class="day-h">${dayTitle(date)}<span>+${fmt(day.xp)} XP · ${day.count} ${plural(day.count, ['квест', 'квеста', 'квестов'])}</span></div>`;
+      currentKey = key;
+    }
+    const stats = Object.entries(e.stats).map(([id, v]) => `+${v} ${esc(statName(id))}`).join(' · ');
+    const type = TYPE_BY_ID[e.type];
+    rows += `<div class="log-row">
+        <span class="log-time">${date.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' })}</span>
+        <span class="log-title">${esc(e.title)}</span>
+        <span class="log-xp">+${fmt(e.xp)}</span>
+        <span class="log-sub">${type ? `<span class="chip t-${e.type}">${type.name}</span>` : ''}${stats}</span>
+      </div>`;
+  }
+  flush();
+  if (entries.length > shown.length) {
+    html += `<button class="more" type="button" data-action="more-log">Показать ещё (${entries.length - shown.length})</button>`;
+  }
+  return html;
+}
+
+/* ---------- Статус: персонаж и характеристики ---------- */
+
+function statusView() {
+  const { state } = session;
+  const p = playerInfo();
+  const next = RANKS.find((r) => r.id !== 'E' && state.settings.ranks[r.id] > p.level);
+  const nextLine = next
+    ? `До ранга <b class="r-${next.id}">${next.id}</b> — уровень ${state.settings.ranks[next.id]} · осталось ${state.settings.ranks[next.id] - p.level} ур.`
+    : 'Высший ранг достигнут.';
+
+  const xpMap = statXp();
+  const cards = state.stats.map((s) => {
+    const xp = xpMap.get(s.id) || 0;
+    const info = levelInfo(xp);
+    return `<button class="panel stat" type="button" data-stat="${s.id}">
+      <span class="stat-top"><span class="stat-name">${esc(s.name)}</span><span class="stat-lv"><small>ур.</small>${info.level}</span></span>
+      <span class="bar"><i data-pct="${(info.into / info.need * 100).toFixed(1)}"></i></span>
+      <span class="stat-xp"><span>${fmt(info.into)} / ${fmt(info.need)}</span></span>
+    </button>`;
+  }).join('');
+
+  const banner = backupDue()
+    ? `<div class="panel backup-banner"><p><b>Напоминание</b>Бэкап ${backupAge() === null ? 'ещё не делали' : `делали ${backupAgeText()}`}. Сохраните файл на случай потери телефона.</p>
+        <button class="btn" type="button" data-action="export">Бэкап</button></div>`
+    : '';
+  return `${banner}<section class="panel status r-${p.rank}">
+      <header class="status-head"><span class="sys-icon">!</span><span>Статус</span></header>
+      <div class="status-main">
+        <div class="rank-badge"><small>Ранг</small><b>${p.rank}</b></div>
+        <div class="status-who">
+          <div class="status-name">${esc(state.profile.name)}</div>
+          <div class="status-title">Охотник ранга ${p.rank}</div>
+        </div>
+        <div class="status-level"><small>Ур.</small><b>${p.level}</b></div>
+      </div>
+      <span class="bar big"><i data-pct="${(p.into / p.need * 100).toFixed(1)}"></i></span>
+      <div class="stat-xp"><span>${fmt(p.into)} / ${fmt(p.need)} XP</span><span>до ур. ${p.level + 1}: ${fmt(p.need - p.into)}</span></div>
+      <p class="status-next">${nextLine}</p>
+      ${countersHtml()}
+    </section>
+
+    <div class="section-h">Характеристики <span class="count">${state.stats.length}</span></div>
+    ${cards ? `<div class="stat-grid">${cards}</div>` : '<div class="panel empty">Характеристик нет. Добавьте хотя бы одну, чтобы квесты могли её прокачивать.</div>'}
+    <button class="btn" type="button" data-action="new-stat">+ Характеристика</button>`;
+}
+
+function openStatEditor(stat) {
+  const { state } = session;
+  const root = openSheet(stat ? 'Характеристика' : 'Новая характеристика', `
+    <form novalidate>
+      <label class="field"><span>Название</span>
+        <input name="name" type="text" maxlength="32" autocomplete="off" autocapitalize="sentences" value="${stat ? esc(stat.name) : ''}">
+      </label>
+      <p class="error" data-error></p>
+      <button class="btn" type="submit">${stat ? 'Сохранить' : 'Добавить'}</button>
+      ${stat ? '<button class="btn ghost danger-text" type="button" data-action="delete">Удалить характеристику</button>' : ''}
+      <button class="btn ghost" type="button" data-action="close">Отмена</button>
+    </form>`);
+
+  const form = root.querySelector('form');
+  const input = form.elements.namedItem('name');
+  if (!stat) input.focus();
+
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const name = input.value.trim();
+    if (!name) return sheetError(root, 'Введите название.');
+    const taken = state.stats.some((s) => s !== stat && s.name.toLowerCase() === name.toLowerCase());
+    if (taken) return sheetError(root, 'Такая характеристика уже есть.');
+    if (stat) stat.name = name;
+    else state.stats.push({ id: uid(), name });
+    save();
+    closeSheet();
+    render();
+  });
+
+  const del = root.querySelector('[data-action="delete"]');
+  if (del) {
+    del.addEventListener('click', () => confirmPress(del, 'Опыт характеристики пропадёт. Удалить?', () => {
+      state.stats = state.stats.filter((s) => s.id !== stat.id);
+      for (const q of state.quests) q.stats = q.stats.filter((id) => id !== stat.id);
+      save();
+      closeSheet();
+      render();
+    }));
+  }
+}
+
+/* ---------- Настройки ---------- */
+
+function settingsView() {
+  const { state, kdf } = session;
+  return `<div class="section-h">Игрок</div>
+    <div class="panel pad">
+      <label class="field"><span>Имя игрока</span>
+        <input data-input="name" type="text" maxlength="40" autocomplete="off" autocapitalize="words" value="${esc(state.profile.name)}">
+      </label>
+    </div>
+
+    <div class="section-h">Опыт за задачи</div>
+    <div class="panel pad">
+      ${TASK_TYPES.map((t) => `
+        <label class="set-row t-${t.id}">
+          <span><b>${t.name}</b><small>${t.hint}</small></span>
+          <span class="xp-input"><input type="number" inputmode="numeric" min="1" max="10000" step="1" data-xp="${t.id}" value="${state.settings.xp[t.id]}">XP</span>
+        </label>`).join('')}
+      <button class="btn ghost" type="button" data-action="reset-xp">Вернуть значения по умолчанию</button>
+    </div>
+
+    <div class="section-h">Ранги охотника</div>
+    <div class="panel pad">
+      <div class="set-row"><span><b class="r-E">Ранг E</b><small>Стартовый</small></span><span class="xp-input">с ур. <input type="number" value="1" disabled></span></div>
+      ${RANKS.slice(1).map((r) => `
+        <label class="set-row">
+          <span><b class="r-${r.id}">Ранг ${r.id}</b><small>По умолчанию с ${r.from} ур.</small></span>
+          <span class="xp-input">с ур. <input type="number" inputmode="numeric" min="2" max="999" step="1" data-rank="${r.id}" value="${state.settings.ranks[r.id]}"></span>
+        </label>`).join('')}
+      <button class="btn ghost" type="button" data-action="reset-ranks">Вернуть пороги по умолчанию</button>
+    </div>
+
+    <div class="section-h">Звук и отклик</div>
+    <div class="panel pad">
+      <label class="set-row"><span><b>Звук</b><small>Сигналы Системы. На iPhone молчат в беззвучном режиме</small></span>
+        <input class="toggle" type="checkbox" data-toggle="sound"${state.settings.sound ? ' checked' : ''}></label>
+      <label class="set-row"><span><b>Вибрация</b><small>Android — вибрация, iPhone (iOS 18+) — тактильный щелчок</small></span>
+        <input class="toggle" type="checkbox" data-toggle="haptics"${state.settings.haptics ? ' checked' : ''}></label>
+      <div class="btn-pair">
+        <button class="btn" type="button" data-action="preview-level">Level up</button>
+        <button class="btn" type="button" data-action="preview-rank">Новый ранг</button>
+      </div>
+    </div>
+
+    <div class="section-h">Данные</div>
+    <div class="panel pad">
+      <div class="stat-row"><span>Последний бэкап</span><span class="${backupDue() || backupAge() === null ? 'warn-text' : ''}">${backupAgeText()}</span></div>
+      <p class="hint">Файл зашифрован текущим мастер-паролем: без пароля его не открыть. Храните в «Файлах» или iCloud Drive.</p>
+      <button class="btn" type="button" data-action="export">Сохранить бэкап</button>
+      <button class="btn ghost" type="button" data-action="import">Восстановить из бэкапа</button>
+    </div>
+
+    <div class="section-h">Приложение</div>
+    <div class="panel pad">
+      <div class="stat-row"><span>Режим</span><span>${isStandalone() ? '<span class="ok">На экране «Домой»</span>' : 'Вкладка браузера'}</span></div>
+      <div class="stat-row"><span>Офлайн</span><span>${'serviceWorker' in navigator && navigator.serviceWorker.controller ? '<span class="ok">Готово</span>' : 'После перезапуска'}</span></div>
+      ${isIOS() && !isStandalone() ? '<p class="dim ios-hint">Чтобы поставить на iPhone: Safari → «Поделиться» → «На экран „Домой“». Данные вкладки и иконки хранятся отдельно — перенесите их бэкапом.</p>' : ''}
+    </div>
+
+    <div class="section-h">Безопасность</div>
+    <div class="panel pad">
+      <div class="stat-row"><span>Хранилище</span><span class="ok">Зашифровано</span></div>
+      <div class="stat-row"><span>Шифр</span><span class="mono">AES-GCM-256</span></div>
+      <div class="stat-row"><span>Ключ</span><span class="mono">PBKDF2 · ${fmt(kdf.iter)}</span></div>
+      <div class="stat-row"><span>Сохранено</span><span class="mono" data-bind="saved">—</span></div>
+      <div class="stat-row"><span>Автоблокировка</span><span>5 мин или сворачивание</span></div>
+      <button class="btn" type="button" data-action="lock">Заблокировать</button>
+    </div>
+    <p class="footer-note">Система 1.0 · данные только на этом устройстве</p>`;
+}
+
+function wireSettings(view) {
+  renderSavedAt();
+  const nameIn = view.querySelector('[data-input="name"]');
+  nameIn.addEventListener('input', () => {
+    app.querySelector('.topbar [data-bind="name"]').textContent = nameIn.value.trim() || 'Игрок';
+    commitLater(() => {
+      if (!session) return;
+      session.state.profile.name = nameIn.value.trim() || 'Игрок';
+      save();
+    });
+  });
+  view.querySelectorAll('[data-xp]').forEach((input) => {
+    input.addEventListener('change', () => {
+      const value = Math.min(10000, Math.max(1, Math.round(Number(input.value)) || TYPE_BY_ID[input.dataset.xp].xp));
+      input.value = value;
+      session.state.settings.xp[input.dataset.xp] = value;
+      save();
+    });
+  });
+  view.querySelectorAll('[data-rank]').forEach((input) => {
+    input.addEventListener('change', () => onRankInput(input));
+  });
+  view.querySelectorAll('[data-toggle]').forEach((input) => {
+    input.addEventListener('change', () => {
+      session.state.settings[input.dataset.toggle] = input.checked;
+      save();
+      if (input.checked && input.dataset.toggle === 'sound') Sound.play('quest');
+      if (input.checked && input.dataset.toggle === 'haptics') haptic(25);
+    });
+  });
+}
+
+/** Предпросмотр окон из настроек — опыт не начисляется. */
+function previewLevelUp() {
+  const p = playerInfo();
+  haptic([30, 60, 50]);
+  queueFx(() => showLevelUp({ from: p.level, to: p.level + 1, statUps: session.state.stats.length ? [`${session.state.stats[0].name}: ур. 2`] : [] }));
+}
+
+function previewRankUp() {
+  const p = playerInfo();
+  const i = RANKS.findIndex((r) => r.id === p.rank);
+  const fromRank = i === RANKS.length - 1 ? RANKS[i - 1].id : p.rank;
+  const toRank = RANKS[RANKS.findIndex((r) => r.id === fromRank) + 1].id;
+  haptic([30, 60, 30, 60, 80]);
+  queueFx(() => showRankUp({ fromRank, toRank, level: Math.max(p.level, session.state.settings.ranks[toRank]) }));
+}
+
+/** Порог ранга должен быть строго между порогами соседних рангов. */
+function onRankInput(input) {
+  const { ranks } = session.state.settings;
+  const i = RANKS.findIndex((r) => r.id === input.dataset.rank);
+  const low = i === 1 ? 1 : ranks[RANKS[i - 1].id];
+  const high = i === RANKS.length - 1 ? 1000 : ranks[RANKS[i + 1].id];
+  const value = Math.round(Number(input.value));
+  if (!(value > low && value < high)) {
+    input.value = ranks[input.dataset.rank];
+    toast({ title: 'Пороги рангов', main: 'Не сохранено', sub: `Ранг ${input.dataset.rank}: уровень от ${low + 1} до ${high - 1}`, kind: 'minus' });
+    return;
+  }
+  ranks[input.dataset.rank] = value;
+  save();
+  renderTopbar();
+}
+
+function resetRanks() {
+  session.state.settings.ranks = defaultRankThresholds();
+  save();
+  render();
+  toast({ title: 'Настройки', main: 'Пороги по умолчанию', ms: 2500 });
+}
+
+function resetXp() {
+  session.state.settings.xp = Object.fromEntries(TASK_TYPES.map((t) => [t.id, t.xp]));
+  save();
+  render();
+  toast({ title: 'Настройки', main: 'Опыт по умолчанию', ms: 2500 });
+}
+
+function renderSavedAt() {
+  const el = app.querySelector('[data-bind="saved"]');
+  if (el && lastSavedAt) el.textContent = new Date(lastSavedAt).toLocaleTimeString('ru-RU');
+}
+
+/* =====================================================================
+   БЭКАП: экспорт и импорт зашифрованного файла
+   В файле лежит та же зашифрованная запись, что и в хранилище, плюс дата экспорта.
+   ===================================================================== */
+
+const BACKUP_FORMAT = 'sistema-backup';
+const BACKUP_EVERY_MS = 7 * 864e5;
+
+const isIOS = () => /iPhone|iPad|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+const isStandalone = () => navigator.standalone === true || matchMedia('(display-mode: standalone)').matches;
+
+function backupAge() {
+  const { lastBackupAt } = session.state.settings;
+  return lastBackupAt ? Date.now() - lastBackupAt : null;
+}
+
+/** Пора ли напомнить о бэкапе: раз в неделю, если есть что терять. */
+function backupDue() {
+  const { state } = session;
+  if (!state.log.length) return false;
+  return Date.now() - (state.settings.lastBackupAt || state.createdAt) > BACKUP_EVERY_MS;
+}
+
+function backupAgeText() {
+  const age = backupAge();
+  if (age === null) return 'ещё не делали';
+  const days = Math.floor(age / 864e5);
+  if (days === 0) return 'сегодня';
+  if (days === 1) return 'вчера';
+  return `${days} ${plural(days, ['день', 'дня', 'дней'])} назад`;
+}
+
+async function exportBackup() {
+  flushInputs();
+  await saveChain; // в файл попадает последнее сохранённое состояние
+  const backup = { format: BACKUP_FORMAT, v: 1, exportedAt: Date.now(), vault: Vault.read() };
+  const name = `sistema-backup-${dayKey(new Date())}.json`;
+  const file = new File([JSON.stringify(backup)], name, { type: 'application/json' });
+  try {
+    // На телефоне — меню «Поделиться» («Сохранить в Файлы»), на компьютере — обычная загрузка
+    if (matchMedia('(pointer: coarse)').matches && navigator.canShare && navigator.canShare({ files: [file] })) {
+      await navigator.share({ files: [file], title: 'Бэкап Системы' });
+    } else {
+      const url = URL.createObjectURL(file);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = name;
+      document.body.append(a);
+      a.click();
+      a.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 10000);
+    }
+  } catch (err) {
+    if (err && err.name === 'AbortError') return; // закрыли меню «Поделиться»
+    console.error(err);
+    toast({ title: 'Бэкап', main: 'Не удалось сохранить файл', kind: 'minus' });
+    return;
+  }
+  if (!session) return;
+  session.state.settings.lastBackupAt = Date.now();
+  save();
+  toast({ title: 'Бэкап', main: 'Файл сохранён', sub: 'Зашифрован текущим паролем', ms: 4000 });
+  render();
+}
+
+/* Одно поле выбора файла на всё приложение — живёт вне #app и переживает блокировку */
+const fileInput = document.createElement('input');
+fileInput.type = 'file';
+fileInput.accept = '.json,application/json';
+fileInput.style.cssText = 'position:fixed;left:-1000px;top:0;width:1px;height:1px;opacity:0';
+fileInput.tabIndex = -1;
+fileInput.setAttribute('aria-hidden', 'true');
+document.body.append(fileInput);
+fileInput.addEventListener('change', () => {
+  const file = fileInput.files[0];
+  fileInput.value = '';
+  if (file) startImport(file);
+});
+
+function pickBackup() {
+  fileInput.click();
+}
+
+async function startImport(file) {
+  let backup = null;
+  if (file.size < 20 * 1024 * 1024) {
+    try { backup = JSON.parse(await file.text()); } catch (err) { backup = null; }
+  }
+  const v = backup && backup.vault;
+  const valid = backup && backup.format === BACKUP_FORMAT && v && v.kdf && v.kdf.salt && v.kdf.iter && v.iv && v.ct;
+  if (!valid) {
+    if (session) toast({ title: 'Импорт', main: 'Это не бэкап Системы', kind: 'minus' });
+    else showError('Этот файл не похож на бэкап Системы.');
+    return;
+  }
+  if (session) endSession();
+  showImport(backup);
+}
+
+function showImport(backup) {
+  const root = mount('tpl-import');
+  const form = root.querySelector('form');
+  const when = new Date(backup.exportedAt);
+  root.querySelector('[data-bind="exported"]').textContent = isNaN(when)
+    ? 'Введите пароль, которым он зашифрован.'
+    : `Сделан ${when.toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' })}, ${when.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' })}. Введите пароль, которым он зашифрован.`;
+  if (Vault.exists()) root.querySelector('[data-replace]').hidden = false;
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const pw = form.pw.value;
+    if (!pw) return showError('Введите пароль бэкапа.');
+    const btn = form.querySelector('[data-submit]');
+    setBusy(btn, 'Расшифровка…');
+    try {
+      const { kdf } = backup.vault;
+      const key = await deriveKey(pw, b64.decode(kdf.salt), kdf.iter);
+      const state = migrate(await decryptJSON(key, backup.vault));
+      Vault.write(backup.vault);
+      session = { key, kdf, state };
+      lastSavedAt = null;
+      // Данные совпадают с файлом — значит, бэкап этих данных уже есть
+      if (backup.exportedAt > (state.settings.lastBackupAt || 0)) {
+        state.settings.lastBackupAt = backup.exportedAt;
+        save();
+      }
+      if (navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(() => {});
+      showHome();
+      toast({ title: 'Восстановление', main: 'Бэкап восстановлен', sub: `${fmt(state.log.length)} ${plural(state.log.length, ['запись', 'записи', 'записей'])} в журнале`, kind: 'up', ms: 4500 });
+    } catch (err) {
+      setBusy(btn, null);
+      if (err && err.name === 'OperationError') {
+        form.pw.value = '';
+        showError('Неверный пароль бэкапа.');
+      } else {
+        console.error(err);
+        showError('Бэкап повреждён или в неизвестном формате.');
+      }
+    }
+  });
+  root.querySelector('[data-action="back"]').addEventListener('click', boot);
+}
+
+/* =====================================================================
+   PWA: офлайн через service worker
+   ===================================================================== */
+
+function registerServiceWorker() {
+  if (!('serviceWorker' in navigator) || !window.isSecureContext) return;
+  const hadController = !!navigator.serviceWorker.controller;
+  navigator.serviceWorker.register('sw.js').catch(() => {});
+  // Новая версия встала — старый код работает до перезапуска
+  navigator.serviceWorker.addEventListener('controllerchange', () => {
+    if (hadController && session) toast({ title: 'Система', main: 'Обновление установлено', sub: 'Перезапустите приложение', ms: 6000 });
+  });
+}
+
+/* =====================================================================
+   ЗАПУСК
+   ===================================================================== */
+
+function boot() {
+  if (!window.isSecureContext || !window.crypto || !crypto.subtle) return mount('tpl-unsupported');
+  if (Vault.exists()) showLogin();
+  else showSetup();
+}
+
+registerServiceWorker();
+boot();
+</script>
+</body>
+</html>
