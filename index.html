@@ -3218,7 +3218,8 @@ function showImport(backup) {
    ПРОЛОГ: прошлые достижения, засчитанные как выполненные квесты
    Файл — открытый JSON без шифрования; после импорта его стоит удалить:
    { "format": "sistema-prologue", "v": 1, "title": "…",
-     "quests": [{ "title": "…", "note": "…", "type": "goal", "stats": ["Интеллект"] }] }
+     "quests": [{ "title": "…", "note": "…", "type": "goal", "stats": ["Интеллект"], "done": true }] }
+   done: false — квест ещё впереди: попадёт в список активных, опыт — когда отметите
    ===================================================================== */
 
 const PROLOGUE_FORMAT = 'sistema-prologue';
@@ -3235,6 +3236,7 @@ function parsePrologue(data) {
       note: typeof q.note === 'string' ? q.note.trim().slice(0, 1000) : '',
       type: q.type,
       stats,
+      done: q.done !== false,
     });
   }
   return items;
@@ -3263,12 +3265,14 @@ function openPrologueSheet(title, items) {
       <button class="btn ghost" type="button" data-action="close">Закрыть</button>`);
     return;
   }
-  const xp = items.reduce((sum, q) => sum + state.settings.xp[q.type], 0);
+  const done = items.filter((q) => q.done);
+  const active = items.length - done.length;
+  const xp = done.reduce((sum, q) => sum + state.settings.xp[q.type], 0);
   const before = playerInfo();
   const after = playerInfo(before.xp + xp);
   const root = openSheet('Пролог', `
     <p class="lead">${esc(title)}</p>
-    <p class="dim center">${items.length} ${plural(items.length, ['достижение', 'достижения', 'достижений'])} попадут в журнал как выполненные квесты.</p>
+    <p class="dim center">${done.length} ${plural(done.length, ['достижение', 'достижения', 'достижений'])} попадут в журнал как выполненные квесты.${active ? ` Ещё ${active} ${plural(active, ['квест', 'квеста', 'квестов'])} ${plural(active, ['добавится', 'добавятся', 'добавятся'])} в список активных.` : ''}</p>
     <div class="stat-row"><span>Опыт</span><span class="mono">+${fmt(xp)} XP</span></div>
     <div class="stat-row"><span>Уровень</span><span class="mono">${before.level} → ${after.level}</span></div>
     <div class="stat-row"><span>Ранг</span><span class="mono">${before.rank} → ${after.rank}</span></div>
@@ -3298,6 +3302,11 @@ function applyPrologue(items) {
   items.forEach((item, i) => {
     const at = now - (items.length - i); // порядок из файла сохраняется
     const ids = [...new Set(item.stats.map(statId))];
+    if (!item.done) {
+      // Квест впереди — обычный активный квест, опыт придёт при отметке
+      state.quests.push({ id: uid(), createdAt: now + i, title: item.title, note: item.note, type: item.type, stats: ids, repeat: 'none' });
+      return;
+    }
     const quest = { id: uid(), createdAt: at, title: item.title, note: item.note, type: item.type, stats: ids, repeat: 'none', source: 'prologue' };
     const xp = state.settings.xp[item.type];
     state.quests.push(quest);
@@ -3320,7 +3329,15 @@ function applyPrologue(items) {
   } else if (playerAfter.level > playerBefore.level) {
     queueFx(() => showLevelUp({ from: playerBefore.level, to: playerAfter.level, statUps }));
   }
-  toast({ title: 'Пролог засчитан', main: `+${fmt(playerAfter.xp - playerBefore.xp)} XP`, sub: `${items.length} ${plural(items.length, ['квест', 'квеста', 'квестов'])} в журнале`, kind: 'up', ms: 6000 });
+  const doneCount = items.filter((q) => q.done).length;
+  const activeCount = items.length - doneCount;
+  toast({
+    title: 'Пролог засчитан',
+    main: `+${fmt(playerAfter.xp - playerBefore.xp)} XP`,
+    sub: `${doneCount} ${plural(doneCount, ['квест', 'квеста', 'квестов'])} в журнале` + (activeCount ? ` · ${activeCount} ${plural(activeCount, ['новый квест', 'новых квеста', 'новых квестов'])}` : ''),
+    kind: 'up',
+    ms: 6000,
+  });
 }
 
 /* =====================================================================
