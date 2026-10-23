@@ -1632,9 +1632,13 @@ function addDays(d, n) {
 }
 
 /** dayKey → { xp, count } по журналу. */
+const isPrologue = (e) => e.source === 'prologue';
+
+/** dayKey → { xp, count } по журналу. Пролог — прошлые достижения без дат — сюда не входит. */
 function xpByDay() {
   const map = new Map();
   for (const e of session.state.log) {
+    if (isPrologue(e)) continue;
     const key = dayKey(new Date(e.at));
     const day = map.get(key) || { xp: 0, count: 0 };
     day.xp += e.xp;
@@ -1646,7 +1650,7 @@ function xpByDay() {
 
 function weekXp(now = new Date()) {
   const week = weekKey(now);
-  return session.state.log.reduce((sum, e) => sum + (weekKey(new Date(e.at)) === week ? e.xp : 0), 0);
+  return session.state.log.reduce((sum, e) => sum + (!isPrologue(e) && weekKey(new Date(e.at)) === week ? e.xp : 0), 0);
 }
 
 /**
@@ -2482,6 +2486,7 @@ function onViewClick(e) {
     case 'more-log': ui.logLimit += LOG_PAGE; return render();
     case 'export': return exportBackup();
     case 'import': return pickBackup();
+    case 'prologue': return pickBackup();
     case 'reset-xp': return resetXp();
     case 'reset-ranks': return resetRanks();
     case 'preview-level': return previewLevelUp();
@@ -2788,25 +2793,27 @@ function journalView() {
   if (!log.length) {
     return html + '<div class="panel empty"><b>Записей пока нет</b>Здесь появится каждый выполненный квест с датой и опытом.</div>';
   }
-  const entries = log.slice().sort((a, b) => b.at - a.at);
+  const prologue = log.filter(isPrologue).sort((a, b) => a.at - b.at);
+  const entries = log.filter((e) => !isPrologue(e)).sort((a, b) => b.at - a.at).concat(prologue);
   const shown = entries.slice(0, ui.logLimit);
   const days = xpByDay();
+  days.set('prologue', { xp: prologue.reduce((sum, e) => sum + e.xp, 0), count: prologue.length });
   let currentKey = null;
   let rows = '';
   const flush = () => { if (rows) html += `<div class="panel log-list">${rows}</div>`; rows = ''; };
   for (const e of shown) {
     const date = new Date(e.at);
-    const key = dayKey(date);
+    const key = isPrologue(e) ? 'prologue' : dayKey(date);
     if (key !== currentKey) {
       flush();
       const day = days.get(key);
-      html += `<div class="day-h">${dayTitle(date)}<span>+${fmt(day.xp)} XP · ${day.count} ${plural(day.count, ['квест', 'квеста', 'квестов'])}</span></div>`;
+      html += `<div class="day-h">${key === 'prologue' ? 'Пролог' : dayTitle(date)}<span>+${fmt(day.xp)} XP · ${day.count} ${plural(day.count, ['квест', 'квеста', 'квестов'])}</span></div>`;
       currentKey = key;
     }
     const stats = Object.entries(e.stats).map(([id, v]) => `+${v} ${esc(statName(id))}`).join(' · ');
     const type = TYPE_BY_ID[e.type];
     rows += `<div class="log-row">
-        <span class="log-time">${date.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' })}</span>
+        <span class="log-time">${isPrologue(e) ? '✦' : date.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' })}</span>
         <span class="log-title">${esc(e.title)}</span>
         <span class="log-xp">+${fmt(e.xp)}</span>
         <span class="log-sub">${type ? `<span class="chip t-${e.type}">${type.name}</span>` : ''}${stats}</span>
@@ -2957,6 +2964,7 @@ function settingsView() {
       <p class="hint">Файл зашифрован текущим мастер-паролем: без пароля его не открыть. Храните в «Файлах» или iCloud Drive.</p>
       <button class="btn" type="button" data-action="export">Сохранить бэкап</button>
       <button class="btn ghost" type="button" data-action="import">Восстановить из бэкапа</button>
+      <button class="btn ghost" type="button" data-action="prologue">Добавить пролог — прошлые достижения</button>
     </div>
 
     <div class="section-h">Приложение</div>
@@ -3150,6 +3158,7 @@ async function startImport(file) {
   if (file.size < 20 * 1024 * 1024) {
     try { backup = JSON.parse(await file.text()); } catch (err) { backup = null; }
   }
+  if (backup && backup.format === PROLOGUE_FORMAT) return startPrologue(backup);
   const v = backup && backup.vault;
   const valid = backup && backup.format === BACKUP_FORMAT && v && v.kdf && v.kdf.salt && v.kdf.iter && v.iv && v.ct;
   if (!valid) {
@@ -3203,6 +3212,115 @@ function showImport(backup) {
     }
   });
   root.querySelector('[data-action="back"]').addEventListener('click', boot);
+}
+
+/* =====================================================================
+   ПРОЛОГ: прошлые достижения, засчитанные как выполненные квесты
+   Файл — открытый JSON без шифрования; после импорта его стоит удалить:
+   { "format": "sistema-prologue", "v": 1, "title": "…",
+     "quests": [{ "title": "…", "note": "…", "type": "goal", "stats": ["Интеллект"] }] }
+   ===================================================================== */
+
+const PROLOGUE_FORMAT = 'sistema-prologue';
+
+/** Проверяет и чистит список квестов из файла; null — если файл не годится. */
+function parsePrologue(data) {
+  if (!Array.isArray(data.quests) || !data.quests.length || data.quests.length > 500) return null;
+  const items = [];
+  for (const q of data.quests) {
+    if (!q || typeof q.title !== 'string' || !q.title.trim() || !TYPE_BY_ID[q.type]) return null;
+    const stats = Array.isArray(q.stats) ? q.stats.filter((n) => typeof n === 'string' && n.trim()).map((n) => n.trim().slice(0, 32)) : [];
+    items.push({
+      title: q.title.trim().slice(0, 120),
+      note: typeof q.note === 'string' ? q.note.trim().slice(0, 1000) : '',
+      type: q.type,
+      stats,
+    });
+  }
+  return items;
+}
+
+function startPrologue(data) {
+  const items = parsePrologue(data);
+  if (!items) {
+    if (session) toast({ title: 'Пролог', main: 'Файл повреждён', kind: 'minus' });
+    else showError('Файл пролога повреждён.');
+    return;
+  }
+  if (!session) {
+    showError('Это файл пролога. Войдите и добавьте его в «Настройках» → «Данные».');
+    return;
+  }
+  openPrologueSheet(typeof data.title === 'string' ? data.title.slice(0, 80) : 'Пролог', items);
+}
+
+function openPrologueSheet(title, items) {
+  const { state } = session;
+  if (state.log.some(isPrologue)) {
+    openSheet('Пролог', `
+      <p class="lead">Пролог уже засчитан.</p>
+      <p class="dim center">Второй раз добавить нельзя — опыт посчитался бы дважды.</p>
+      <button class="btn ghost" type="button" data-action="close">Закрыть</button>`);
+    return;
+  }
+  const xp = items.reduce((sum, q) => sum + state.settings.xp[q.type], 0);
+  const before = playerInfo();
+  const after = playerInfo(before.xp + xp);
+  const root = openSheet('Пролог', `
+    <p class="lead">${esc(title)}</p>
+    <p class="dim center">${items.length} ${plural(items.length, ['достижение', 'достижения', 'достижений'])} попадут в журнал как выполненные квесты.</p>
+    <div class="stat-row"><span>Опыт</span><span class="mono">+${fmt(xp)} XP</span></div>
+    <div class="stat-row"><span>Уровень</span><span class="mono">${before.level} → ${after.level}</span></div>
+    <div class="stat-row"><span>Ранг</span><span class="mono">${before.rank} → ${after.rank}</span></div>
+    <p class="hint">Пролог не влияет на опыт за сегодня и неделю и на серию дней. После импорта файл можно удалить: он не зашифрован.</p>
+    <button class="btn" type="button" data-action="apply">Засчитать</button>
+    <button class="btn ghost" type="button" data-action="close">Отмена</button>`);
+  root.querySelector('[data-action="apply"]').addEventListener('click', () => {
+    closeSheet();
+    applyPrologue(items);
+  });
+}
+
+function applyPrologue(items) {
+  const { state } = session;
+  const byName = new Map(state.stats.map((st) => [st.name.toLowerCase(), st.id]));
+  const statId = (name) => {
+    if (!byName.has(name.toLowerCase())) {
+      const st = { id: uid(), name };
+      state.stats.push(st);
+      byName.set(name.toLowerCase(), st.id);
+    }
+    return byName.get(name.toLowerCase());
+  };
+  const playerBefore = playerInfo();
+  const statsBefore = statXp();
+  const now = Date.now();
+  items.forEach((item, i) => {
+    const at = now - (items.length - i); // порядок из файла сохраняется
+    const ids = [...new Set(item.stats.map(statId))];
+    const quest = { id: uid(), createdAt: at, title: item.title, note: item.note, type: item.type, stats: ids, repeat: 'none', source: 'prologue' };
+    const xp = state.settings.xp[item.type];
+    state.quests.push(quest);
+    state.log.push({ id: uid(), questId: quest.id, title: item.title, type: item.type, xp, stats: splitXp(xp, ids), period: null, at, source: 'prologue' });
+  });
+  save();
+  render();
+
+  const playerAfter = playerInfo();
+  const statsAfter = statXp();
+  const statUps = state.stats
+    .map((st) => [st.name, levelInfo(statsBefore.get(st.id) || 0).level, levelInfo(statsAfter.get(st.id) || 0).level])
+    .filter(([, was, now]) => now > was)
+    .sort((a, b) => b[2] - a[2])
+    .map(([name, , now]) => `${name}: ур. ${now}`);
+  Sound.play('quest');
+  haptic([30, 60, 30, 60, 80]);
+  if (playerAfter.rank !== playerBefore.rank) {
+    queueFx(() => showRankUp({ fromRank: playerBefore.rank, toRank: playerAfter.rank, level: playerAfter.level, statUps }));
+  } else if (playerAfter.level > playerBefore.level) {
+    queueFx(() => showLevelUp({ from: playerBefore.level, to: playerAfter.level, statUps }));
+  }
+  toast({ title: 'Пролог засчитан', main: `+${fmt(playerAfter.xp - playerBefore.xp)} XP`, sub: `${items.length} ${plural(items.length, ['квест', 'квеста', 'квестов'])} в журнале`, kind: 'up', ms: 6000 });
 }
 
 /* =====================================================================
