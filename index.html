@@ -1324,6 +1324,35 @@ html.noscroll, html.noscroll body { overflow: hidden; }
   text-shadow: 0 0 8px var(--warn);
 }
 
+/* ---------- Колесо баланса ---------- */
+
+.radar { padding: 14px 10px 14px; }
+.radar .chart-head { padding: 0 6px; }
+.radar svg { display: block; width: 100%; max-width: 480px; height: auto; margin: 4px auto 0; }
+.radar .grid polygon { fill: none; stroke: rgba(120, 205, 255, 0.14); stroke-width: 1; }
+.radar .grid polygon.outer { stroke: rgba(120, 205, 255, 0.28); }
+.radar .grid line { stroke: rgba(120, 205, 255, 0.14); stroke-width: 1; }
+.radar .shape-g {
+  transform-box: view-box;
+  transform-origin: 50% 50%;
+  animation: radar-grow 1s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+.radar .shape {
+  fill: rgba(102, 208, 255, 0.16);
+  stroke: var(--accent);
+  stroke-width: 2;
+  stroke-linejoin: round;
+  filter: drop-shadow(0 0 8px rgba(102, 208, 255, 0.6));
+}
+.radar .pt { fill: var(--accent-2); stroke: var(--bg); stroke-width: 2; }
+.radar .pt.weak { fill: var(--warn); }
+.radar .hit { fill: transparent; cursor: pointer; }
+.radar text { fill: var(--text-dim); font-family: var(--font); font-size: 16px; }
+.radar text.weak { fill: var(--warn); }
+.radar text.sel { fill: var(--text); font-weight: 700; }
+.radar-caption { min-height: 20px; margin: 6px 6px 0; font-size: 13px; line-height: 1.45; text-align: center; color: var(--text-dim); }
+.radar-caption b { color: var(--text); font-weight: 600; }
+
 /* ---------- Переключатели ---------- */
 
 .toggle {
@@ -1394,6 +1423,7 @@ html.noscroll, html.noscroll body { overflow: hidden; }
   from { opacity: 0; transform: scale(3.2); filter: blur(10px); }
   to { opacity: 1; transform: none; filter: none; }
 }
+@keyframes radar-grow { from { transform: scale(0); opacity: 0; } }
 @keyframes goal-shine { 0% { transform: translateX(0); } 55%, 100% { transform: translateX(360%); } }
 @keyframes rays-in { from { opacity: 0; transform: scale(0.3); } }
 @keyframes rays-spin { to { transform: rotate(360deg); } }
@@ -2715,8 +2745,9 @@ function render() {
 const VIEWS = { status: statusView, quests: questsView, journal: journalView, settings: settingsView };
 
 function onViewClick(e) {
-  const t = e.target.closest('[data-check], [data-edit], [data-stat], [data-goal], [data-action], [data-day]');
+  const t = e.target.closest('[data-check], [data-edit], [data-stat], [data-goal], [data-radar], [data-action], [data-day]');
   if (!t || !session) return;
+  if (t.dataset.radar !== undefined) return selectRadarAxis(Number(t.dataset.radar));
   if (t.dataset.day !== undefined) {
     // Нажатие на столбик показывает его значение
     const was = t.classList.contains('sel');
@@ -3334,6 +3365,91 @@ function reopenGoal(goal) {
   toast({ title: `Цель · ${goal.title}`, main: 'Снова в работе', sub: entry ? `−${fmt(entry.xp)} XP` : '', kind: 'minus', ms: 3000 });
 }
 
+/* ---------- Колесо баланса ----------
+   Радар по характеристикам: длина луча — уровень с учётом прогресса внутри уровня.
+   Баланс — слабейшая характеристика в процентах от сильнейшей. */
+
+const RADAR = { w: 500, h: 380, cx: 250, cy: 186, r: 112 };
+
+function radarData() {
+  const xpMap = statXp();
+  return session.state.stats.map((st) => {
+    const xp = xpMap.get(st.id) || 0;
+    const info = levelInfo(xp);
+    return { name: st.name, xp, ...info, value: info.level + info.into / info.need };
+  });
+}
+
+function radarPoint(i, n, k) {
+  const a = -Math.PI / 2 + (2 * Math.PI * i) / n;
+  return [RADAR.cx + Math.cos(a) * RADAR.r * k, RADAR.cy + Math.sin(a) * RADAR.r * k];
+}
+
+/** Подпись оси: длинное название — в две строки. */
+function radarLabel(name, i, n, cls) {
+  const [x, y] = radarPoint(i, n, 1.16);
+  const dx = x - RADAR.cx;
+  const anchor = Math.abs(dx) < 8 ? 'middle' : dx > 0 ? 'start' : 'end';
+  const words = name.split(' ');
+  const lines = name.length > 12 && words.length > 1
+    ? [words.slice(0, Math.ceil(words.length / 2)).join(' '), words.slice(Math.ceil(words.length / 2)).join(' ')]
+    : [name];
+  const y0 = y - (lines.length - 1) * 8 + 5;
+  return `<text x="${x.toFixed(1)}" y="${y0.toFixed(1)}" text-anchor="${anchor}" class="${cls}" data-radar="${i}" data-label="${i}">${lines
+    .map((l, k) => `<tspan x="${x.toFixed(1)}" dy="${k ? 17 : 0}">${esc(l)}</tspan>`).join('')}</text>`;
+}
+
+function radarHtml() {
+  const data = radarData();
+  const n = data.length;
+  if (n < 3) {
+    return `<div class="section-h">Колесо баланса</div>
+      <div class="panel empty">Нужно минимум 3 характеристики, чтобы построить колесо.</div>`;
+  }
+  const max = Math.max(...data.map((d) => d.value));
+  const min = Math.min(...data.map((d) => d.value));
+  const scale = Math.max(5, Math.ceil(max));
+  const weak = data.findIndex((d) => d.value === min);
+  const strong = data.findIndex((d) => d.value === max);
+  const balance = Math.round((min / max) * 100);
+  const ring = (k) => Array.from({ length: n }, (_, i) => radarPoint(i, n, k).map((v) => v.toFixed(1)).join(',')).join(' ');
+  const step = scale <= 10 ? 1 : Math.ceil(scale / 5);
+  let grid = '';
+  for (let lv = step; lv <= scale; lv += step) grid += `<polygon points="${ring(lv / scale)}"${lv + step > scale ? ' class="outer"' : ''}/>`;
+  for (let i = 0; i < n; i++) {
+    const [x, y] = radarPoint(i, n, 1);
+    grid += `<line x1="${RADAR.cx}" y1="${RADAR.cy}" x2="${x.toFixed(1)}" y2="${y.toFixed(1)}"/>`;
+  }
+  const pts = data.map((d, i) => radarPoint(i, n, d.value / scale));
+  const shape = pts.map((p) => p.map((v) => v.toFixed(1)).join(',')).join(' ');
+  const dots = pts.map(([x, y], i) => `<circle class="pt${i === weak && min < max ? ' weak' : ''}" cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="5"/>`).join('');
+  const hits = pts.map(([x, y], i) => `<circle class="hit" cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="20" data-radar="${i}"/>`).join('');
+  const labels = data.map((d, i) => radarLabel(d.name, i, n, i === weak && min < max ? 'weak' : '')).join('');
+  const caption = min < max
+    ? `Сильнее всего: <b>${esc(data[strong].name)}</b> · ур. ${data[strong].level}. Слабое место: <b>${esc(data[weak].name)}</b> · ур. ${data[weak].level} — возьмите квест на неё.`
+    : 'Все характеристики на одном уровне. Нажмите на точку, чтобы увидеть детали.';
+  return `<div class="section-h">Колесо баланса</div>
+    <div class="panel radar">
+      <div class="chart-head"><b>Баланс ${balance}%</b><span>кольца — уровни 1–${scale}</span></div>
+      <svg viewBox="0 0 ${RADAR.w} ${RADAR.h}" role="img" aria-label="Колесо баланса: ${data.map((d) => `${esc(d.name)} — уровень ${d.level}`).join(', ')}">
+        <g class="grid">${grid}</g>
+        <g class="shape-g"><polygon class="shape" points="${shape}"/>${dots}</g>
+        ${labels}
+        ${hits}
+      </svg>
+      <p class="radar-caption" data-radar-caption>${caption}</p>
+    </div>`;
+}
+
+/** Нажатие на точку или подпись — подробности по характеристике. */
+function selectRadarAxis(i) {
+  const d = radarData()[i];
+  const caption = app.querySelector('[data-radar-caption]');
+  if (!d || !caption) return;
+  app.querySelectorAll('.radar text').forEach((t) => t.classList.toggle('sel', Number(t.dataset.label) === i));
+  caption.innerHTML = `<b>${esc(d.name)}</b> · ур. ${d.level} · ${fmt(d.into)} / ${fmt(d.need)} XP до следующего · всего ${fmt(d.xp)} XP`;
+}
+
 /* ---------- Статус: персонаж и характеристики ---------- */
 
 function statusView() {
@@ -3375,6 +3491,8 @@ function statusView() {
     </section>
 
     ${goalsHtml()}
+
+    ${radarHtml()}
 
     <div class="section-h">Сегодня</div>
     <div class="panel pad">${countersHtml()}</div>
