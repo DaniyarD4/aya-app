@@ -1174,6 +1174,77 @@ html.noscroll, html.noscroll body { overflow: hidden; }
 .fx-overlay.rank .sys > .fx-big { animation-delay: 1.7s, 2.4s; }
 .fx-title { margin: 8px 0 0 !important; font-size: 18px; font-weight: 700; color: var(--rc) !important; text-shadow: 0 0 10px var(--rc); }
 
+/* ---------- Достижение за целевой и эпический квест ---------- */
+
+.fx-overlay.ach { --fxc: #b99bff; flex-direction: column; }
+.fx-overlay.ach.epic { --fxc: #ffc56b; }
+.ach-rays {
+  position: absolute;
+  left: 50%;
+  top: 34%;
+  width: 1000px;
+  height: 1000px;
+  margin: -500px 0 0 -500px;
+  pointer-events: none;
+  animation: rays-in 0.9s 0.75s ease-out both;
+}
+.ach-rays > i {
+  position: absolute;
+  inset: 0;
+  background: repeating-conic-gradient(from 0deg, color-mix(in srgb, var(--fxc) 30%, transparent) 0deg 7deg, transparent 7deg 18deg);
+  mask-image: radial-gradient(circle, #000 0, rgba(0, 0, 0, 0.6) 22%, transparent 55%);
+  -webkit-mask-image: radial-gradient(circle, #000 0, rgba(0, 0, 0, 0.6) 22%, transparent 55%);
+  animation: rays-spin 18s linear infinite;
+}
+.ach-stage { position: relative; z-index: 1; width: 100%; max-width: 400px; }
+.ach-medal {
+  position: relative;
+  z-index: 2;
+  width: 136px;
+  height: 136px;
+  margin: 0 auto -26px;
+  perspective: 700px;
+}
+.ach-medal svg {
+  width: 100%;
+  height: 100%;
+  filter: drop-shadow(0 0 14px var(--fxc)) drop-shadow(0 0 34px color-mix(in srgb, var(--fxc) 60%, transparent));
+  animation: medal-drop 1s 0.15s cubic-bezier(0.25, 1.25, 0.45, 1) both, medal-glow 2.4s 1.3s ease-in-out infinite;
+}
+.ach-medal .fx-ring { animation-delay: 0.95s; }
+.ach-medal .fx-ring.d2 { animation-delay: 1.15s; }
+.fx-overlay.ach .fx-flash { animation-delay: 0.9s; }
+.fx-overlay.ach .ach-win { padding-top: 40px; animation-delay: 0.55s; }
+.fx-overlay.ach .ach-win > *:not(.scan) { animation-delay: 1s; }
+.fx-overlay.ach.epic.shake-hard .ach-stage { animation: hard-shake 0.5s 1s; }
+.ach-label {
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--fxc);
+  text-shadow: 0 0 12px var(--fxc);
+}
+.ach-title {
+  margin: 10px 0 0;
+  font-size: 24px;
+  font-weight: 800;
+  line-height: 1.25;
+  color: #fff;
+  overflow-wrap: anywhere;
+  text-shadow: 0 0 14px color-mix(in srgb, var(--fxc) 70%, transparent);
+}
+.fx-overlay .sys > .ach-xp {
+  margin-top: 10px;
+  font-family: var(--mono);
+  font-size: 30px;
+  font-weight: 800;
+  color: var(--accent-2);
+  text-shadow: 0 0 14px var(--accent);
+  animation: num-pop 0.6s 1.3s cubic-bezier(0.3, 1.6, 0.5, 1) both;
+}
+.ach-num { margin: 12px 0 0 !important; font-size: 12px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-faint) !important; }
+
 /* ---------- Переключатели ---------- */
 
 .toggle {
@@ -1243,6 +1314,16 @@ html.noscroll, html.noscroll body { overflow: hidden; }
 @keyframes rank-new {
   from { opacity: 0; transform: scale(3.2); filter: blur(10px); }
   to { opacity: 1; transform: none; filter: none; }
+}
+@keyframes rays-in { from { opacity: 0; transform: scale(0.3); } }
+@keyframes rays-spin { to { transform: rotate(360deg); } }
+@keyframes medal-drop {
+  0% { opacity: 0; transform: translateY(-160px) scale(0.2) rotateY(720deg); }
+  60% { opacity: 1; }
+  100% { opacity: 1; transform: none; }
+}
+@keyframes medal-glow {
+  50% { filter: drop-shadow(0 0 22px var(--fxc)) drop-shadow(0 0 60px color-mix(in srgb, var(--fxc) 75%, transparent)); }
 }
 @keyframes rank-glow { 50% { text-shadow: 0 0 24px var(--rc), 0 0 60px var(--rc), 0 0 120px var(--rc); } }
 @keyframes hard-shake {
@@ -2115,6 +2196,32 @@ const SOUNDS = {
     Sound.tone(t + 0.38, 2093, 0.9, { gain: 0.05, attack: 0.05 });
     Sound.tone(t + 0.38, 1046.5, 1.0, { gain: 0.07, attack: 0.05 });
   },
+  /** Фанфара достижения; land — когда медаль приземляется. */
+  achievement(t, land = 0.9) {
+    Sound.tone(t, 320, 0.8, { gain: 0.05, attack: 0.5, to: 1300 });
+    [783.99, 1046.5, 1318.5, 1568].forEach((f, i) => {
+      Sound.tone(t + land + i * 0.085, f, 0.34, { type: 'triangle', gain: 0.15 });
+    });
+    [1046.5, 1318.5, 1568].forEach((f) => {
+      Sound.tone(t + land + 0.36, f, 1.4, { type: 'triangle', gain: 0.06, attack: 0.03 });
+    });
+    Sound.tone(t + land + 0.36, 2637, 0.7, { gain: 0.04 });
+    Sound.tone(t + land + 0.5, 3136, 0.6, { gain: 0.03 });
+  },
+  boss(t, land = 0.9) {
+    Sound.tone(t, 220, 0.85, { gain: 0.06, attack: 0.6, to: 900 });
+    Sound.tone(t + land, 150, 1.0, { gain: 0.4, to: 36 });
+    Sound.tone(t + land, 75, 1.2, { type: 'triangle', gain: 0.2, to: 30 });
+    [523.25, 659.25, 783.99, 1046.5, 1318.5].forEach((f, i) => {
+      Sound.tone(t + land + 0.12 + i * 0.09, f, 0.4, { type: 'triangle', gain: 0.15 });
+    });
+    [523.25, 659.25, 783.99, 1046.5].forEach((f) => {
+      Sound.tone(t + land + 0.6, f, 1.8, { type: 'triangle', gain: 0.06, attack: 0.08 });
+    });
+    [2093, 2637, 3136, 4186].forEach((f, i) => {
+      Sound.tone(t + land + 0.7 + i * 0.07, f, 0.6, { gain: 0.035 });
+    });
+  },
   rankUp(t) {
     Sound.tone(t, 160, 1.1, { gain: 0.4, to: 38 });
     Sound.tone(t, 80, 1.3, { type: 'triangle', gain: 0.18, to: 30 });
@@ -2344,6 +2451,66 @@ function showLevelUp({ from, to, statUps = [] }) {
   setTimeout(() => FX.burst(innerWidth / 2, innerHeight * 0.42, { count: 70, speed: 420, life: 1.3, gravity: 120, color: '#a9e6ff' }), 450);
 }
 
+const MEDAL_ICONS = {
+  goal: '<path d="M60 31l8.6 17.4 19.2 2.8-13.9 13.6 3.3 19.1L60 74.9l-17.2 9 3.3-19.1-13.9-13.6 19.2-2.8z" fill="#fff"/>',
+  epic: '<path d="M35 80l-4-33 16 13 13-21 13 21 16-13-4 33z" fill="#fff"/><rect x="35" y="84" width="50" height="7" rx="2" fill="#fff"/>',
+};
+
+function medalSvg(type) {
+  const c = type === 'epic' ? ['#fff1c2', '#ffc56b', '#b8741d'] : ['#efe4ff', '#b99bff', '#5b3fb3'];
+  return `<svg viewBox="0 0 120 120" aria-hidden="true">
+    <defs>
+      <linearGradient id="mg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="${c[0]}"/><stop offset="0.45" stop-color="${c[1]}"/><stop offset="1" stop-color="${c[2]}"/></linearGradient>
+      <radialGradient id="mi" cx="50%" cy="40%" r="60%"><stop offset="0" stop-color="${c[2]}"/><stop offset="1" stop-color="#0a0f1e"/></radialGradient>
+    </defs>
+    <path d="M60 6l46.8 27v54L60 114 13.2 87V33z" fill="url(#mg)"/>
+    <path d="M60 17l37.2 21.5v43L60 103 22.8 81.5v-43z" fill="url(#mi)" stroke="${c[0]}" stroke-opacity="0.5" stroke-width="1.5"/>
+    ${MEDAL_ICONS[type]}
+  </svg>`;
+}
+
+/** Полноэкранное достижение за целевой («Достижение получено») и эпический («Босс повержен») квест. */
+function showAchievement({ title, type, xp, sub, number, onUndo }) {
+  const epic = type === 'epic';
+  const el = openFx(`ach${epic ? ' epic' : ''}`, `
+    ${epic ? '<div class="fx-flash"></div>' : ''}
+    <div class="ach-rays"><i></i></div>
+    <div class="ach-stage">
+      <div class="ach-medal">
+        <div class="fx-ring"></div>${epic ? '<div class="fx-ring d2"></div>' : ''}
+        ${medalSvg(epic ? 'epic' : 'goal')}
+      </div>
+      <section class="sys fx-win ach-win">
+        <div class="scan"></div>
+        <div class="ach-label">${epic ? 'Босс повержен' : 'Достижение получено'}</div>
+        <div class="ach-title">${esc(title)}</div>
+        <div class="ach-xp">+${fmt(xp)} XP</div>
+        ${sub ? `<p class="fx-sub">${esc(sub)}</p>` : ''}
+        <p class="ach-num">Достижение №${number} · ${TYPE_BY_ID[type].name}</p>
+        <button class="btn" type="button" data-action="accept">Принять</button>
+        ${onUndo ? '<button class="btn ghost" type="button" data-action="undo">Отменить отметку</button>' : ''}
+      </section>
+    </div>`, epic ? 2000 : 1500);
+  if (onUndo) {
+    el.querySelector('[data-action="undo"]').addEventListener('click', () => {
+      closeFx();
+      onUndo();
+    });
+  }
+  if (epic && !reducedMotion.matches) el.classList.add('shake-hard');
+  Sound.play(epic ? 'boss' : 'achievement');
+  const color = epic ? '#ffc56b' : '#b99bff';
+  setTimeout(() => {
+    if (fxOverlay !== el) return;
+    const box = el.querySelector('.ach-medal').getBoundingClientRect();
+    const x = box.left + box.width / 2;
+    const y = box.top + box.height / 2;
+    FX.burst(x, y, { count: epic ? 150 : 90, speed: epic ? 620 : 460, life: 1.4, gravity: 200, size: 2.6, color });
+    if (epic) FX.burst(x, y, { count: 60, speed: 380, life: 1.1, gravity: 120, color: '#ffffff' });
+    FX.rise(color, epic ? 40 : 26);
+  }, 950);
+}
+
 const RANK_COLORS = { E: '#9fb6c8', D: '#6dffc0', C: '#66d0ff', B: '#b99bff', A: '#ff8a5c', S: '#ffd36b' };
 
 function showRankUp({ fromRank, toRank, level, statUps = [] }) {
@@ -2491,6 +2658,8 @@ function onViewClick(e) {
     case 'reset-ranks': return resetRanks();
     case 'preview-level': return previewLevelUp();
     case 'preview-rank': return previewRankUp();
+    case 'preview-goal': return previewAchievement('goal');
+    case 'preview-epic': return previewAchievement('epic');
     case 'lock': return lock('manual');
   }
 }
@@ -2629,11 +2798,26 @@ function completeQuest(q) {
     }
   }
 
-  // Ранг важнее уровня: при повышении ранга показываем одно, самое эффектное окно
+  // Окна по очереди: сначала достижение, потом уровень или ранг (ранг важнее уровня)
+  const shows = [];
+  if (q.type === 'goal' || q.type === 'epic') {
+    const number = state.log.filter((e) => e.type === 'goal' || e.type === 'epic').length;
+    const sub = Object.entries(entry.stats).map(([sid, v]) => `+${v} ${statName(sid)}`).join(' · ');
+    shows.push(() => showAchievement({ title: q.title, type: q.type, xp, sub, number, onUndo: () => undoEntry(entry.id) }));
+  }
   if (rankUp) {
-    setTimeout(() => queueFx(() => showRankUp({ fromRank: playerBefore.rank, toRank: playerAfter.rank, level: playerAfter.level, statUps })), 550);
+    shows.push(() => showRankUp({ fromRank: playerBefore.rank, toRank: playerAfter.rank, level: playerAfter.level, statUps }));
   } else if (levelUp) {
-    setTimeout(() => queueFx(() => showLevelUp({ from: playerBefore.level, to: playerAfter.level, statUps })), 550);
+    shows.push(() => showLevelUp({ from: playerBefore.level, to: playerAfter.level, statUps }));
+  }
+  if (shows.length) {
+    setTimeout(() => {
+      if (!session || !session.state.log.includes(entry)) return; // успели отменить
+      shows.forEach(queueFx);
+    }, 450);
+  }
+  if (rankUp || levelUp) {
+    // характеристики покажет окно уровня или ранга
   } else if (statUps.length === 1) {
     toast({ title: 'Характеристика повышена', main: statUps[0], kind: 'up', ms: 5000 });
   } else if (statUps.length > 1) {
@@ -2955,6 +3139,8 @@ function settingsView() {
       <div class="btn-pair">
         <button class="btn" type="button" data-action="preview-level">Level up</button>
         <button class="btn" type="button" data-action="preview-rank">Новый ранг</button>
+        <button class="btn" type="button" data-action="preview-goal">Достижение</button>
+        <button class="btn" type="button" data-action="preview-epic">Босс повержен</button>
       </div>
     </div>
 
@@ -3023,6 +3209,19 @@ function previewLevelUp() {
   const p = playerInfo();
   haptic([30, 60, 50]);
   queueFx(() => showLevelUp({ from: p.level, to: p.level + 1, statUps: session.state.stats.length ? [`${session.state.stats[0].name}: ур. 2`] : [] }));
+}
+
+function previewAchievement(type) {
+  const { state } = session;
+  const number = state.log.filter((e) => e.type === 'goal' || e.type === 'epic').length + 1;
+  haptic(type === 'epic' ? [30, 60, 30, 60, 80] : [30, 60, 50]);
+  queueFx(() => showAchievement({
+    title: type === 'epic' ? 'Пример: крупный рубеж' : 'Пример: целевой квест',
+    type,
+    xp: state.settings.xp[type],
+    sub: 'Предпросмотр — опыт не начисляется',
+    number,
+  }));
 }
 
 function previewRankUp() {
