@@ -1245,6 +1245,85 @@ html.noscroll, html.noscroll body { overflow: hidden; }
 }
 .ach-num { margin: 12px 0 0 !important; font-size: 12px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-faint) !important; }
 
+/* ---------- Главные цели ---------- */
+
+.goal {
+  display: block;
+  width: 100%;
+  margin-bottom: 12px;
+  padding: 16px;
+  text-align: left;
+  cursor: pointer;
+  border-color: color-mix(in srgb, var(--gc) 45%, transparent);
+  box-shadow: 0 0 16px color-mix(in srgb, var(--gc) 16%, transparent), inset 0 0 24px color-mix(in srgb, var(--gc) 7%, transparent);
+}
+.goal-top { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
+.goal-name { font-size: 17px; font-weight: 700; line-height: 1.3; overflow-wrap: anywhere; }
+.goal-pct {
+  flex: none;
+  font-family: var(--mono);
+  font-size: 26px;
+  font-weight: 800;
+  color: var(--gc);
+  text-shadow: 0 0 12px var(--gc);
+}
+.goal-bar {
+  position: relative;
+  display: block;
+  height: 16px;
+  margin-top: 12px;
+  overflow: hidden;
+  border: 1px solid color-mix(in srgb, var(--gc) 30%, transparent);
+  border-radius: 8px;
+  background: rgba(100, 190, 255, 0.07);
+}
+.goal-bar > i {
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 0;
+  overflow: hidden;
+  border-radius: inherit;
+  background: linear-gradient(90deg, color-mix(in srgb, var(--gc) 45%, #0b1830), var(--gc));
+  box-shadow: 0 0 14px var(--gc);
+  transition: width 1.2s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.goal-bar > i::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: -40%;
+  width: 40%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.5), transparent);
+  animation: goal-shine 3.2s 1.4s ease-in-out infinite;
+}
+.goal-bar > b { position: absolute; top: 0; bottom: 0; width: 2px; margin-left: -1px; background: var(--bg); z-index: 1; }
+.goal-bar > b.q { width: 1px; background: color-mix(in srgb, var(--gc) 25%, transparent); }
+.goal-sub { display: flex; justify-content: space-between; gap: 12px; margin-top: 8px; font-size: 13px; color: var(--text-dim); }
+.goal-sub span:last-child { font-family: var(--mono); color: var(--text-faint); text-align: right; }
+.goal.done .goal-name::after { content: " ✓"; color: var(--gc); }
+.goal-empty { color: var(--warn); }
+.chip.goal-chip { color: var(--gc); border-color: color-mix(in srgb, var(--gc) 60%, transparent); background: none; }
+.link-list {
+  max-height: 300px;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding: 2px 12px 10px;
+  border: 1px solid var(--line-soft);
+  border-radius: 4px;
+  background: rgba(4, 10, 22, 0.5);
+}
+.link-list .check { margin-top: 10px; font-size: 14px; }
+.link-list .check input { width: 26px; height: 26px; min-height: 0; padding: 0; }
+.link-list small { display: block; font-size: 12px; color: var(--text-faint); }
+.btn.gold {
+  color: #ffe2b0;
+  border-color: var(--warn);
+  background: rgba(255, 197, 107, 0.12);
+  box-shadow: 0 0 14px rgba(255, 197, 107, 0.35), inset 0 0 14px rgba(255, 197, 107, 0.12);
+  text-shadow: 0 0 8px var(--warn);
+}
+
 /* ---------- Переключатели ---------- */
 
 .toggle {
@@ -1315,6 +1394,7 @@ html.noscroll, html.noscroll body { overflow: hidden; }
   from { opacity: 0; transform: scale(3.2); filter: blur(10px); }
   to { opacity: 1; transform: none; filter: none; }
 }
+@keyframes goal-shine { 0% { transform: translateX(0); } 55%, 100% { transform: translateX(360%); } }
 @keyframes rays-in { from { opacity: 0; transform: scale(0.3); } }
 @keyframes rays-spin { to { transform: rotate(360deg); } }
 @keyframes medal-drop {
@@ -1632,7 +1712,8 @@ function migrate(state) {
   state.settings.ranks = Object.assign(defaultRankThresholds(), state.settings.ranks);
   if (state.settings.sound === undefined) state.settings.sound = true;
   if (state.settings.haptics === undefined) state.settings.haptics = true;
-  state.schema = 4;
+  state.goals = state.goals || [];
+  state.schema = 5;
   return state;
 }
 
@@ -2470,7 +2551,7 @@ function medalSvg(type) {
 }
 
 /** Полноэкранное достижение за целевой («Достижение получено») и эпический («Босс повержен») квест. */
-function showAchievement({ title, type, xp, sub, number, onUndo }) {
+function showAchievement({ title, type, xp, sub, number, onUndo, label, undoLabel = 'Отменить отметку' }) {
   const epic = type === 'epic';
   const el = openFx(`ach${epic ? ' epic' : ''}`, `
     ${epic ? '<div class="fx-flash"></div>' : ''}
@@ -2482,13 +2563,13 @@ function showAchievement({ title, type, xp, sub, number, onUndo }) {
       </div>
       <section class="sys fx-win ach-win">
         <div class="scan"></div>
-        <div class="ach-label">${epic ? 'Босс повержен' : 'Достижение получено'}</div>
+        <div class="ach-label">${label || (epic ? 'Босс повержен' : 'Достижение получено')}</div>
         <div class="ach-title">${esc(title)}</div>
         <div class="ach-xp">+${fmt(xp)} XP</div>
         ${sub ? `<p class="fx-sub">${esc(sub)}</p>` : ''}
         <p class="ach-num">Достижение №${number} · ${TYPE_BY_ID[type].name}</p>
         <button class="btn" type="button" data-action="accept">Принять</button>
-        ${onUndo ? '<button class="btn ghost" type="button" data-action="undo">Отменить отметку</button>' : ''}
+        ${onUndo ? `<button class="btn ghost" type="button" data-action="undo">${undoLabel}</button>` : ''}
       </section>
     </div>`, epic ? 2000 : 1500);
   if (onUndo) {
@@ -2626,7 +2707,7 @@ function render() {
   if (ui.tab === 'settings') wireSettings(view);
   // Полоски заполняются с нуля — видно, сколько набрано
   requestAnimationFrame(() => requestAnimationFrame(() => {
-    view.querySelectorAll('.bar > i[data-pct]').forEach((i) => { i.style.width = i.dataset.pct + '%'; });
+    view.querySelectorAll('.bar > i[data-pct], .goal-bar > i[data-pct]').forEach((i) => { i.style.width = i.dataset.pct + '%'; });
     view.querySelectorAll('.bar-track > i[data-h]').forEach((i) => { i.style.height = i.dataset.h + '%'; });
   }));
 }
@@ -2634,7 +2715,7 @@ function render() {
 const VIEWS = { status: statusView, quests: questsView, journal: journalView, settings: settingsView };
 
 function onViewClick(e) {
-  const t = e.target.closest('[data-check], [data-edit], [data-stat], [data-action], [data-day]');
+  const t = e.target.closest('[data-check], [data-edit], [data-stat], [data-goal], [data-action], [data-day]');
   if (!t || !session) return;
   if (t.dataset.day !== undefined) {
     // Нажатие на столбик показывает его значение
@@ -2646,9 +2727,11 @@ function onViewClick(e) {
   if (t.dataset.check) return toggleQuest(t.dataset.check, t);
   if (t.dataset.edit) return openQuestEditor(findQuest(t.dataset.edit));
   if (t.dataset.stat) return openStatEditor(session.state.stats.find((s) => s.id === t.dataset.stat));
+  if (t.dataset.goal) return openGoalEditor(findGoal(t.dataset.goal));
   switch (t.dataset.action) {
     case 'new-quest': return openQuestEditor(null);
     case 'new-stat': return openStatEditor(null);
+    case 'new-goal': return openGoalEditor(null);
     case 'show-done': ui.showAllDone = !ui.showAllDone; return render();
     case 'more-log': ui.logLimit += LOG_PAGE; return render();
     case 'export': return exportBackup();
@@ -2719,6 +2802,7 @@ function questCard(q, entry) {
       <span class="chips">
         <span class="chip t-${q.type}">${TYPE_BY_ID[q.type].name}</span>
         ${repeat ? `<span class="chip">${repeat}</span>` : ''}
+        ${goalChip(q)}
         ${names.map((n) => `<span class="chip">${esc(n)}</span>`).join('')}
       </span>
     </button>
@@ -2798,6 +2882,19 @@ function completeQuest(q) {
     }
   }
 
+  const goal = q.goalId && findGoal(q.goalId);
+  if (goal && !goal.doneAt) {
+    const g = goalProgress(goal);
+    const allSteps = goal.kind === 'steps' && g.steps > 0 && g.stepsDone === g.steps;
+    toast({
+      title: `Цель · ${goal.title}`,
+      main: goal.kind === 'steps' ? `${Math.floor(g.pct)}% · этап ${g.stepsDone} из ${g.steps}` : `+${fmt(xp)} XP к цели`,
+      sub: allSteps ? 'Все этапы пройдены — отметьте цель достигнутой' : `Вложено в цель: ${fmt(g.xp)} XP`,
+      kind: 'up',
+      ms: 5000,
+    });
+  }
+
   // Окна по очереди: сначала достижение, потом уровень или ранг (ранг важнее уровня)
   const shows = [];
   if (q.type === 'goal' || q.type === 'epic') {
@@ -2870,6 +2967,7 @@ function openQuestEditor(quest) {
             <span>${label}</span></label>`).join('')}
         </div>
       </div>
+      ${goalChoicesHtml(q.goalId)}
       <p class="error" data-error></p>
       <button class="btn" type="submit">${quest ? 'Сохранить' : 'Принять квест'}</button>
       ${quest ? '<button class="btn ghost danger-text" type="button" data-action="delete">Удалить квест</button>' : ''}
@@ -2896,7 +2994,7 @@ function openQuestEditor(quest) {
     const stats = selectedStats();
     if (!title) return sheetError(root, 'Введите название квеста.');
     if (!stats.length) return sheetError(root, 'Выберите хотя бы одну характеристику.');
-    const data = { title, note: f.note.value.trim(), type: f.type.value, stats, repeat: f.repeat.value };
+    const data = { title, note: f.note.value.trim(), type: f.type.value, stats, repeat: f.repeat.value, goalId: (f.goal && f.goal.value) || undefined };
     if (quest) Object.assign(quest, data);
     else state.quests.push({ id: uid(), createdAt: Date.now(), ...data });
     save();
@@ -3010,6 +3108,232 @@ function journalView() {
   return html;
 }
 
+/* ---------- Главные цели ----------
+   Цель «по этапам»: прогресс = выполненные разовые квесты цели / все разовые квесты цели.
+   Цель «по числу»: прогресс = current / target (например, доход в месяц).
+   Квест привязан к цели через quest.goalId; опыт таких квестов показывается как вложенный в цель. */
+
+const GOAL_COLORS = ['#66d0ff', '#ffc56b', '#6dffc0', '#b99bff', '#ff8a5c'];
+
+function findGoal(id) {
+  return session.state.goals.find((g) => g.id === id);
+}
+
+function goalProgress(goal, done = completionIndex()) {
+  const { quests, log } = session.state;
+  const linked = quests.filter((q) => q.goalId === goal.id);
+  const steps = linked.filter((q) => q.repeat === 'none');
+  const stepsDone = steps.filter((q) => done.has(q.id)).length;
+  const ids = new Set(linked.map((q) => q.id));
+  const xp = log.reduce((sum, e) => sum + (ids.has(e.questId) ? e.xp : 0), 0);
+  let pct = 0;
+  if (goal.doneAt) pct = 100;
+  else if (goal.kind === 'number') pct = goal.target > 0 ? Math.max(0, Math.min(100, (goal.current / goal.target) * 100)) : 0;
+  else if (steps.length) pct = (stepsDone / steps.length) * 100;
+  return { pct, steps: steps.length, stepsDone, xp, count: linked.length };
+}
+
+function goalCard(goal, done) {
+  const g = goalProgress(goal, done);
+  let marks = '';
+  if (goal.kind === 'steps' && g.steps > 1 && g.steps <= 24) {
+    for (let k = 1; k < g.steps; k++) marks += `<b style="left:${((k / g.steps) * 100).toFixed(2)}%"></b>`;
+  } else if (goal.kind === 'number') {
+    marks = [25, 50, 75].map((k) => `<b class="q" style="left:${k}%"></b>`).join('');
+  }
+  let left;
+  if (goal.doneAt) left = `Достигнута ${new Date(goal.doneAt).toLocaleDateString('ru-RU', { day: 'numeric', month: 'long' })}`;
+  else if (goal.kind === 'number') left = `${fmt(goal.current)} / ${fmt(goal.target)} ${esc(goal.unit)}`;
+  else if (g.steps) left = `Этапы: ${g.stepsDone} из ${g.steps}`;
+  else left = '<span class="goal-empty">Добавьте квесты-этапы</span>';
+  return `<button class="panel goal${goal.doneAt ? ' done' : ''}" type="button" data-goal="${goal.id}" style="--gc:${goal.color}">
+      <span class="goal-top"><span class="goal-name">${esc(goal.title)}</span><span class="goal-pct">${Math.floor(g.pct)}%</span></span>
+      <span class="goal-bar"><i data-pct="${g.pct.toFixed(1)}"></i>${marks}</span>
+      <span class="goal-sub"><span>${left}</span><span>${g.xp ? `+${fmt(g.xp)} XP` : ''}</span></span>
+    </button>`;
+}
+
+function goalsHtml() {
+  const { goals } = session.state;
+  const done = completionIndex();
+  const order = goals.filter((g) => !g.doneAt).concat(goals.filter((g) => g.doneAt));
+  return `<div class="section-h">Цели <span class="count">${goals.filter((g) => !g.doneAt).length}</span></div>
+    ${order.length ? order.map((g) => goalCard(g, done)).join('') : '<div class="panel empty"><b>Главных целей пока нет</b>Поставьте цель — Система покажет, сколько до неё осталось.</div>'}
+    <button class="btn" type="button" data-action="new-goal">+ Цель</button>`;
+}
+
+function goalChip(q) {
+  const goal = q.goalId && findGoal(q.goalId);
+  return goal ? `<span class="chip goal-chip" style="--gc:${goal.color}">◎ ${esc(goal.title)}</span>` : '';
+}
+
+/** Выбор цели в окне квеста. */
+function goalChoicesHtml(goalId) {
+  const goals = session.state.goals.filter((g) => !g.doneAt || g.id === goalId);
+  if (!goals.length) return '';
+  return `<div class="field"><span>Цель</span>
+      <div class="choices">
+        <label class="choice"><input type="radio" name="goal" value=""${goalId ? '' : ' checked'}><span>Без цели</span></label>
+        ${goals.map((g) => `<label class="choice"><input type="radio" name="goal" value="${g.id}"${goalId === g.id ? ' checked' : ''}><span style="color:${g.color}">◎ ${esc(g.title)}</span></label>`).join('')}
+      </div>
+    </div>`;
+}
+
+function openGoalEditor(goal) {
+  const { state } = session;
+  const g = goal || { title: '', kind: 'steps', target: 0, current: 0, unit: '₸' };
+  const done = completionIndex();
+  const quests = state.quests.slice().sort((a, b) => {
+    const la = goal && a.goalId === goal.id ? 0 : 1;
+    const lb = goal && b.goalId === goal.id ? 0 : 1;
+    return la - lb || Number(done.has(a.id)) - Number(done.has(b.id)) || b.createdAt - a.createdAt;
+  });
+  const linkRow = (q) => {
+    const other = q.goalId && (!goal || q.goalId !== goal.id) && findGoal(q.goalId);
+    const meta = [done.has(q.id) ? '✓ выполнен' : 'активный', q.repeat !== 'none' ? 'повторяется' : '', other ? `сейчас в «${esc(other.title)}»` : ''].filter(Boolean).join(' · ');
+    return `<label class="check"><input type="checkbox" name="link" value="${q.id}"${goal && q.goalId === goal.id ? ' checked' : ''}>
+      <span>${esc(q.title)}<small>${meta}</small></span></label>`;
+  };
+  const root = openSheet(goal ? 'Цель' : 'Новая цель', `
+    <form novalidate>
+      <label class="field"><span>Название</span>
+        <input name="title" type="text" maxlength="80" autocomplete="off" value="${esc(g.title)}" placeholder="Например: получить документы">
+      </label>
+      <div class="field"><span>Как считать прогресс</span>
+        <div class="choices">
+          <label class="choice"><input type="radio" name="kind" value="steps"${g.kind === 'steps' ? ' checked' : ''}><span>По этапам — квестам</span></label>
+          <label class="choice"><input type="radio" name="kind" value="number"${g.kind === 'number' ? ' checked' : ''}><span>По числу</span></label>
+        </div>
+        <div class="hint" data-kind-hint></div>
+      </div>
+      <div data-number>
+        <label class="field"><span>Цель</span>
+          <span class="xp-input"><input name="target" type="number" inputmode="numeric" min="1" step="1" value="${g.target || ''}" placeholder="300000" style="width:100%;text-align:left"></span>
+        </label>
+        <label class="field"><span>Сейчас</span>
+          <span class="xp-input"><input name="current" type="number" inputmode="numeric" min="0" step="1" value="${g.current || 0}" style="width:100%;text-align:left"></span>
+        </label>
+        <label class="field"><span>Единица</span>
+          <input name="unit" type="text" maxlength="12" autocomplete="off" value="${esc(g.unit || '')}" placeholder="₸">
+        </label>
+      </div>
+      <div class="field"><span>Квесты цели</span>
+        ${quests.length ? `<div class="link-list">${quests.map(linkRow).join('')}</div>` : '<div class="hint">Квестов пока нет. Новые квесты привязываются к цели в их окне.</div>'}
+      </div>
+      <p class="error" data-error></p>
+      <button class="btn" type="submit">${goal ? 'Сохранить' : 'Поставить цель'}</button>
+      ${goal && !goal.doneAt ? '<button class="btn gold" type="button" data-action="achieve">Цель достигнута</button>' : ''}
+      ${goal && goal.doneAt ? '<button class="btn ghost" type="button" data-action="reopen">Вернуть в работу</button>' : ''}
+      ${goal ? '<button class="btn ghost danger-text" type="button" data-action="delete">Удалить цель</button>' : ''}
+      <button class="btn ghost" type="button" data-action="close">Отмена</button>
+    </form>`);
+
+  const form = root.querySelector('form');
+  const f = form.elements;
+  const numberBox = root.querySelector('[data-number]');
+  const kindHint = root.querySelector('[data-kind-hint]');
+  const syncKind = () => {
+    const number = f.kind.value === 'number';
+    numberBox.hidden = !number;
+    kindHint.textContent = number
+      ? 'Полоса — «сейчас / цель». Значение «сейчас» обновляйте здесь.'
+      : 'Полоса — доля выполненных квестов-этапов. Добавьте и будущие шаги как квесты.';
+  };
+  form.addEventListener('change', (e) => { if (e.target.name === 'kind') syncKind(); });
+  syncKind();
+  if (!goal) f.title.focus();
+
+  /** Переносит поля формы в цель; null — если что-то не так. */
+  const apply = () => {
+    const title = f.title.value.trim();
+    const kind = f.kind.value;
+    const target = Math.round(Number(f.target.value));
+    if (!title) return sheetError(root, 'Введите название цели.'), null;
+    if (kind === 'number' && !(target > 0)) return sheetError(root, 'Укажите, сколько нужно набрать.'), null;
+    const target_ = goal || { id: uid(), createdAt: Date.now(), doneAt: null, color: GOAL_COLORS[state.goals.length % GOAL_COLORS.length] };
+    Object.assign(target_, {
+      title,
+      kind,
+      target: kind === 'number' ? target : 0,
+      current: kind === 'number' ? Math.max(0, Math.round(Number(f.current.value)) || 0) : 0,
+      unit: f.unit.value.trim(),
+    });
+    if (!goal) state.goals.push(target_);
+    for (const box of form.querySelectorAll('input[name="link"]')) {
+      const q = findQuest(box.value);
+      if (!q) continue;
+      if (box.checked) q.goalId = target_.id;
+      else if (q.goalId === target_.id) delete q.goalId;
+    }
+    return target_;
+  };
+
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+    if (!apply()) return;
+    save();
+    closeSheet();
+    render();
+  });
+
+  const achieve = root.querySelector('[data-action="achieve"]');
+  if (achieve) {
+    achieve.addEventListener('click', () => confirmPress(achieve, 'Точно достигнута? Нажмите ещё раз', () => {
+      if (!apply()) return;
+      closeSheet();
+      completeGoal(goal);
+    }));
+  }
+  const reopen = root.querySelector('[data-action="reopen"]');
+  if (reopen) {
+    reopen.addEventListener('click', () => {
+      closeSheet();
+      reopenGoal(goal);
+    });
+  }
+  const del = root.querySelector('[data-action="delete"]');
+  if (del) {
+    del.addEventListener('click', () => confirmPress(del, 'Квесты останутся. Удалить цель?', () => {
+      state.goals = state.goals.filter((x) => x.id !== goal.id);
+      for (const q of state.quests) if (q.goalId === goal.id) delete q.goalId;
+      save();
+      closeSheet();
+      render();
+    }));
+  }
+}
+
+/** Цель достигнута: опыт эпического квеста и ачивка «Цель достигнута». */
+function completeGoal(goal) {
+  const { state } = session;
+  const before = playerInfo();
+  const xp = state.settings.xp.epic;
+  const entry = { id: uid(), questId: null, goalId: goal.id, title: `Цель: ${goal.title}`, type: 'epic', xp, stats: {}, period: null, at: Date.now(), source: 'goal' };
+  state.log.push(entry);
+  goal.doneAt = entry.at;
+  save();
+  render();
+  const after = playerInfo();
+  Sound.play('quest');
+  haptic([30, 60, 30, 60, 80]);
+  const number = state.log.filter((e) => e.type === 'goal' || e.type === 'epic').length;
+  queueFx(() => showAchievement({ title: goal.title, type: 'epic', xp, label: 'Цель достигнута', sub: 'Главная цель закрыта', number, onUndo: () => reopenGoal(goal), undoLabel: 'Вернуть в работу' }));
+  if (after.rank !== before.rank) queueFx(() => showRankUp({ fromRank: before.rank, toRank: after.rank, level: after.level }));
+  else if (after.level > before.level) queueFx(() => showLevelUp({ from: before.level, to: after.level }));
+}
+
+/** Возвращает цель в работу и снимает опыт за её достижение. */
+function reopenGoal(goal) {
+  if (!session) return;
+  const { state } = session;
+  const entry = state.log.find((e) => e.source === 'goal' && e.goalId === goal.id);
+  goal.doneAt = null;
+  if (entry) state.log.splice(state.log.indexOf(entry), 1);
+  save();
+  render();
+  toast({ title: `Цель · ${goal.title}`, main: 'Снова в работе', sub: entry ? `−${fmt(entry.xp)} XP` : '', kind: 'minus', ms: 3000 });
+}
+
 /* ---------- Статус: персонаж и характеристики ---------- */
 
 function statusView() {
@@ -3048,8 +3372,12 @@ function statusView() {
       <span class="bar big"><i data-pct="${(p.into / p.need * 100).toFixed(1)}"></i></span>
       <div class="stat-xp"><span>${fmt(p.into)} / ${fmt(p.need)} XP</span><span>до ур. ${p.level + 1}: ${fmt(p.need - p.into)}</span></div>
       <p class="status-next">${nextLine}</p>
-      ${countersHtml()}
     </section>
+
+    ${goalsHtml()}
+
+    <div class="section-h">Сегодня</div>
+    <div class="panel pad">${countersHtml()}</div>
 
     <div class="section-h">Характеристики <span class="count">${state.stats.length}</span></div>
     ${cards ? `<div class="stat-grid">${cards}</div>` : '<div class="panel empty">Характеристик нет. Добавьте хотя бы одну, чтобы квесты могли её прокачивать.</div>'}
