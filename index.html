@@ -1416,6 +1416,63 @@ html.noscroll, html.noscroll body { overflow: hidden; }
 .row-fields input:focus { border-color: var(--accent); }
 .row-fields button { flex: none; width: 48px; height: 48px; font-size: 22px; color: var(--danger); background: none; border: 1px solid var(--line-soft); border-radius: 4px; cursor: pointer; }
 
+/* ---------- Финансы ---------- */
+
+.fin-input { display: flex; gap: 8px; margin-top: 16px; padding: 8px; }
+.fin-input input {
+  flex: 1;
+  min-width: 0;
+  min-height: 52px;
+  padding: 10px 14px;
+  font-size: 17px;
+  background: rgba(4, 10, 22, 0.75);
+  border: 1px solid var(--line-soft);
+  border-radius: 4px;
+  outline: none;
+}
+.fin-input input:focus { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent), 0 0 14px var(--glow); }
+.fin-input .btn { width: 56px; min-height: 52px; margin: 0; padding: 0; font-size: 26px; letter-spacing: 0; }
+.fin-limits { margin-top: 12px; padding: 16px; }
+.fin-left small { display: block; font-size: 11px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--text-dim); }
+.fin-left b { display: block; margin-top: 4px; font-family: var(--mono); font-size: 34px; line-height: 1.1; color: var(--fc, var(--accent-2)); text-shadow: 0 0 14px var(--fc, var(--accent)); }
+.fin-left span { display: block; margin-top: 4px; font-size: 13px; color: var(--text-dim); }
+.fin-row-limit { margin-top: 14px; --fc: var(--accent); }
+.fin-row-limit.near { --fc: var(--warn); }
+.fin-row-limit.over { --fc: var(--danger); }
+.fin-row-limit .fin-head { display: flex; justify-content: space-between; gap: 10px; font-size: 13px; color: var(--text-dim); }
+.fin-row-limit .fin-head span:last-child { font-family: var(--mono); color: var(--text); }
+.fin-bar { position: relative; display: block; height: 10px; margin-top: 6px; overflow: hidden; border-radius: 5px; background: rgba(100, 190, 255, 0.08); border: 1px solid rgba(120, 205, 255, 0.18); }
+.fin-bar > i { position: absolute; inset: 0 auto 0 0; width: 0; border-radius: inherit; background: var(--fc); box-shadow: 0 0 10px var(--fc); transition: width 1s cubic-bezier(0.2, 0.8, 0.2, 1); }
+.fin-streak { margin-top: 14px; font-size: 13px; color: var(--text-dim); text-align: center; }
+.fin-streak b { color: var(--warn); }
+.exp-row {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 2px 12px;
+  align-items: center;
+  width: 100%;
+  padding: 12px 0;
+  text-align: left;
+  background: none;
+  border: 0;
+  border-bottom: 1px solid rgba(120, 205, 255, 0.1);
+  cursor: pointer;
+}
+.exp-row:last-child { border-bottom: 0; }
+.exp-row .ic { grid-row: 1 / 3; font-size: 20px; }
+.exp-row .t { font-size: 15px; overflow-wrap: anywhere; }
+.exp-row .a { font-family: var(--mono); font-weight: 700; }
+.exp-row .m { grid-column: 2 / 4; font-size: 12px; color: var(--text-faint); }
+.fin-sum { display: flex; flex-wrap: wrap; gap: 6px 14px; margin-top: 10px; font-size: 13px; color: var(--text-dim); }
+.fin-sum b { font-family: var(--mono); color: var(--text); }
+.cat-row { margin-top: 12px; }
+.cat-row .fin-head { display: flex; justify-content: space-between; gap: 10px; font-size: 14px; }
+.cat-row .fin-head span:last-child { font-family: var(--mono); color: var(--text-dim); }
+.cat-row .fin-bar { height: 8px; --fc: var(--accent); }
+.q-options { display: grid; gap: 8px; margin-top: 16px; }
+.q-options.cats { grid-template-columns: 1fr 1fr; }
+.q-options .btn { margin: 0; min-height: 50px; font-size: 14px; letter-spacing: 0.04em; text-transform: none; }
+
 /* ---------- Переключатели ---------- */
 
 .toggle {
@@ -1634,6 +1691,9 @@ html.noscroll, html.noscroll body { overflow: hidden; }
   <header class="topbar">
     <div class="who"><small data-bind="rankline"></small><b data-bind="name"></b></div>
     <div class="xp-total" data-bind="xp"></div>
+    <button class="icon-btn" type="button" data-action="open-settings" aria-label="Настройки">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>
+    </button>
     <button class="icon-btn" type="button" data-action="lock" aria-label="Заблокировать">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>
     </button>
@@ -1653,13 +1713,13 @@ html.noscroll, html.noscroll body { overflow: hidden; }
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h4l2.5-6 5 12 2.5-6h4"/></svg>
       <span>Состояние</span>
     </button>
+    <button type="button" data-tab="finance">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="6" width="18" height="13" rx="2"/><path d="M3 10h18"/><path d="M16 14.5h2"/></svg>
+      <span>Финансы</span>
+    </button>
     <button type="button" data-tab="journal">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19V5"/><path d="M4 19h16"/><path d="M8 16v-4"/><path d="M12 16V8"/><path d="M16 16v-6"/></svg>
       <span>Журнал</span>
-    </button>
-    <button type="button" data-tab="settings">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>
-      <span>Настройки</span>
     </button>
   </nav>
 </template>
@@ -1812,7 +1872,8 @@ function migrate(state) {
   state.goals = state.goals || [];
   state.drains = state.drains || [];
   state.days = state.days || {}; // dayKey → { drains: [id], energy: 1–5 }
-  state.schema = 6;
+  state.finance = Object.assign({ income: 0, fixed: [], savePct: 10, rules: {}, expenses: [], noSpend: {}, checked: {} }, state.finance);
+  state.schema = 7;
   return state;
 }
 
@@ -2772,6 +2833,12 @@ function showHome() {
   mount('tpl-shell');
   app.classList.add('shell');
   app.querySelector('.topbar [data-action="lock"]').addEventListener('click', () => lock('manual'));
+  app.querySelector('.topbar [data-action="open-settings"]').addEventListener('click', () => {
+    flushInputs();
+    ui.tab = 'settings';
+    render();
+    scrollTo(0, 0);
+  });
   app.querySelector('.tabbar').addEventListener('click', (e) => {
     const btn = e.target.closest('[data-tab]');
     if (!btn || btn.dataset.tab === ui.tab) return;
@@ -2782,6 +2849,7 @@ function showHome() {
     scrollTo(0, 0);
   });
   app.querySelector('[data-view]').addEventListener('click', onViewClick);
+  checkFinanceRewards();
   render();
 }
 
@@ -2804,21 +2872,23 @@ function render() {
   const view = app.querySelector('[data-view]');
   view.innerHTML = VIEWS[ui.tab]();
   if (ui.tab === 'settings') wireSettings(view);
+  if (ui.tab === 'finance') wireFinance(view);
   // Полоски заполняются с нуля — видно, сколько набрано
   requestAnimationFrame(() => requestAnimationFrame(() => {
-    view.querySelectorAll('.bar > i[data-pct], .goal-bar > i[data-pct]').forEach((i) => { i.style.width = i.dataset.pct + '%'; });
+    view.querySelectorAll('.bar > i[data-pct], .goal-bar > i[data-pct], .fin-bar > i[data-pct]').forEach((i) => { i.style.width = i.dataset.pct + '%'; });
     view.querySelectorAll('.bar-track > i[data-h]').forEach((i) => { i.style.height = i.dataset.h + '%'; });
   }));
 }
 
-const VIEWS = { status: statusView, quests: questsView, state: stateView, journal: journalView, settings: settingsView };
+const VIEWS = { status: statusView, quests: questsView, state: stateView, finance: financeView, journal: journalView, settings: settingsView };
 
 function onViewClick(e) {
-  const t = e.target.closest('[data-check], [data-edit], [data-stat], [data-goal], [data-radar], [data-energy], [data-drain], [data-action], [data-day]');
+  const t = e.target.closest('[data-check], [data-edit], [data-stat], [data-goal], [data-radar], [data-energy], [data-drain], [data-exp], [data-action], [data-day]');
   if (!t || !session) return;
   if (t.dataset.radar !== undefined) return selectRadarAxis(Number(t.dataset.radar));
   if (t.dataset.energy) return setEnergy(Number(t.dataset.energy));
   if (t.dataset.drain) return toggleDrain(t.dataset.drain);
+  if (t.dataset.exp) return openExpenseEditor(t.dataset.exp);
   if (t.dataset.day !== undefined) {
     // Нажатие на столбик показывает его значение
     const was = t.classList.contains('sel');
@@ -2838,6 +2908,8 @@ function onViewClick(e) {
     case 'state-preset': return applyStatePreset();
     case 'edit-drains': return openDrainsEditor();
     case 'go-state': ui.tab = 'state'; render(); return scrollTo(0, 0);
+    case 'fin-budget': return openBudgetEditor();
+    case 'fin-nospend': return toggleNoSpend();
     case 'show-done': ui.showAllDone = !ui.showAllDone; return render();
     case 'more-log': ui.logLimit += LOG_PAGE; return render();
     case 'export': return exportBackup();
@@ -3821,6 +3893,538 @@ function supportRepeatHtml(q) {
       <div class="choices">${[1, 2, 3, 4, 5, 6].map((n) => `<label class="choice"><input type="radio" name="times" value="${n}"${(q.times || 3) === n ? ' checked' : ''}><span>${n}</span></label>`).join('')}</div>
       <div class="hint">Для «нескольких раз в неделю»: в дни отдыха состояние не падает.</div>
     </div>`;
+}
+
+/* ---------- Финансы ----------
+   Трата вводится одной строкой: «кофе 1500», «такси домой 2к». Сумма и категория находятся сами,
+   незнакомое слово Система спрашивает и запоминает (finance.rules).
+   Класс траты: need — необходимое, invest — вклад в себя и дело, want — хотелка.
+   Лимиты: бюджет месяца = доход − обязательные платежи − накопления;
+   лимит дня = (бюджет − потрачено в месяце до сегодня) / дней до конца месяца, включая сегодня. */
+
+const FIN_CATS = [
+  { id: 'work', name: 'Для дела', cls: 'invest', words: ['камер', 'микрофон', 'петличк', 'штатив', 'объектив', 'осветител', 'свет для', 'реклам', 'таргет', 'хостинг', 'домен', 'монтаж', 'capcut', 'съёмк', 'съемк', 'для клиент', 'для работ', 'для блог', 'для reels'] },
+  { id: 'education', name: 'Обучение', cls: 'invest', words: ['курс', 'обучен', 'книг', 'тренинг', 'урок', 'мастер-класс', 'вебинар', 'ментор', 'наставник', 'учебн'] },
+  { id: 'subs', name: 'Подписки', cls: 'want', words: ['подписк', 'spotify', 'netflix', 'нетфликс', 'youtube premium', 'ютуб премиум', 'icloud', 'apple music', 'яндекс плюс', 'chatgpt', 'кинопоиск'] },
+  { id: 'sport', name: 'Спорт', cls: 'invest', words: ['зал', 'абонемент', 'фитнес', 'тренер', 'спортпит', 'протеин', 'бассейн', 'танц', 'хореограф', 'йога'] },
+  { id: 'cafe', name: 'Кафе и доставка', cls: 'want', words: ['кофе', 'coffee', 'кафе', 'ресторан', 'доставк', 'glovo', 'wolt', 'chocofood', 'шаурм', 'донер', 'бургер', 'пицц', 'kfc', 'макдон', 'mcdonald', 'суши', 'ролл', 'обед', 'ужин', 'завтрак', 'фастфуд', 'starbucks', 'перекус', 'столов', 'кофейн', 'латте', 'капучино', 'энергетик'] },
+  { id: 'groceries', name: 'Продукты', cls: 'need', words: ['продукт', 'magnum', 'магнум', 'small', 'смолл', 'анвар', 'galmart', 'галмарт', 'рынок', 'базар', 'хлеб', 'молок', 'мяс', 'овощ', 'фрукт', 'яйц', 'супермаркет', 'гипермаркет', 'крупа'] },
+  { id: 'transport', name: 'Транспорт', cls: 'need', words: ['такси', 'yandex go', 'яндекс go', 'яндекс го', 'indrive', 'индрайв', 'автобус', 'метро', 'бензин', 'заправк', 'парковк', 'проезд', 'onay', 'онай', 'каршеринг', 'anytime'] },
+  { id: 'home', name: 'Жильё и коммуналка', cls: 'need', words: ['аренд', 'квартир', 'коммунал', 'электричеств', 'отоплен', 'жкх', 'квартплат', 'ремонт'] },
+  { id: 'connect', name: 'Связь и интернет', cls: 'need', words: ['связь', 'интернет', 'баланс', 'beeline', 'билайн', 'kcell', 'кселл', 'activ', 'актив', 'tele2', 'теле2', 'altel', 'алтел', 'мобильн'] },
+  { id: 'health', name: 'Здоровье', cls: 'need', words: ['аптек', 'лекарств', 'таблет', 'врач', 'стоматолог', 'зуб', 'анализ', 'витамин', 'клиник', 'больниц', 'массаж'] },
+  { id: 'household', name: 'Быт', cls: 'need', words: ['бытов', 'порошок', 'шампун', 'мыло', 'туалетн', 'салфетк', 'хозтовар', 'посуд', 'стирк'] },
+  { id: 'fun', name: 'Развлечения', cls: 'want', words: ['кино', 'игр', 'бар ', 'клуб', 'концерт', 'боулинг', 'кальян', 'steam', 'playstation', 'ps5', 'караоке', 'развлеч', 'бильярд'] },
+  { id: 'shopping', name: 'Шопинг', cls: 'want', words: ['одежд', 'кроссов', 'обув', 'футболк', 'худи', 'куртк', 'джинс', 'штаны', 'wildberries', 'вайлдберриз', 'ozon', 'озон', 'lamoda', 'ламода', 'косметик', 'парфюм', 'духи', 'аксессуар', 'сумк', 'очки'] },
+  { id: 'gifts', name: 'Подарки и люди', cls: 'want', words: ['подар', 'цветы', 'букет', 'день рождени', 'скинул', 'праздник'] },
+  { id: 'tech', name: 'Техника', cls: 'want', words: ['телефон', 'айфон', 'iphone', 'ноутбук', 'макбук', 'macbook', 'наушник', 'airpods', 'планшет', 'ipad', 'техник', 'гаджет', 'компьютер', 'монитор', 'клавиатур', 'зарядк'] },
+  { id: 'other', name: 'Другое', cls: 'want', words: [] },
+];
+const FIN_CAT = Object.fromEntries(FIN_CATS.map((c) => [c.id, c]));
+const FIN_CLASS = { need: 'необходимое', invest: 'вклад', want: 'хотелка' };
+const STOPWORDS = new Set(['на', 'за', 'для', 'и', 'в', 'во', 'от', 'по', 'с', 'со', 'к', 'у', 'тг', 'тенге']);
+const money = (n) => `${fmt(Math.round(n))} ₸`;
+
+const fin = () => session.state.finance;
+const dayStart = (d) => new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime();
+
+/** «кофе 1500», «такси 2к», «1 500 продукты» → { amount, text }; null — если суммы нет. */
+function parseExpense(raw) {
+  const re = /(\d[\d\s]*(?:[.,]\d+)?)\s*(к|k|тыс\.?)?(?![a-zа-яё])/gi;
+  let best = null;
+  for (const m of raw.matchAll(re)) {
+    let amount = parseFloat(m[1].replace(/\s/g, '').replace(',', '.'));
+    if (m[2]) amount *= 1000;
+    if (amount > 0 && (!best || amount > best.amount)) best = { amount: Math.round(amount), index: m.index, len: m[0].length };
+  }
+  if (!best) return null;
+  const text = (raw.slice(0, best.index) + ' ' + raw.slice(best.index + best.len))
+    .replace(/₸/g, ' ')
+    .replace(/(^|\s)(тг|тенге)(?=\s|$)/gi, ' ')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .replace(/^(на|за)\s+/i, '');
+  return { amount: best.amount, text: text || 'Трата' };
+}
+
+function tokens(text) {
+  return text.toLowerCase().split(/[^a-zа-яё0-9-]+/i).filter((w) => w.length >= 3 && !STOPWORDS.has(w));
+}
+
+/** Категория по выученным словам, затем по словарю; null — если не понятно. */
+function guessCategory(text) {
+  const { rules } = fin();
+  for (const w of tokens(text)) if (rules[w]) return rules[w];
+  const low = ` ${text.toLowerCase()} `;
+  for (const c of FIN_CATS) if (c.words.some((w) => low.includes(w))) return c.id;
+  return null;
+}
+
+function learnCategory(text, cat) {
+  const [first] = tokens(text);
+  if (first) fin().rules[first] = cat;
+}
+
+function finBudget() {
+  const f = fin();
+  const fixed = f.fixed.reduce((a, x) => a + x.amount, 0);
+  const saving = Math.round((f.income * f.savePct) / 100);
+  return { income: f.income, fixed, saving, free: Math.max(0, f.income - fixed - saving) };
+}
+
+/** Сколько потрачено за [from, to) без обязательных платежей. */
+function spentBetween(from, to, except) {
+  return fin().expenses.reduce((a, e) => a + (!e.fixed && e !== except && e.at >= from && e.at < to ? e.amount : 0), 0);
+}
+
+function daysInMonth(d) {
+  return new Date(d.getFullYear(), d.getMonth() + 1, 0).getDate();
+}
+
+/** Бюджет месяца; в месяц, когда бюджет задали впервые, — только на оставшиеся с того дня дни. */
+function monthBudget(date) {
+  const { free } = finBudget();
+  const since = fin().since && new Date(fin().since);
+  if (since && since.getFullYear() === date.getFullYear() && since.getMonth() === date.getMonth()) {
+    const days = daysInMonth(date);
+    return Math.round((free * (days - since.getDate() + 1)) / days);
+  }
+  return free;
+}
+
+/** Лимит на день date (или null, если бюджет не задан). */
+function dayLimit(date) {
+  if (!finBudget().free) return null;
+  const free = monthBudget(date);
+  const monthFrom = new Date(date.getFullYear(), date.getMonth(), 1).getTime();
+  const before = spentBetween(monthFrom, dayStart(date));
+  const left = daysInMonth(date) - date.getDate() + 1;
+  return Math.max(0, Math.round((free - before) / left));
+}
+
+function limitsNow() {
+  const now = new Date();
+  const L = dayLimit(now);
+  if (L === null) return null;
+  const today = dayStart(now);
+  const tomorrow = dayStart(addDays(now, 1));
+  const spentToday = spentBetween(today, tomorrow);
+  const weekFrom = dayStart(addDays(now, -((now.getDay() + 6) % 7)));
+  const daysLeftMonth = daysInMonth(now) - now.getDate() + 1;
+  const daysLeftWeek = Math.min(7 - ((now.getDay() + 6) % 7), daysLeftMonth);
+  const spentWeekBefore = spentBetween(weekFrom, today);
+  const monthFrom = new Date(now.getFullYear(), now.getMonth(), 1).getTime();
+  return {
+    today: { limit: L, spent: spentToday },
+    week: { limit: spentWeekBefore + L * daysLeftWeek, spent: spentWeekBefore + spentToday },
+    month: { limit: monthBudget(now), spent: spentBetween(monthFrom, tomorrow) },
+  };
+}
+
+/** Превысила ли трата лимит своего дня. */
+function computeOverLimit(e) {
+  const d = new Date(e.at);
+  const L = dayLimit(d);
+  if (L === null) return false;
+  const before = spentBetween(dayStart(d), e.at, e);
+  return before + e.amount > L;
+}
+
+function expenseVerdict(e) {
+  if (e.fixed) return { icon: '📌', grade: 'fixed', text: 'Обязательный платёж — уже в бюджете' };
+  if (e.cls === 'need') return { icon: '✅', grade: 'ok', text: 'Грамотная: необходимое' };
+  if (e.cls === 'invest' && e.overLimit) return { icon: '⚠️', grade: 'meh', text: 'Вклад, но сверх лимита — убедись, что окупится' };
+  if (e.cls === 'invest') return { icon: '✅', grade: 'ok', text: 'Грамотная: вклад в себя и дело' };
+  if (e.overLimit) return { icon: '❌', grade: 'bad', text: 'Слив: хотелка сверх лимита' };
+  if (e.planned === false) return { icon: '⚠️', grade: 'meh', text: 'Спорная: импульсивная хотелка' };
+  if (e.planned === true) return { icon: '✅', grade: 'ok', text: 'В рамках: запланированная хотелка' };
+  return { icon: '⚠️', grade: 'meh', text: 'Спорная: хотелка' };
+}
+
+function addExpense(raw) {
+  const parsed = parseExpense(raw);
+  if (!parsed) return false;
+  const f = fin();
+  const cat = guessCategory(parsed.text);
+  const e = {
+    id: uid(),
+    at: Date.now(),
+    amount: parsed.amount,
+    text: parsed.text,
+    cat: cat || 'other',
+    cls: FIN_CAT[cat || 'other'].cls,
+    planned: null,
+    fixed: false,
+    asked: { cat: !!cat },
+  };
+  e.overLimit = computeOverLimit(e);
+  f.expenses.push(e);
+  delete f.noSpend[dayKey(new Date())];
+  save();
+  render();
+  askNext(e);
+  return true;
+}
+
+/** Задаёт следующий нужный вопрос или подводит итог. */
+function askNext(e) {
+  const f = fin();
+  const ask = (question, options, onAnswer, cats) => {
+    clearToasts(); // уведомления о прошлых тратах не должны закрывать вопрос
+    const root = openSheet('Уточнение', `
+      <p class="lead">${esc(e.text)} · ${money(e.amount)}</p>
+      <p class="dim center">${question}</p>
+      <div class="q-options${cats ? ' cats' : ''}">${options.map((o, i) => `<button class="btn" type="button" data-opt="${i}">${o.label}</button>`).join('')}</div>
+      <button class="btn ghost" type="button" data-skip>Пропустить</button>`);
+    root.querySelector('[data-skip]').addEventListener('click', () => {
+      closeSheet();
+      finishExpense(e);
+    });
+    root.querySelectorAll('[data-opt]').forEach((b) => b.addEventListener('click', () => {
+      onAnswer(options[Number(b.dataset.opt)].value);
+      closeSheet();
+      save();
+      askNext(e);
+    }));
+  };
+  if (!e.asked.cat) {
+    e.asked.cat = true;
+    return ask('На что это? Запомню на будущее.', FIN_CATS.filter((c) => c.id !== 'other').map((c) => ({ label: c.name, value: c.id })).concat({ label: 'Другое', value: 'other' }), (v) => {
+      e.cat = v;
+      e.cls = FIN_CAT[v].cls;
+      if (v !== 'other') learnCategory(e.text, v);
+    }, true);
+  }
+  if (e.cat === 'tech' && !e.asked.purpose) {
+    e.asked.purpose = true;
+    return ask('Это для дела или для себя?', [{ label: 'Для дела', value: 'invest' }, { label: 'Для себя', value: 'want' }], (v) => { e.cls = v; });
+  }
+  if (f.fixed.length && ['home', 'connect', 'subs'].includes(e.cat) && !e.asked.fixed) {
+    e.asked.fixed = true;
+    return ask(`Это обязательный платёж из бюджета (${f.fixed.map((x) => esc(x.title)).join(', ')})?`, [{ label: 'Да, обязательный', value: true }, { label: 'Нет, отдельная трата', value: false }], (v) => { e.fixed = v; });
+  }
+  if (e.cls === 'want' && !e.fixed && !e.asked.planned) {
+    e.asked.planned = true;
+    return ask('Это было запланировано?', [{ label: 'Да, запланировано', value: true }, { label: 'Нет, импульсивно', value: false }], (v) => { e.planned = v; });
+  }
+  finishExpense(e);
+}
+
+function finishExpense(e) {
+  if (!session) return;
+  const v = expenseVerdict(e);
+  const lim = limitsNow();
+  const left = lim ? lim.today.limit - lim.today.spent : null;
+  save();
+  render();
+  if (v.grade === 'ok') Sound.play('quest');
+  else if (v.grade === 'bad') Sound.play('undo');
+  toast({
+    title: '[Трата записана]',
+    main: `${v.icon} −${money(e.amount)} · ${FIN_CAT[e.cat].name}`,
+    sub: `${v.text}${left !== null ? ` · ${left >= 0 ? `осталось на сегодня ${money(left)}` : `сверх лимита на ${money(-left)}`}` : ''}`,
+    kind: v.grade === 'bad' ? 'minus' : undefined,
+    ms: 5000,
+  });
+  if (v.grade === 'bad') markSpendDrain();
+}
+
+/** Трата-слив отмечается и в сливах энергии на вкладке «Состояние». */
+function markSpendDrain() {
+  const { state } = session;
+  let drain = state.drains.find((d) => d.id === 'finance-impulse');
+  if (!drain) {
+    drain = { id: 'finance-impulse', title: 'Трата-слив' };
+    state.drains.push(drain);
+  }
+  const key = dayKey(new Date());
+  const day = dayData(key);
+  if (!day.drains.includes(drain.id)) {
+    setDayData(key, { drains: day.drains.concat(drain.id) });
+    save();
+  }
+}
+
+function toggleNoSpend() {
+  const key = dayKey(new Date());
+  const f = fin();
+  if (f.noSpend[key]) delete f.noSpend[key];
+  else f.noSpend[key] = true;
+  save();
+  render();
+  if (f.noSpend[key]) toast({ title: 'Финансы', main: 'День без трат', sub: 'Завтра Система засчитает его опытом', kind: 'up', ms: 3500 });
+}
+
+/** Награды за прошедшие дни: день в лимите или без трат даёт опыт; проверка один раз на день. */
+function checkFinanceRewards() {
+  if (!session) return;
+  const { state } = session;
+  const f = fin();
+  if (!finBudget().free) return;
+  const discipline = state.stats.find((st) => st.name === 'Дисциплина');
+  const now = new Date();
+  let gained = 0;
+  for (let i = 1; i <= 7; i++) {
+    const d = addDays(now, -i);
+    const key = dayKey(d);
+    if (key in f.checked) continue;
+    const from = dayStart(d);
+    const to = dayStart(addDays(d, 1));
+    if (f.since && from < dayStart(new Date(f.since))) break; // до того, как задан бюджет, дни не оцениваем
+    const any = f.expenses.some((e) => e.at >= from && e.at < to);
+    if (!any && !f.noSpend[key]) continue; // день не вели — ни награды, ни штрафа
+    const ok = spentBetween(from, to) <= dayLimit(d);
+    f.checked[key] = ok;
+    if (!ok) continue;
+    const type = f.noSpend[key] ? 'normal' : 'chore';
+    const xp = state.settings.xp[type];
+    state.log.push({
+      id: uid(),
+      questId: null,
+      title: f.noSpend[key] ? 'День без трат' : 'День в финансовом лимите',
+      type,
+      xp,
+      stats: discipline ? { [discipline.id]: xp } : {},
+      period: null,
+      at: to - 60000,
+      source: 'finance',
+    });
+    gained += xp;
+  }
+  state.log.sort((a, b) => a.at - b.at);
+  save();
+  if (gained) toast({ title: 'Финансы', main: `+${fmt(gained)} XP`, sub: 'За дни в лимите', kind: 'up', ms: 4500 });
+}
+
+function finStreak() {
+  const f = fin();
+  let n = 0;
+  for (let i = 1; i <= 365; i++) {
+    if (f.checked[dayKey(addDays(new Date(), -i))] !== true) break;
+    n++;
+  }
+  return n;
+}
+
+function limitRow(label, part) {
+  const pct = part.limit ? (part.spent / part.limit) * 100 : part.spent ? 100 : 0;
+  const cls = pct > 100 ? ' over' : pct > 80 ? ' near' : '';
+  return `<div class="fin-row-limit${cls}">
+      <div class="fin-head"><span>${label}</span><span>${money(part.spent)} / ${money(part.limit)}</span></div>
+      <span class="fin-bar"><i data-pct="${Math.min(100, pct).toFixed(1)}"></i></span>
+    </div>`;
+}
+
+function expenseRow(e) {
+  const v = expenseVerdict(e);
+  const time = new Date(e.at).toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
+  return `<button class="exp-row" type="button" data-exp="${e.id}">
+      <span class="ic">${v.icon}</span><span class="t">${esc(e.text)}</span><span class="a">−${money(e.amount)}</span>
+      <span class="m">${time} · ${FIN_CAT[e.cat].name} · ${e.fixed ? 'обязательный' : FIN_CLASS[e.cls]}${e.planned === false ? ' · импульсивно' : ''}</span>
+    </button>`;
+}
+
+function financeView() {
+  checkFinanceRewards();
+  const f = fin();
+  const b = finBudget();
+  const lim = limitsNow();
+  const now = new Date();
+  const todayKey = dayKey(now);
+  const from = dayStart(now);
+  const todayList = f.expenses.filter((e) => e.at >= from).sort((a, b2) => b2.at - a.at);
+  const monthFrom = new Date(now.getFullYear(), now.getMonth(), 1).getTime();
+  const month = f.expenses.filter((e) => e.at >= monthFrom);
+  const monthName = now.toLocaleDateString('ru-RU', { month: 'long' });
+
+  let limits;
+  if (!lim) {
+    limits = `<div class="panel empty"><b>Задайте бюджет</b>Доход, обязательные платежи и накопления — и Система сама посчитает лимиты на день, неделю и месяц.</div>
+      <button class="btn" type="button" data-action="fin-budget">Задать бюджет</button>`;
+  } else {
+    const left = lim.today.limit - lim.today.spent;
+    const streak = finStreak();
+    limits = `<section class="panel fin-limits" style="--fc:${left < 0 ? 'var(--danger)' : left < lim.today.limit * 0.2 ? 'var(--warn)' : 'var(--accent-2)'}">
+        <div class="fin-left"><small>${left >= 0 ? 'Можно потратить сегодня' : 'Сверх лимита сегодня'}</small><b>${money(Math.abs(left))}</b>
+          <span>${left >= 0 ? 'Сэкономишь — завтра лимит вырастет' : 'Завтрашний лимит уменьшится, чтобы месяц сошёлся'}</span></div>
+        ${limitRow('Сегодня', lim.today)}
+        ${limitRow('Неделя', lim.week)}
+        ${limitRow(monthName[0].toUpperCase() + monthName.slice(1), lim.month)}
+        ${streak ? `<p class="fin-streak"><b>${streak}</b> ${plural(streak, ['день', 'дня', 'дней'])} подряд в лимите</p>` : ''}
+      </section>`;
+  }
+
+  const total = (list) => list.reduce((a, e) => a + (e.fixed ? 0 : e.amount), 0);
+  const byGrade = { ok: 0, meh: 0, bad: 0 };
+  for (const e of month) if (!e.fixed) byGrade[expenseVerdict(e).grade] += e.amount;
+  const byCat = new Map();
+  for (const e of month) if (!e.fixed) byCat.set(e.cat, (byCat.get(e.cat) || 0) + e.amount);
+  const cats = [...byCat.entries()].sort((a, b2) => b2[1] - a[1]);
+  const maxCat = cats.length ? cats[0][1] : 0;
+
+  return `<form class="panel fin-input" data-fin-form novalidate>
+      <input name="exp" type="text" autocomplete="off" enterkeyhint="done" placeholder="кофе 1500 · такси 2к · продукты 8 400" aria-label="Новая трата">
+      <button class="btn" type="submit" aria-label="Записать трату">+</button>
+    </form>
+    <p class="error" data-fin-error></p>
+    ${limits}
+
+    <div class="section-h">Сегодня <span class="count">${todayList.length ? money(total(todayList)) : ''}</span></div>
+    ${todayList.length
+      ? `<div class="panel log-list">${todayList.map(expenseRow).join('')}</div>`
+      : `<div class="panel empty">Трат сегодня нет.</div>
+         <button class="btn${f.noSpend[todayKey] ? ' gold' : ''}" type="button" data-action="fin-nospend">${f.noSpend[todayKey] ? '✓ Сегодня без трат' : 'Сегодня без трат'}</button>`}
+
+    <div class="section-h">${monthName[0].toUpperCase() + monthName.slice(1)} <span class="count">${money(total(month))}</span></div>
+    <div class="panel pad">
+      ${month.length ? `<div class="fin-sum"><span>✅ <b>${money(byGrade.ok)}</b></span><span>⚠️ <b>${money(byGrade.meh)}</b></span><span>❌ <b>${money(byGrade.bad)}</b></span></div>
+        ${cats.map(([id, sum]) => `<div class="cat-row"><div class="fin-head"><span>${FIN_CAT[id].name} <small style="color:var(--text-faint)">· ${FIN_CLASS[FIN_CAT[id].cls]}</small></span><span>${money(sum)}</span></div>
+          <span class="fin-bar"><i data-pct="${((sum / maxCat) * 100).toFixed(1)}"></i></span></div>`).join('')}`
+        : '<p class="hint" style="margin:12px 0 0">Трат в этом месяце пока нет.</p>'}
+    </div>
+
+    <div class="section-h">Бюджет</div>
+    <div class="panel pad">
+      <div class="stat-row"><span>Доход в месяц</span><span class="mono">${money(b.income)}</span></div>
+      <div class="stat-row"><span>Обязательные платежи</span><span class="mono">−${money(b.fixed)}</span></div>
+      <div class="stat-row"><span>Накопления ${f.savePct}%</span><span class="mono">−${money(b.saving)}</span></div>
+      <div class="stat-row"><span>Свободно на месяц</span><span class="mono ok">${money(b.free)}</span></div>
+      <button class="btn ghost" type="button" data-action="fin-budget">Изменить бюджет</button>
+    </div>`;
+}
+
+function wireFinance(view) {
+  const form = view.querySelector('[data-fin-form]');
+  const input = form.elements.namedItem('exp');
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const raw = input.value.trim();
+    if (!raw) return;
+    if (!addExpense(raw)) {
+      view.querySelector('[data-fin-error]').textContent = 'Не вижу суммы. Пример: «кофе 1500» или «такси 2к».';
+      return;
+    }
+  });
+}
+
+function openExpenseEditor(id) {
+  const f = fin();
+  const e = f.expenses.find((x) => x.id === id);
+  if (!e) return;
+  const root = openSheet('Трата', `
+    <form novalidate>
+      <label class="field"><span>На что</span><input name="text" type="text" maxlength="80" autocomplete="off" value="${esc(e.text)}"></label>
+      <label class="field"><span>Сумма, ₸</span><input name="amount" type="number" inputmode="numeric" min="1" step="1" value="${e.amount}"></label>
+      <div class="field"><span>Категория</span>
+        <div class="choices">${FIN_CATS.map((c) => `<label class="choice"><input type="radio" name="cat" value="${c.id}"${e.cat === c.id ? ' checked' : ''}><span>${c.name}</span></label>`).join('')}</div>
+      </div>
+      <div class="field"><span>Для чего</span>
+        <div class="choices">${Object.entries(FIN_CLASS).map(([k, label]) => `<label class="choice"><input type="radio" name="cls" value="${k}"${e.cls === k ? ' checked' : ''}><span>${label[0].toUpperCase() + label.slice(1)}</span></label>`).join('')}</div>
+      </div>
+      <div class="field"><span>Запланировано?</span>
+        <div class="choices">
+          <label class="choice"><input type="radio" name="planned" value="yes"${e.planned === true ? ' checked' : ''}><span>Да</span></label>
+          <label class="choice"><input type="radio" name="planned" value="no"${e.planned === false ? ' checked' : ''}><span>Импульсивно</span></label>
+          <label class="choice"><input type="radio" name="planned" value=""${e.planned === null ? ' checked' : ''}><span>Не указано</span></label>
+        </div>
+      </div>
+      <label class="check"><input name="fixed" type="checkbox"${e.fixed ? ' checked' : ''}><span>Обязательный платёж — уже учтён в бюджете</span></label>
+      <p class="error" data-error></p>
+      <button class="btn" type="submit">Сохранить</button>
+      <button class="btn ghost danger-text" type="button" data-action="delete">Удалить трату</button>
+      <button class="btn ghost" type="button" data-action="close">Отмена</button>
+    </form>`);
+  const form = root.querySelector('form');
+  const el = form.elements;
+  form.addEventListener('change', (ev) => {
+    if (ev.target.name === 'cat') {
+      const c = FIN_CAT[ev.target.value];
+      form.querySelector(`input[name="cls"][value="${c.cls}"]`).checked = true;
+    }
+  });
+  form.addEventListener('submit', (ev) => {
+    ev.preventDefault();
+    const amount = Math.round(Number(el.amount.value));
+    if (!(amount > 0)) return sheetError(root, 'Укажите сумму.');
+    const cat = el.cat.value;
+    if (cat !== e.cat && cat !== 'other') learnCategory(el.text.value, cat);
+    Object.assign(e, {
+      text: el.text.value.trim() || e.text,
+      amount,
+      cat,
+      cls: el.cls.value,
+      planned: el.planned.value === 'yes' ? true : el.planned.value === 'no' ? false : null,
+      fixed: el.fixed.checked,
+    });
+    e.overLimit = computeOverLimit(e);
+    save();
+    closeSheet();
+    render();
+  });
+  const del = root.querySelector('[data-action="delete"]');
+  del.addEventListener('click', () => confirmPress(del, 'Точно удалить? Нажмите ещё раз', () => {
+    f.expenses = f.expenses.filter((x) => x !== e);
+    save();
+    closeSheet();
+    render();
+  }));
+}
+
+function openBudgetEditor() {
+  const f = fin();
+  const row = (x) => `<div class="row-fields" data-row="${x ? x.id : ''}">
+      <input type="text" maxlength="40" value="${x ? esc(x.title) : ''}" placeholder="Аренда">
+      <input type="number" inputmode="numeric" min="0" step="1" value="${x ? x.amount : ''}" placeholder="₸" style="flex:0 0 110px">
+      <button type="button" data-remove aria-label="Удалить">×</button></div>`;
+  const root = openSheet('Бюджет', `
+    <form novalidate>
+      <label class="field"><span>Доход в месяц, ₸</span><input name="income" type="number" inputmode="numeric" min="0" step="1" value="${f.income || ''}" placeholder="300000"></label>
+      <div class="field"><span>Обязательные платежи в месяц</span>
+        <div data-rows>${f.fixed.map(row).join('')}</div>
+        <button class="btn ghost" type="button" data-add style="margin-top:4px">+ Платёж</button>
+        <div class="hint">Аренда, связь, кредиты — то, что платится в любом случае. Их не нужно вносить как траты.</div>
+      </div>
+      <div class="field"><span>Откладывать</span>
+        <div class="choices">${[0, 5, 10, 15, 20].map((n) => `<label class="choice"><input type="radio" name="save" value="${n}"${f.savePct === n ? ' checked' : ''}><span>${n}%</span></label>`).join('')}</div>
+      </div>
+      <p class="lead" data-free style="margin-top:18px"></p>
+      <p class="error" data-error></p>
+      <button class="btn" type="submit">Сохранить</button>
+      <button class="btn ghost" type="button" data-action="close">Отмена</button>
+    </form>`);
+  const form = root.querySelector('form');
+  const rows = root.querySelector('[data-rows]');
+  const read = () => ({
+    income: Math.max(0, Math.round(Number(form.elements.income.value)) || 0),
+    savePct: Number(form.elements.save.value) || 0,
+    fixed: [...rows.querySelectorAll('.row-fields')].map((r) => {
+      const [t, a] = r.querySelectorAll('input');
+      return { id: r.dataset.row || uid(), title: t.value.trim(), amount: Math.max(0, Math.round(Number(a.value)) || 0) };
+    }).filter((x) => x.title && x.amount),
+  });
+  const freeEl = root.querySelector('[data-free]');
+  const update = () => {
+    const v = read();
+    const free = Math.max(0, v.income - v.fixed.reduce((a, x) => a + x.amount, 0) - Math.round((v.income * v.savePct) / 100));
+    const now = new Date();
+    freeEl.innerHTML = v.income ? `Свободно на месяц: <span class="hl">${money(free)}</span><br><span class="dim">≈ ${money(free / daysInMonth(now))} в день</span>` : '';
+  };
+  form.addEventListener('input', update);
+  form.addEventListener('change', update);
+  rows.addEventListener('click', (e) => { if (e.target.closest('[data-remove]')) { e.target.closest('.row-fields').remove(); update(); } });
+  root.querySelector('[data-add]').addEventListener('click', () => { rows.insertAdjacentHTML('beforeend', row(null)); rows.lastElementChild.querySelector('input').focus(); });
+  update();
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const v = read();
+    if (!v.income) return sheetError(root, 'Укажите доход в месяц.');
+    Object.assign(f, v);
+    if (!f.since) f.since = Date.now(); // первый месяц считается с этого дня
+    for (const x of f.expenses) x.overLimit = computeOverLimit(x);
+    save();
+    closeSheet();
+    render();
+  });
 }
 
 /* ---------- Статус: персонаж и характеристики ---------- */
