@@ -1473,6 +1473,105 @@ html.noscroll, html.noscroll body { overflow: hidden; }
 .q-options.cats { grid-template-columns: 1fr 1fr; }
 .q-options .btn { margin: 0; min-height: 50px; font-size: 14px; letter-spacing: 0.04em; text-transform: none; }
 
+/* ---------- Дофаминовое меню, вечер, магазин ---------- */
+
+.fab {
+  position: fixed;
+  right: 16px;
+  bottom: calc(76px + var(--safe-b));
+  z-index: 25;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 52px;
+  padding: 0 18px 0 14px;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: #ffe2b0;
+  background: rgba(30, 22, 8, 0.92);
+  border: 1px solid var(--warn);
+  border-radius: 26px;
+  box-shadow: 0 0 16px rgba(255, 197, 107, 0.45), inset 0 0 12px rgba(255, 197, 107, 0.15);
+  cursor: pointer;
+}
+.fab svg { width: 20px; height: 20px; filter: drop-shadow(0 0 6px var(--warn)); }
+.view { padding-bottom: calc(160px + var(--safe-b)); }
+
+.active-item {
+  position: sticky;
+  top: calc(74px + var(--safe-t));
+  z-index: 15;
+  background: #0b1424;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 16px;
+  padding: 12px 12px 12px 16px;
+  border-color: var(--warn);
+  box-shadow: 0 0 14px rgba(255, 197, 107, 0.3);
+}
+.active-item > div { flex: 1; min-width: 0; }
+.active-item small { display: block; font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--warn); }
+.active-item b { display: block; font-size: 16px; overflow-wrap: anywhere; }
+.active-item span { display: block; font-family: var(--mono); font-size: 13px; color: var(--text-dim); }
+.active-item.over span { color: var(--danger); }
+.active-item .btn { width: auto; margin: 0; min-height: 44px; padding: 8px 16px; font-size: 13px; letter-spacing: 0.08em; }
+
+.slot {
+  margin: 8px 0 4px;
+  padding: 22px 12px;
+  text-align: center;
+  font-size: 24px;
+  font-weight: 800;
+  line-height: 1.25;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: rgba(4, 10, 22, 0.75);
+  box-shadow: inset 0 0 20px rgba(70, 170, 255, 0.15);
+  overflow-wrap: anywhere;
+}
+.slot.spinning { color: var(--text-faint); filter: blur(0.6px); }
+.slot.landed { color: var(--accent-2); text-shadow: 0 0 12px var(--accent); animation: num-pop 0.4s cubic-bezier(0.3, 1.6, 0.5, 1); }
+
+.breath { display: grid; place-items: center; height: 230px; margin: 4px 0; }
+.breath-circle {
+  grid-area: 1 / 1;
+  width: 180px;
+  height: 180px;
+  border-radius: 50%;
+  border: 2px solid var(--accent);
+  background: radial-gradient(circle, rgba(102, 208, 255, 0.35), rgba(102, 208, 255, 0.05) 70%);
+  box-shadow: 0 0 30px var(--glow), inset 0 0 30px rgba(102, 208, 255, 0.25);
+  transform: scale(0.55);
+  transition-property: transform;
+  transition-timing-function: ease-in-out;
+}
+.breath-text { grid-area: 1 / 1; margin: 0 !important; font-size: 20px; font-weight: 700; letter-spacing: 0.12em; color: var(--accent-2) !important; text-shadow: 0 0 10px var(--accent); }
+
+.evening-card { margin-top: 16px; padding: 16px; border-color: rgba(185, 155, 255, 0.6); box-shadow: 0 0 16px rgba(185, 155, 255, 0.25), inset 0 0 20px rgba(185, 155, 255, 0.07); }
+.evening-card small { display: block; font-size: 11px; letter-spacing: 0.24em; text-transform: uppercase; color: #b99bff; }
+.evening-card b { display: block; margin-top: 2px; font-size: 20px; }
+.evening-card p { margin: 6px 0 0; font-size: 13px; color: var(--text-dim); }
+.evening-card .fin-bar { --fc: #b99bff; margin-top: 12px; }
+.evening-card .btn-pair .btn { margin-top: 14px; }
+
+.menu-row .t small { display: block; margin-top: 2px; font-size: 12px; color: var(--text-faint); }
+.menu-row .a { font-size: 13px; color: var(--warn); }
+.gold-line { display: flex; justify-content: space-between; gap: 12px; padding: 12px 0; font-size: 15px; border-bottom: 1px solid rgba(120, 205, 255, 0.1); }
+.gold-line b { font-family: var(--mono); color: var(--warn); }
+.shop-row { display: grid; grid-template-columns: 1fr auto; gap: 4px 12px; align-items: center; padding: 12px 0; border-bottom: 1px solid rgba(120, 205, 255, 0.1); }
+.shop-row:last-child { border-bottom: 0; }
+.shop-row b { font-size: 15px; }
+.shop-row small { grid-column: 1; font-size: 12px; color: var(--text-faint); }
+.shop-row .btn { grid-row: 1 / 3; grid-column: 2; width: auto; margin: 0; min-height: 44px; padding: 8px 14px; font-size: 13px; letter-spacing: 0.06em; }
+.worry { padding: 12px 0; border-bottom: 1px solid rgba(120, 205, 255, 0.1); }
+.worry:last-child { border-bottom: 0; }
+.worry p { margin: 0 0 4px !important; white-space: pre-wrap; overflow-wrap: anywhere; }
+.worry small { display: block; font-size: 12px; color: var(--text-faint); }
+.worry .btn-pair { grid-template-columns: 1fr 1fr 1fr; }
+.worry .btn-pair .btn { margin-top: 8px; min-height: 42px; font-size: 12px; letter-spacing: 0.02em; text-transform: none; }
+
 /* ---------- Переключатели ---------- */
 
 .toggle {
@@ -1722,6 +1821,10 @@ html.noscroll, html.noscroll body { overflow: hidden; }
       <span>Журнал</span>
     </button>
   </nav>
+  <button class="fab" type="button" data-action="need" aria-label="Мне нужно…">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L4 14h7l-1 8 9-12h-7z"/></svg>
+    <span>Мне нужно</span>
+  </button>
 </template>
 
 <script>
@@ -1875,7 +1978,14 @@ function migrate(state) {
   state.finance = Object.assign({ expected: 0, incomes: [], fixed: [], savePct: 10, rules: {}, expenses: [], noSpend: {}, checked: {} }, state.finance);
   if (state.finance.income && !state.finance.expected) state.finance.expected = state.finance.income; // раньше был «доход в месяц»
   delete state.finance.income;
-  state.schema = 7;
+  state.evening = Object.assign({ start: 19 * 60, review: 12 * 60, steps: null, done: {} }, state.evening);
+  if (!state.evening.steps) state.evening.steps = EVENING_PRESET.map((st) => ({ id: uid(), ...st }));
+  state.worries = state.worries || [];
+  state.menu = Object.assign({ items: null, active: null }, state.menu);
+  if (!state.menu.items) state.menu.items = MENU_PRESET.map((it) => ({ id: uid(), ratings: [], ...it }));
+  state.purchases = state.purchases || [];
+  if (state.finance.joyPct === undefined) state.finance.joyPct = 5;
+  state.schema = 8;
   return state;
 }
 
@@ -2104,6 +2214,7 @@ function endSession() {
   closeSheet();
   closeFx();
   clearToasts();
+  clearInterval(activeTimer);
   if (document.activeElement) document.activeElement.blur();
 }
 
@@ -2727,7 +2838,7 @@ function showAchievement({ title, type, xp, sub, number, onUndo, label, undoLabe
         <div class="scan"></div>
         <div class="ach-label">${label || (epic ? 'Босс повержен' : 'Достижение получено')}</div>
         <div class="ach-title">${esc(title)}</div>
-        <div class="ach-xp">+${fmt(xp)} XP</div>
+        ${xp ? `<div class="ach-xp">+${fmt(xp)} XP</div>` : ''}
         ${sub ? `<p class="fx-sub">${esc(sub)}</p>` : ''}
         <p class="ach-num">Достижение №${number} · ${TYPE_BY_ID[type].name}</p>
         <button class="btn" type="button" data-action="accept">Принять</button>
@@ -2851,13 +2962,16 @@ function showHome() {
     scrollTo(0, 0);
   });
   app.querySelector('[data-view]').addEventListener('click', onViewClick);
+  app.querySelector('.fab').addEventListener('click', openNeedSheet);
+  clearInterval(activeTimer);
+  activeTimer = setInterval(tickActive, 1000);
   checkFinanceRewards();
   render();
 }
 
 function renderTopbar() {
   const p = playerInfo();
-  app.querySelector('.topbar [data-bind="rankline"]').textContent = `Ранг ${p.rank} · Ур. ${p.level}`;
+  app.querySelector('.topbar [data-bind="rankline"]').textContent = `Ранг ${p.rank} · Ур. ${p.level} · 🪙 ${fmt(goldBalance())}`;
   app.querySelector('.topbar [data-bind="name"]').textContent = session.state.profile.name;
   countTo(app.querySelector('.topbar [data-bind="xp"]'), p.xp);
   setTopbarBar(p.level, (p.into / p.need * 100).toFixed(1));
@@ -2872,7 +2986,8 @@ function render() {
     else b.removeAttribute('aria-current');
   });
   const view = app.querySelector('[data-view]');
-  view.innerHTML = VIEWS[ui.tab]();
+  view.innerHTML = activeHtml() + VIEWS[ui.tab]();
+  tickActive();
   if (ui.tab === 'settings') wireSettings(view);
   if (ui.tab === 'finance') wireFinance(view);
   // Полоски заполняются с нуля — видно, сколько набрано
@@ -2885,13 +3000,17 @@ function render() {
 const VIEWS = { status: statusView, quests: questsView, state: stateView, finance: financeView, journal: journalView, settings: settingsView };
 
 function onViewClick(e) {
-  const t = e.target.closest('[data-check], [data-edit], [data-stat], [data-goal], [data-radar], [data-energy], [data-drain], [data-exp], [data-inc], [data-action], [data-day]');
+  const t = e.target.closest('[data-check], [data-edit], [data-stat], [data-goal], [data-radar], [data-energy], [data-drain], [data-exp], [data-inc], [data-item], [data-buy], [data-take], [data-worry], [data-action], [data-day]');
   if (!t || !session) return;
   if (t.dataset.radar !== undefined) return selectRadarAxis(Number(t.dataset.radar));
   if (t.dataset.energy) return setEnergy(Number(t.dataset.energy));
   if (t.dataset.drain) return toggleDrain(t.dataset.drain);
   if (t.dataset.exp) return openExpenseEditor(t.dataset.exp);
   if (t.dataset.inc) return openIncomeEditor(t.dataset.inc);
+  if (t.dataset.item) return openMenuItemEditor(t.dataset.item);
+  if (t.dataset.buy) return buySpecial(t.dataset.buy, t);
+  if (t.dataset.take) return takeItem(menuItem(t.dataset.take));
+  if (t.dataset.worry) return resolveWorry(t.dataset.worry, t.dataset.how);
   if (t.dataset.day !== undefined) {
     // Нажатие на столбик показывает его значение
     const was = t.classList.contains('sel');
@@ -2912,6 +3031,12 @@ function onViewClick(e) {
     case 'edit-drains': return openDrainsEditor();
     case 'go-state': ui.tab = 'state'; render(); return scrollTo(0, 0);
     case 'fin-budget': return openBudgetEditor();
+    case 'evening': return openEveningFlow();
+    case 'anxiety': return startAnxietyFlow();
+    case 'active-done': return finishActive();
+    case 'new-item': return openMenuItemEditor(null);
+    case 'edit-steps': return openStepsEditor();
+    case 'worries': ui.tab = 'state'; render(); return document.querySelector('[data-worries]') && document.querySelector('[data-worries]').scrollIntoView();
     case 'fin-nospend': return toggleNoSpend();
     case 'show-done': ui.showAllDone = !ui.showAllDone; return render();
     case 'more-log': ui.logLimit += LOG_PAGE; return render();
@@ -3045,7 +3170,7 @@ function completeQuest(q) {
   haptic(rankUp ? [30, 60, 30, 60, 80] : levelUp ? [30, 60, 50] : 25);
   toast({
     title: '[Квест выполнен]',
-    main: `+${fmt(xp)} XP`,
+    main: `+${fmt(xp)} XP · +${fmt(entryGold(entry))} 🪙`,
     sub: Object.entries(entry.stats).map(([sid, v]) => `+${v} ${statName(sid)}`).join(' · '),
     action: { label: 'Отменить', run: () => undoEntry(entry.id) },
     ms: 6000,
@@ -3745,7 +3870,8 @@ function stateView() {
     return `<div class="section-h">Состояние</div>
       <div class="panel empty"><b>Опор пока нет</b>Опоры — то, что держит состояние: сон, спорт, питание, майндсет. Без них падает энергия, а с ней всё остальное.</div>
       <button class="btn" type="button" data-action="state-preset">Создать опоры из моей схемы</button>
-      <button class="btn ghost" type="button" data-action="new-support">+ Своя опора</button>`;
+      <button class="btn ghost" type="button" data-action="new-support">+ Своя опора</button>
+      ${dopamineHtml()}`;
   }
   const s = dayScore(now);
   const [cls, word] = scoreClass(s.score);
@@ -3808,6 +3934,8 @@ function stateView() {
 
     <div class="section-h">Неделя</div>
     ${chart}
+
+    ${dopamineHtml()}
 
     <div class="section-h">Что влияет на энергию</div>
     <div class="panel pad">${insights}</div>`;
@@ -3992,7 +4120,7 @@ function daysInMonth(d) {
 }
 
 /** Сколько от поступления остаётся на жизнь после накоплений. */
-const netIncome = (amount) => Math.round(amount * (1 - fin().savePct / 100));
+const netIncome = (amount) => Math.round(amount * (1 - (fin().savePct + (fin().joyPct || 0)) / 100));
 
 function incomesBetween(from, to, net) {
   return fin().incomes.reduce((a, i) => a + (i.at >= from && i.at < to ? (net ? netIncome(i.amount) : i.amount) : 0), 0);
@@ -4065,11 +4193,12 @@ function addIncome(raw) {
   Sound.play('quest');
   haptic([20, 40, 20]);
   const lim = limitsNow();
-  const saved = inc.amount - netIncome(inc.amount);
+  const saved = Math.round((inc.amount * f.savePct) / 100);
+  const joy = Math.round((inc.amount * (f.joyPct || 0)) / 100);
   toast({
     title: '[Поступление]',
     main: `+${money(inc.amount)}`,
-    sub: `${saved ? `в накопления ${money(saved)} · ` : ''}на сегодня можно ${money(Math.max(0, lim.today.limit - lim.today.spent))}`,
+    sub: `${saved ? `в накопления ${money(saved)} · ` : ''}${joy ? `в фонд радостей ${money(joy)} · ` : ''}на сегодня можно ${money(Math.max(0, lim.today.limit - lim.today.spent))}`,
     kind: 'up',
     ms: 5000,
   });
@@ -4315,7 +4444,7 @@ function incomeRow(i) {
   const d = new Date(i.at);
   return `<button class="exp-row" type="button" data-inc="${i.id}">
       <span class="ic">💰</span><span class="t">${esc(i.text)}</span><span class="a" style="color:var(--ok)">+${money(i.amount)}</span>
-      <span class="m">${d.toLocaleDateString('ru-RU', { day: 'numeric', month: 'long' })}${fin().savePct ? ` · в накопления ${money(i.amount - netIncome(i.amount))}` : ''}</span>
+      <span class="m">${d.toLocaleDateString('ru-RU', { day: 'numeric', month: 'long' })}${fin().savePct ? ` · в накопления ${money((i.amount * fin().savePct) / 100)}` : ''}${fin().joyPct ? ` · в фонд ${money((i.amount * fin().joyPct) / 100)}` : ''}</span>
     </button>`;
 }
 
@@ -4400,6 +4529,7 @@ function financeView() {
       <div class="stat-row"><span>Свободно сейчас</span><span class="mono ${lim && lim.free < 0 ? 'warn-text' : 'ok'}">${money(lim ? lim.free : 0)}</span></div>
       <div class="stat-row"><span>Обязательные платежи в месяц</span><span class="mono">${money(b.fixed)}</span></div>
       <div class="stat-row"><span>Откладывается с поступлений</span><span class="mono">${f.savePct}% · всего ${money(incomesBetween(0, Date.now() + 1, false) - incomesBetween(0, Date.now() + 1, true))}</span></div>
+      <div class="stat-row"><span>Фонд радостей</span><span class="mono">${f.joyPct || 0}% · в фонде ${money(joyFund())}</span></div>
       <div class="stat-row"><span>Ожидаемый доход в месяц</span><span class="mono">${b.expected ? money(b.expected) : '—'}</span></div>
       <button class="btn ghost" type="button" data-action="fin-budget">Изменить бюджет</button>
     </div>`;
@@ -4496,6 +4626,10 @@ function openBudgetEditor() {
         <button class="btn ghost" type="button" data-add style="margin-top:4px">+ Платёж</button>
         <div class="hint">Аренда, связь, кредиты — то, что платится в любом случае. Их не нужно вносить как траты.</div>
       </div>
+      <div class="field"><span>Фонд радостей</span>
+        <div class="choices">${[0, 3, 5, 10].map((n) => `<label class="choice"><input type="radio" name="joy" value="${n}"${(f.joyPct || 0) === n ? ' checked' : ''}><span>${n}%</span></label>`).join('')}</div>
+        <div class="hint">Доля поступлений на награды из магазина: шопинг, Лего. Эти деньги уже вычтены из лимитов.</div>
+      </div>
       <div class="field"><span>Откладывать</span>
         <div class="choices">${[0, 5, 10, 15, 20].map((n) => `<label class="choice"><input type="radio" name="save" value="${n}"${f.savePct === n ? ' checked' : ''}><span>${n}%</span></label>`).join('')}</div>
       </div>
@@ -4511,6 +4645,7 @@ function openBudgetEditor() {
   const read = () => ({
     expected: Math.max(0, Math.round(Number(form.elements.expected.value)) || 0),
     savePct: Number(form.elements.save.value) || 0,
+    joyPct: Number(form.elements.joy.value) || 0,
     fixed: [...rows.querySelectorAll('.row-fields')].map((r) => {
       const [t, a] = r.querySelectorAll('input');
       return { id: r.dataset.row || uid(), title: t.value.trim(), amount: Math.max(0, Math.round(Number(a.value)) || 0) };
@@ -4519,7 +4654,7 @@ function openBudgetEditor() {
   const freeEl = root.querySelector('[data-free]');
   const update = () => {
     const v = read();
-    const free = Math.max(0, v.expected - v.fixed.reduce((a, x) => a + x.amount, 0) - Math.round((v.expected * v.savePct) / 100));
+    const free = Math.max(0, v.expected - v.fixed.reduce((a, x) => a + x.amount, 0) - Math.round((v.expected * (v.savePct + v.joyPct)) / 100));
     const now = new Date();
     freeEl.innerHTML = v.expected ? `Если придёт ожидаемое — свободно <span class="hl">${money(free)}</span><br><span class="dim">≈ ${money(free / daysInMonth(now))} в день</span>` : '';
   };
@@ -4538,6 +4673,618 @@ function openBudgetEditor() {
     closeSheet();
     render();
   });
+}
+
+/* ---------- Дофаминовое меню ----------
+   Блюда: закуски (2–5 мин), основные (наполняют), гарниры (к скучным делам), десерты (лента и т. п. — за золото
+   и с таймером), спецпредложения (большие награды — за золото и деньги из фонда радостей).
+   Золото начисляется за весь опыт, кроме пролога: 1 🪙 за 5 XP. После блюда — оценка «помогло?»,
+   по ней меню учится, что реально работает. */
+
+const GOLD_RATE = 5;
+const MENU_SECTIONS = {
+  starter: { name: 'Закуски', one: 'Закуска', hint: '2–5 минут, быстрая подзарядка' },
+  main: { name: 'Основные', one: 'Основное', hint: 'То, что реально наполняет' },
+  side: { name: 'Гарниры', one: 'Гарнир', hint: 'Добавить к скучному делу' },
+  dessert: { name: 'Десерты', one: 'Десерт', hint: 'Дешёвый дофамин — за золото и с таймером' },
+  special: { name: 'Спецпредложения', one: 'Награда', hint: 'Большие радости — в магазине наград' },
+};
+const MENU_PRESET = [
+  { title: 'Три трека и подвигаться', section: 'starter', minutes: 5, evening: true },
+  { title: 'Холодная вода в лицо', section: 'starter', minutes: 2, evening: false },
+  { title: 'Выйти на воздух', section: 'starter', minutes: 5, evening: true },
+  { title: 'Растяжка лёжа', section: 'starter', minutes: 5, evening: true },
+  { title: 'Голосовое близкому человеку', section: 'starter', minutes: 3, evening: true },
+  { title: 'Прогулка', section: 'main', minutes: 20, evening: true },
+  { title: 'Время наедине без телефона', section: 'main', minutes: 20, evening: true },
+  { title: 'Ванна с подкастом или музыкой', section: 'main', minutes: 30, evening: true },
+  { title: 'Снять ролик для блога', section: 'main', minutes: 40, evening: false },
+  { title: 'Танцы', section: 'main', minutes: 30, evening: false },
+  { title: 'Перебрать гардероб и собрать образы', section: 'main', minutes: 30, evening: true },
+  { title: 'Новый маршрут прогулки', section: 'main', minutes: 40, evening: false },
+  { title: 'Один фильм вместо ленты', section: 'main', minutes: 100, evening: true },
+  { title: 'Плейлист под задачу', section: 'side', minutes: 0, evening: false },
+  { title: 'Подкаст под рутину', section: 'side', minutes: 0, evening: false },
+  { title: 'Работать в кофейне', section: 'side', minutes: 0, evening: false },
+  { title: 'Созвон-коворкинг с другом', section: 'side', minutes: 0, evening: false },
+  { title: 'Лента Reels / TikTok', section: 'dessert', minutes: 15, evening: true, price: 10 },
+  { title: 'YouTube', section: 'dessert', minutes: 20, evening: true, price: 10 },
+  { title: 'Игра', section: 'dessert', minutes: 30, evening: true, price: 15 },
+  { title: 'Шопинг-вечер', section: 'special', minutes: 0, evening: false, price: 250, kzt: 0 },
+  { title: 'Набор Лего', section: 'special', minutes: 0, evening: false, price: 400, kzt: 0 },
+];
+const EVENING_PRESET = [
+  { title: 'Ванна или душ' },
+  { title: '15 минут без телефона: прогулка или наедине' },
+  { title: 'Выгрузить мысли', dump: true },
+  { title: 'Телефон на зарядку подальше от кровати' },
+];
+const NEEDS = {
+  tired: { title: 'Нет сил', sections: ['starter', 'main'] },
+  stuck: { title: 'Не могу начать', sections: ['starter', 'side'] },
+  rest: { title: 'Хочу отдохнуть', sections: ['main', 'dessert'] },
+  anxiety: { title: 'Лёгкое блюдо', sections: ['starter', 'main'] },
+};
+
+let activeTimer = null;
+
+const menu = () => session.state.menu;
+const menuItem = (id) => menu().items.find((i) => i.id === id);
+const entryGold = (e) => (e.source === 'prologue' ? 0 : Math.round(e.xp / GOLD_RATE));
+const minToTime = (m) => `${pad(Math.floor(m / 60))}:${pad(m % 60)}`;
+
+function goldBalance() {
+  const { log, purchases } = session.state;
+  return log.reduce((a, e) => a + entryGold(e), 0) - purchases.reduce((a, x) => a + (x.gold || 0), 0);
+}
+
+/** Деньги фонда радостей: доля поступлений минус покупки наград. */
+function joyFund() {
+  const f = fin();
+  const inflow = f.incomes.reduce((a, i) => a + (i.amount * (f.joyPct || 0)) / 100, 0);
+  return Math.round(inflow - session.state.purchases.reduce((a, x) => a + (x.kzt || 0), 0));
+}
+
+/** Среднее «помогло»: от −1 (хуже) до 1 (лучше). */
+function itemEffect(it) {
+  return it.ratings.length ? it.ratings.reduce((a, r) => a + r.v, 0) / it.ratings.length : 0;
+}
+
+function itemMeta(it) {
+  const parts = [];
+  if (it.minutes) parts.push(`${it.minutes} мин`);
+  if (it.evening) parts.push('🌙 вечер');
+  if (it.ratings.length) parts.push(`помогло ${it.ratings.filter((r) => r.v > 0).length} из ${it.ratings.length}`);
+  return parts.join(' · ');
+}
+
+function isEvening(now = new Date()) {
+  const m = now.getHours() * 60 + now.getMinutes();
+  return m >= session.state.evening.start || m < 4 * 60;
+}
+
+/** Ключ вечера: после полуночи — ещё вчерашний вечер. */
+function eveningKey(now = new Date()) {
+  return dayKey(now.getHours() < 4 ? addDays(now, -1) : now);
+}
+
+function candidates(need) {
+  const ev = isEvening();
+  let list = menu().items.filter((i) => NEEDS[need].sections.includes(i.section));
+  if (ev || need === 'anxiety' || need === 'tired') {
+    const light = list.filter((i) => i.evening);
+    if (light.length) list = light;
+  }
+  return list.filter((i) => !(i.ratings.length >= 3 && itemEffect(i) < -0.3)); // то, что стабильно не помогает, не предлагаем
+}
+
+function pickWeighted(list, excludeId) {
+  const pool = list.length > 1 ? list.filter((i) => i.id !== excludeId) : list;
+  const now = Date.now();
+  const weights = pool.map((i) => 1 + Math.max(0, itemEffect(i)) * 2 + (!i.lastAt || now - i.lastAt > 3 * 864e5 ? 0.5 : 0));
+  let r = Math.random() * weights.reduce((a, w) => a + w, 0);
+  for (let k = 0; k < pool.length; k++) if ((r -= weights[k]) <= 0) return pool[k];
+  return pool[pool.length - 1];
+}
+
+function openNeedSheet() {
+  if (!session) return;
+  const root = openSheet('Мне нужно…', `
+    <div class="q-options">
+      <button class="btn danger" type="button" data-need="anxiety">Я загоняюсь</button>
+      <button class="btn" type="button" data-need="tired">Нет сил</button>
+      <button class="btn" type="button" data-need="stuck">Не могу начать</button>
+      <button class="btn" type="button" data-need="rest">Хочу отдохнуть</button>
+      ${isEvening() ? '<button class="btn gold" type="button" data-need="evening">Вечерний ритуал</button>' : ''}
+    </div>
+    <p class="hint center" style="margin-top:12px">У тебя 🪙 ${fmt(goldBalance())}</p>
+    <button class="btn ghost" type="button" data-action="close">Закрыть</button>`);
+  root.querySelectorAll('[data-need]').forEach((b) => b.addEventListener('click', () => {
+    const need = b.dataset.need;
+    if (need === 'anxiety') return startAnxietyFlow();
+    if (need === 'evening') return openEveningFlow();
+    openSuggestion(need);
+  }));
+}
+
+/** Система предлагает одно блюдо — с прокруткой, как слот. */
+function openSuggestion(need, prevId) {
+  const list = candidates(need);
+  if (!list.length) {
+    openSheet(NEEDS[need].title, `<p class="lead">Под это в меню пока пусто.</p><p class="dim center">Добавь блюда во вкладке «Состояние» → «Дофаминовое меню».</p>
+      <button class="btn ghost" type="button" data-action="close">Закрыть</button>`);
+    return;
+  }
+  const item = pickWeighted(list, prevId);
+  const root = openSheet(NEEDS[need].title, `
+    <div class="slot spinning" data-slot>…</div>
+    <p class="dim center" data-meta>&nbsp;</p>
+    <button class="btn" type="button" data-take-now disabled>Беру</button>
+    <button class="btn ghost" type="button" data-other>Другое</button>
+    <button class="btn ghost" type="button" data-action="close">Не сейчас</button>`);
+  const slot = root.querySelector('[data-slot]');
+  const take = root.querySelector('[data-take-now]');
+  const land = () => {
+    if (!slot.isConnected) return;
+    slot.textContent = item.title;
+    slot.className = 'slot landed';
+    const price = item.section === 'dessert' ? item.price || 0 : 0;
+    const meta = [MENU_SECTIONS[item.section].one, itemMeta(item), price ? `цена ${price} 🪙` : ''].filter(Boolean).join(' · ');
+    root.querySelector('[data-meta]').textContent = meta;
+    if (price > goldBalance()) {
+      take.textContent = `Не хватает 🪙: нужно ${price}`;
+    } else {
+      take.disabled = false;
+    }
+  };
+  if (reducedMotion.matches) land();
+  else {
+    let n = 0;
+    const spin = setInterval(() => {
+      if (!slot.isConnected) return clearInterval(spin);
+      slot.textContent = list[Math.floor(Math.random() * list.length)].title;
+      if (++n >= 12) { clearInterval(spin); land(); haptic(10); }
+    }, 70);
+  }
+  take.addEventListener('click', () => takeItem(item));
+  root.querySelector('[data-other]').addEventListener('click', () => openSuggestion(need, item.id));
+}
+
+function takeItem(item) {
+  if (!item || !session) return;
+  const { state } = session;
+  if (item.section === 'special') return buySpecial(item.id);
+  if (item.section === 'dessert') {
+    const price = item.price || 0;
+    if (price > goldBalance()) return toast({ title: 'Десерт', main: 'Не хватает золота', sub: `Нужно ${price} 🪙 — сделай квест или опору`, kind: 'minus' });
+    state.purchases.push({ id: uid(), at: Date.now(), itemId: item.id, title: item.title, gold: price, kzt: 0, kind: 'dessert' });
+  }
+  const now = Date.now();
+  state.menu.active = { itemId: item.id, title: item.title, section: item.section, startedAt: now, until: item.minutes ? now + item.minutes * 60000 : null };
+  item.lastAt = now;
+  save();
+  closeSheet();
+  render();
+  Sound.play('quest');
+  toast({
+    title: MENU_SECTIONS[item.section].one,
+    main: item.title,
+    sub: item.section === 'side' ? 'Включай — и берись за задачу' : item.minutes ? `Таймер: ${item.minutes} мин${item.price ? ` · −${item.price} 🪙` : ''}` : 'Нажми «Готово», когда закончишь',
+    kind: 'up',
+    ms: 3500,
+  });
+}
+
+function activeHtml() {
+  const a = session.state.menu.active;
+  if (!a) return '';
+  return `<div class="panel active-item" data-active>
+      <div><small>Сейчас · ${MENU_SECTIONS[a.section].one}</small><b>${esc(a.title)}</b><span data-timer></span></div>
+      <button class="btn" type="button" data-action="active-done">Готово</button>
+    </div>`;
+}
+
+/** Раз в секунду обновляет таймер активного блюда и сообщает, когда время вышло. */
+function tickActive() {
+  if (!session) return;
+  const a = session.state.menu.active;
+  const box = app.querySelector('[data-active]');
+  if (!a || !box) return;
+  const el = box.querySelector('[data-timer]');
+  if (!a.until) { el.textContent = 'без таймера'; return; }
+  const left = a.until - Date.now();
+  const mmss = (ms) => `${Math.floor(ms / 60000)}:${pad(Math.floor((ms % 60000) / 1000))}`;
+  box.classList.toggle('over', left < 0);
+  el.textContent = left >= 0 ? `осталось ${mmss(left)}` : `время вышло · +${mmss(-left)}`;
+  if (left < 0 && !a.notified) {
+    a.notified = true;
+    save();
+    Sound.play('undo');
+    haptic([40, 60, 40]);
+    toast({ title: 'Таймер', main: `${a.title}: время вышло`, sub: 'Закончи и отметь «Готово»', kind: 'minus', ms: 6000 });
+  }
+}
+
+function finishActive() {
+  const { state } = session;
+  const a = state.menu.active;
+  if (!a) return;
+  const over = a.until ? Date.now() - a.until : 0;
+  state.menu.active = null;
+  if (a.section === 'dessert' && over > 5 * 60000) {
+    // пересидел десерт — это уже слив
+    let drain = state.drains.find((d) => d.id === 'dessert-over');
+    if (!drain) state.drains.push((drain = { id: 'dessert-over', title: 'Пересидел десерт' }));
+    const key = dayKey(new Date());
+    const day = dayData(key);
+    if (!day.drains.includes(drain.id)) setDayData(key, { drains: day.drains.concat(drain.id) });
+    toast({ title: 'Десерт', main: `Пересидел на ${Math.round(over / 60000)} мин`, sub: 'Отмечено в сливах энергии. Без самобичевания — просто факт', kind: 'minus', ms: 5000 });
+  }
+  save();
+  render();
+  const item = menuItem(a.itemId);
+  if (!item) return;
+  const root = openSheet('Помогло?', `
+    <p class="lead">${esc(item.title)}</p>
+    <p class="dim center">Как ты сейчас? Система запомнит и будет чаще предлагать то, что работает.</p>
+    <div class="q-options">
+      <button class="btn" type="button" data-v="1">Лучше</button>
+      <button class="btn" type="button" data-v="0">Так же</button>
+      <button class="btn" type="button" data-v="-1">Хуже</button>
+    </div>
+    <button class="btn ghost" type="button" data-action="close">Пропустить</button>`);
+  root.querySelectorAll('[data-v]').forEach((b) => b.addEventListener('click', () => {
+    item.ratings.push({ at: Date.now(), v: Number(b.dataset.v) });
+    save();
+    closeSheet();
+    render();
+    if (b.dataset.v === '1') toast({ title: 'Меню', main: 'Запомнил: помогает', ms: 2500 });
+  }));
+}
+
+/* ---------- «Я загоняюсь»: выгрузка → дыхание → лёгкое блюдо ---------- */
+
+/** «сегодня в 12:00», «завтра в 12:00» или дата. */
+function whenText(t) {
+  const d = new Date(t);
+  const time = d.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
+  if (dayKey(d) === dayKey(new Date())) return `сегодня в ${time}`;
+  if (dayKey(d) === dayKey(addDays(new Date(), 1))) return `завтра в ${time}`;
+  return `${d.toLocaleDateString('ru-RU', { day: 'numeric', month: 'long' })} в ${time}`;
+}
+
+function nextReview(now = new Date()) {
+  const r = session.state.evening.review;
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate(), Math.floor(r / 60), r % 60).getTime();
+  return today - now.getTime() >= 2 * 3600000 ? today : addDays(new Date(today), 1).getTime() + (r % 60) * 60000 + Math.floor(r / 60) * 3600000;
+}
+
+function startAnxietyFlow(then) {
+  const root = openSheet('Выгрузка', `
+    <p class="dim center">Что крутится в голове? Пиши как есть, без порядка. Система сохранит (зашифровано), и вы вернётесь к этому в ${minToTime(session.state.evening.review)}.</p>
+    <label class="field"><span>Мысли</span><textarea name="t" rows="6" maxlength="4000" placeholder="Всё, что крутится…"></textarea></label>
+    <button class="btn" type="button" data-dump>Выгрузить</button>
+    <button class="btn ghost" type="button" data-skip>Сразу к дыханию</button>`);
+  const area = root.querySelector('textarea');
+  area.focus();
+  root.querySelector('[data-dump]').addEventListener('click', () => {
+    const text = area.value.trim();
+    if (text) {
+      const reviewAt = nextReview();
+      session.state.worries.push({ id: uid(), at: Date.now(), text, reviewAt, status: null });
+      save();
+      toast({ title: 'Выгрузка', main: 'Принято. Оно подождёт', sub: `Вернёмся ${whenText(reviewAt)}`, ms: 4000 });
+    }
+    breathing(then);
+  });
+  root.querySelector('[data-skip]').addEventListener('click', () => breathing(then));
+}
+
+/** Минута дыхания: вдох 4 с, задержка 4 с, выдох 6 с — четыре круга. */
+function breathing(then) {
+  const root = openSheet('Дыхание', `
+    <div class="breath"><div class="breath-circle" data-circle></div><p class="breath-text" data-bt>Готовься</p></div>
+    <p class="dim center" data-left>4 круга · меньше минуты</p>
+    <button class="btn ghost" type="button" data-next>Дальше</button>`);
+  const circle = root.querySelector('[data-circle]');
+  const text = root.querySelector('[data-bt]');
+  const left = root.querySelector('[data-left]');
+  const phases = [['Вдох', 4, 1], ['Задержка', 4, 1], ['Выдох', 6, 0.55]];
+  let round = 0;
+  let k = 0;
+  let done = false;
+  const finish = () => {
+    if (done) return;
+    done = true;
+    if (then) then();
+    else openSuggestion('anxiety');
+  };
+  const step = () => {
+    if (!circle.isConnected || done) return;
+    if (k === phases.length) { k = 0; round++; }
+    if (round === 4) { text.textContent = 'Хорошо'; haptic(20); return setTimeout(finish, 900); }
+    const [label, sec, scale] = phases[k++];
+    text.textContent = label;
+    left.textContent = `круг ${round + 1} из 4`;
+    circle.style.transitionDuration = `${sec}s`;
+    circle.style.transform = `scale(${scale})`;
+    setTimeout(step, sec * 1000);
+  };
+  setTimeout(step, 600);
+  root.querySelector('[data-next]').addEventListener('click', finish);
+}
+
+function worriesDue() {
+  const now = Date.now();
+  return session.state.worries.filter((w) => !w.status && w.reviewAt <= now);
+}
+
+function worriesDueHtml() {
+  const due = worriesDue();
+  if (!due.length) return '';
+  return `<div class="panel backup-banner"><p><b>Разбор мыслей</b>${due.length} ${plural(due.length, ['выгруженная мысль ждёт', 'выгруженные мысли ждут', 'выгруженных мыслей ждут'])} разбора. Часто половина уже не важна.</p>
+      <button class="btn" type="button" data-action="worries">Разобрать</button></div>`;
+}
+
+function resolveWorry(id, how) {
+  const { state } = session;
+  const w = state.worries.find((x) => x.id === id);
+  if (!w) return;
+  if (how === 'later') {
+    w.reviewAt = addDays(new Date(), 1).getTime();
+  } else if (how === 'quest') {
+    w.status = 'quest';
+    state.quests.push({ id: uid(), createdAt: Date.now(), title: w.text.split('\n')[0].slice(0, 120), note: w.text.length > 120 ? w.text.slice(0, 1000) : '', type: 'normal', stats: [], repeat: 'none' });
+    toast({ title: 'Разбор', main: 'Стало квестом', sub: 'Найдёшь во вкладке «Квесты»', kind: 'up', ms: 3000 });
+  } else {
+    w.status = 'dropped';
+    toast({ title: 'Разбор', main: 'Отпущено', ms: 2500 });
+  }
+  save();
+  render();
+}
+
+/* ---------- Вечерний ритуал ---------- */
+
+function eveningProgress() {
+  const ev = session.state.evening;
+  const done = ev.done[eveningKey()] || [];
+  const steps = ev.steps;
+  const finished = session.state.log.some((e) => e.source === 'evening' && e.period === 'e:' + eveningKey());
+  return { steps, done, finished, count: steps.filter((st) => done.includes(st.id)).length };
+}
+
+function eveningCardHtml() {
+  if (!isEvening()) return '';
+  const p = eveningProgress();
+  return `<section class="panel evening-card">
+      <small>Вечер · с ${minToTime(session.state.evening.start)}</small>
+      <b>${p.finished ? 'Ритуал пройден. Отдыхай' : 'Посадочная полоса'}</b>
+      <p>${p.finished ? 'Можно ничего не делать — ты своё отработал.' : `Шаг за шагом, без выбора. Пройдено ${p.count} из ${p.steps.length}.`}</p>
+      <span class="fin-bar"><i data-pct="${p.steps.length ? ((p.count / p.steps.length) * 100).toFixed(1) : 0}"></i></span>
+      <div class="btn-pair">
+        <button class="btn${p.finished ? ' gold' : ''}" type="button" data-action="evening">${p.finished ? '✓ Пройден' : p.count ? 'Продолжить' : 'Начать'}</button>
+        <button class="btn danger" type="button" data-action="anxiety">Я загоняюсь</button>
+      </div>
+    </section>`;
+}
+
+function openEveningFlow() {
+  const { state } = session;
+  const key = eveningKey();
+  const p = eveningProgress();
+  const i = p.steps.findIndex((st) => !p.done.includes(st.id));
+  if (i < 0) return completeEvening();
+  const st = p.steps[i];
+  const mark = () => {
+    state.evening.done[key] = (state.evening.done[key] || []).concat(st.id);
+    save();
+    render();
+    openEveningFlow();
+  };
+  const root = openSheet('Вечер', `
+    <p class="dim center">Шаг ${i + 1} из ${p.steps.length}</p>
+    <div class="slot landed">${esc(st.title)}</div>
+    ${st.dump ? '<p class="dim center">Выгрузи всё, что крутится, — вернёмся к этому завтра.</p>' : ''}
+    <button class="btn" type="button" data-go>${st.dump ? 'Выгрузить мысли' : 'Готово'}</button>
+    <button class="btn ghost" type="button" data-skip>Пропустить шаг</button>
+    <button class="btn ghost" type="button" data-action="close">Потом</button>`);
+  root.querySelector('[data-go]').addEventListener('click', () => (st.dump ? startAnxietyFlow(mark) : mark()));
+  root.querySelector('[data-skip]').addEventListener('click', mark);
+}
+
+function completeEvening() {
+  const { state } = session;
+  const key = eveningKey();
+  if (state.log.some((e) => e.source === 'evening' && e.period === 'e:' + key)) {
+    closeSheet();
+    return toast({ title: 'Вечер', main: 'Уже пройден', sub: 'Отдыхай', ms: 2500 });
+  }
+  const discipline = state.stats.find((st) => st.name === 'Дисциплина');
+  const xp = state.settings.xp.normal;
+  const entry = { id: uid(), questId: null, title: 'Вечерний ритуал', type: 'normal', xp, stats: discipline ? { [discipline.id]: xp } : {}, period: 'e:' + key, at: Date.now(), source: 'evening' };
+  state.log.push(entry);
+  save();
+  closeSheet();
+  render();
+  Sound.play('levelUp');
+  haptic([30, 60, 50]);
+  toast({ title: 'Вечер пройден', main: `+${xp} XP · +${entryGold(entry)} 🪙`, sub: 'Ты сделал главное. Дальше — отдых', kind: 'up', ms: 5000 });
+}
+
+function openStepsEditor() {
+  const { state } = session;
+  const row = (st) => `<div class="row-fields" data-row="${st ? st.id : ''}" data-dump="${st && st.dump ? 1 : ''}"><input type="text" maxlength="60" value="${st ? esc(st.title) : ''}" placeholder="Например: чай и музыка"><button type="button" data-remove aria-label="Удалить">×</button></div>`;
+  const root = openSheet('Вечерний ритуал', `
+    <form novalidate>
+      <p class="dim center">Шаги по порядку. Задай их днём, пока есть силы, — вечером Система просто поведёт.</p>
+      <div data-rows>${state.evening.steps.map(row).join('')}</div>
+      <button class="btn ghost" type="button" data-add>+ Шаг</button>
+      <button class="btn" type="submit">Сохранить</button>
+      <button class="btn ghost" type="button" data-action="close">Отмена</button>
+    </form>`);
+  const rows = root.querySelector('[data-rows]');
+  rows.addEventListener('click', (e) => { if (e.target.closest('[data-remove]')) e.target.closest('.row-fields').remove(); });
+  root.querySelector('[data-add]').addEventListener('click', () => { rows.insertAdjacentHTML('beforeend', row(null)); rows.lastElementChild.querySelector('input').focus(); });
+  root.querySelector('form').addEventListener('submit', (e) => {
+    e.preventDefault();
+    state.evening.steps = [...rows.querySelectorAll('.row-fields')]
+      .map((r) => ({ id: r.dataset.row || uid(), title: r.querySelector('input').value.trim(), ...(r.dataset.dump ? { dump: true } : {}) }))
+      .filter((st) => st.title);
+    save();
+    closeSheet();
+    render();
+  });
+}
+
+/* ---------- Магазин наград ---------- */
+
+function buySpecial(id, btn) {
+  const { state } = session;
+  const item = menuItem(id);
+  if (!item) return;
+  const price = item.price || 0;
+  const kzt = item.kzt || 0;
+  if (price > goldBalance()) return toast({ title: 'Магазин', main: 'Не хватает золота', sub: `Нужно ещё ${price - goldBalance()} 🪙`, kind: 'minus' });
+  if (kzt > joyFund()) return toast({ title: 'Магазин', main: 'В фонде радостей не хватает денег', sub: `Нужно ещё ${money(kzt - joyFund())}`, kind: 'minus' });
+  const doBuy = () => {
+    const purchase = { id: uid(), at: Date.now(), itemId: item.id, title: item.title, gold: price, kzt, kind: 'special' };
+    state.purchases.push(purchase);
+    save();
+    render();
+    haptic([30, 60, 30, 60, 80]);
+    queueFx(() => showAchievement({
+      title: item.title,
+      type: 'goal',
+      xp: 0,
+      label: 'Награда получена',
+      sub: `−${price} 🪙${kzt ? ` · −${money(kzt)} из фонда радостей. В трату не вноси — уже оплачено` : ''}`,
+      number: state.purchases.filter((x) => x.kind === 'special').length,
+      onUndo: () => {
+        state.purchases = state.purchases.filter((x) => x !== purchase);
+        save();
+        render();
+        toast({ title: 'Магазин', main: 'Покупка отменена', sub: 'Золото и деньги вернулись', ms: 3000 });
+      },
+      undoLabel: 'Отменить покупку',
+    }));
+  };
+  if (btn) confirmPress(btn, 'Купить? Нажми ещё раз', doBuy);
+  else doBuy();
+}
+
+function dopamineHtml() {
+  const { state } = session;
+  const items = menu().items;
+  const gold = goldBalance();
+  const fund = joyFund();
+  const due = worriesDue();
+  const pending = state.worries.filter((w) => !w.status);
+  const groups = Object.entries(MENU_SECTIONS).filter(([k]) => k !== 'special').map(([k, sec]) => {
+    const list = items.filter((i) => i.section === k).sort((a, b) => itemEffect(b) - itemEffect(a));
+    return `<div class="day-h">${sec.name}<span>${sec.hint}</span></div>
+      <div class="panel log-list">${list.map((it) => `<div class="exp-row menu-row" style="cursor:default">
+          <span class="ic">${it.ratings.length && itemEffect(it) > 0.3 ? '⭐' : k === 'dessert' ? '🍰' : '•'}</span>
+          <button class="t" type="button" data-item="${it.id}" style="background:none;border:0;padding:0;text-align:left;cursor:pointer">${esc(it.title)}<small>${itemMeta(it) || 'нажми, чтобы изменить'}</small></button>
+          <button class="btn ghost" type="button" data-take="${it.id}" style="width:auto;margin:0;min-height:40px;padding:6px 12px;font-size:13px">${k === 'dessert' ? `${it.price || 0} 🪙` : 'Взять'}</button>
+        </div>`).join('') || '<p class="hint" style="margin:10px 0">Пусто</p>'}</div>`;
+  }).join('');
+  const specials = items.filter((i) => i.section === 'special');
+  return `<div class="section-h">Дофаминовое меню</div>
+    <p class="hint" style="margin-top:0">Быстрый вход — кнопка «Мне нужно» внизу экрана. ⭐ — проверено: помогает.</p>
+    ${groups}
+    <button class="btn ghost" type="button" data-action="new-item">+ Блюдо</button>
+
+    <div class="section-h">Магазин наград</div>
+    <div class="panel pad">
+      <div class="gold-line"><span>Золото</span><b>🪙 ${fmt(gold)}</b></div>
+      <div class="gold-line"><span>Фонд радостей</span><b>${money(fund)}</b></div>
+      ${specials.map((it) => `<div class="shop-row">
+          <b>${esc(it.title)}</b>
+          <button class="btn${gold >= (it.price || 0) && fund >= (it.kzt || 0) ? ' gold' : ''}" type="button" data-buy="${it.id}">${it.price || 0} 🪙</button>
+          <small>${it.kzt ? `${money(it.kzt)} из фонда · ` : ''}${gold >= (it.price || 0) ? 'золота хватает' : `ещё ${fmt((it.price || 0) - gold)} 🪙`}${it.kzt && fund < it.kzt ? ` · в фонде не хватает ${money(it.kzt - fund)}` : ''} · <button type="button" data-item="${it.id}" style="background:none;border:0;padding:0;color:var(--accent);font:inherit;cursor:pointer">изменить</button></small>
+        </div>`).join('')}
+      <p class="hint">Золото — за опыт: 1 🪙 за 5 XP. Деньги на награды копятся в фонде радостей (настраивается в бюджете «Финансов»).</p>
+    </div>
+
+    <div class="section-h">Вечерний ритуал</div>
+    <div class="panel pad">
+      ${state.evening.steps.map((st, i) => `<div class="stat-row"><span>${i + 1}. ${esc(st.title)}</span><span>${st.dump ? '🧠' : ''}</span></div>`).join('')}
+      <p class="hint">Начинается в ${minToTime(state.evening.start)} — время меняется в настройках.</p>
+      <button class="btn ghost" type="button" data-action="edit-steps">Изменить шаги</button>
+    </div>
+
+    <div class="section-h" data-worries>Выгруженные мысли <span class="count">${pending.length}</span></div>
+    <div class="panel pad">
+      ${pending.length ? pending.sort((a, b) => a.reviewAt - b.reviewAt).map((w) => `<div class="worry">
+          <p>${esc(w.text)}</p>
+          <small>${w.reviewAt <= Date.now() ? 'пора разобрать' : `разбор ${whenText(w.reviewAt)}`}</small>
+          ${w.reviewAt <= Date.now() ? `<div class="btn-pair">
+            <button class="btn ghost" type="button" data-worry="${w.id}" data-how="drop">Уже не важно</button>
+            <button class="btn" type="button" data-worry="${w.id}" data-how="quest">Сделать квестом</button>
+            <button class="btn ghost" type="button" data-worry="${w.id}" data-how="later">Ещё подержать</button>
+          </div>` : ''}
+        </div>`).join('') : '<p class="hint" style="margin:12px 0 0">Пусто. Когда загоняешься — «Мне нужно» → «Я загоняюсь».</p>'}
+      <button class="btn danger" type="button" data-action="anxiety">Я загоняюсь</button>
+    </div>`;
+}
+
+function openMenuItemEditor(id) {
+  const { state } = session;
+  const it = id ? menuItem(id) : null;
+  const g = it || { title: '', section: 'starter', minutes: 5, evening: true, price: 0, kzt: 0 };
+  const root = openSheet(it ? 'Блюдо' : 'Новое блюдо', `
+    <form novalidate>
+      <label class="field"><span>Название</span><input name="title" type="text" maxlength="60" autocomplete="off" value="${esc(g.title)}"></label>
+      <div class="field"><span>Раздел</span>
+        <div class="choices">${Object.entries(MENU_SECTIONS).map(([k, sec]) => `<label class="choice"><input type="radio" name="section" value="${k}"${g.section === k ? ' checked' : ''}><span>${sec.name}</span></label>`).join('')}</div>
+      </div>
+      <label class="field"><span>Минут (0 — без таймера)</span><input name="minutes" type="number" inputmode="numeric" min="0" max="600" step="1" value="${g.minutes || 0}"></label>
+      <label class="check"><input name="evening" type="checkbox"${g.evening ? ' checked' : ''}><span>🌙 Подходит для вечера, когда сил нет</span></label>
+      <div data-price>
+        <label class="field"><span>Цена в золоте</span><input name="price" type="number" inputmode="numeric" min="0" step="1" value="${g.price || 0}"></label>
+        <label class="field" data-kzt><span>Цена в тенге из фонда радостей</span><input name="kzt" type="number" inputmode="numeric" min="0" step="1" value="${g.kzt || 0}"></label>
+      </div>
+      <p class="error" data-error></p>
+      <button class="btn" type="submit">Сохранить</button>
+      ${it ? '<button class="btn ghost danger-text" type="button" data-action="delete">Удалить</button>' : ''}
+      <button class="btn ghost" type="button" data-action="close">Отмена</button>
+    </form>`);
+  const form = root.querySelector('form');
+  const el = form.elements;
+  const sync = () => {
+    const sec = el.section.value;
+    root.querySelector('[data-price]').hidden = !(sec === 'dessert' || sec === 'special');
+    root.querySelector('[data-kzt]').hidden = sec !== 'special';
+  };
+  form.addEventListener('change', sync);
+  sync();
+  if (!it) el.title.focus();
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const title = el.title.value.trim();
+    if (!title) return sheetError(root, 'Введите название.');
+    const data = {
+      title,
+      section: el.section.value,
+      minutes: Math.max(0, Math.round(Number(el.minutes.value)) || 0),
+      evening: el.evening.checked,
+      price: Math.max(0, Math.round(Number(el.price.value)) || 0),
+      kzt: Math.max(0, Math.round(Number(el.kzt.value)) || 0),
+    };
+    if (it) Object.assign(it, data);
+    else state.menu.items.push({ id: uid(), ratings: [], ...data });
+    save();
+    closeSheet();
+    render();
+  });
+  const del = root.querySelector('[data-action="delete"]');
+  if (del) del.addEventListener('click', () => confirmPress(del, 'Точно удалить? Нажми ещё раз', () => {
+    state.menu.items = state.menu.items.filter((x) => x !== it);
+    save();
+    closeSheet();
+    render();
+  }));
 }
 
 /* ---------- Статус: персонаж и характеристики ---------- */
@@ -4570,7 +5317,7 @@ function statusView() {
     ? `<div class="panel backup-banner"><p><b>Напоминание</b>Бэкап ${backupAge() === null ? 'ещё не делали' : `делали ${backupAgeText()}`}. Сохраните файл на случай потери телефона.</p>
         <button class="btn" type="button" data-action="export">Бэкап</button></div>`
     : '');
-  return `${banner}<section class="panel status r-${p.rank}">
+  return `${eveningCardHtml()}${worriesDueHtml()}${banner}<section class="panel status r-${p.rank}">
       <header class="status-head"><span class="sys-icon">!</span><span>Статус</span></header>
       <div class="status-main">
         <div class="rank-badge"><small>Ранг</small><b>${p.rank}</b></div>
@@ -4685,6 +5432,14 @@ function settingsView() {
       </div>
     </div>
 
+    <div class="section-h">Вечер</div>
+    <div class="panel pad">
+      <label class="set-row"><span><b>Вечер начинается</b><small>С этого времени — карточка «Вечер» и лёгкие блюда в меню</small></span>
+        <span class="xp-input"><input type="time" data-time="start" value="${minToTime(state.evening.start)}" style="width:110px"></span></label>
+      <label class="set-row"><span><b>Разбор мыслей</b><small>Когда возвращаться к выгруженному</small></span>
+        <span class="xp-input"><input type="time" data-time="review" value="${minToTime(state.evening.review)}" style="width:110px"></span></label>
+    </div>
+
     <div class="section-h">Данные</div>
     <div class="panel pad">
       <div class="stat-row"><span>Последний бэкап</span><span class="${backupDue() || backupAge() === null ? 'warn-text' : ''}">${backupAgeText()}</span></div>
@@ -4741,6 +5496,14 @@ function wireSettings(view) {
       save();
       if (input.checked && input.dataset.toggle === 'sound') Sound.play('quest');
       if (input.checked && input.dataset.toggle === 'haptics') haptic(25);
+    });
+  });
+  view.querySelectorAll('[data-time]').forEach((input) => {
+    input.addEventListener('change', () => {
+      const [h, m] = input.value.split(':').map(Number);
+      if (Number.isNaN(h)) return;
+      session.state.evening[input.dataset.time] = h * 60 + (m || 0);
+      save();
     });
   });
 }
