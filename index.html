@@ -1872,7 +1872,9 @@ function migrate(state) {
   state.goals = state.goals || [];
   state.drains = state.drains || [];
   state.days = state.days || {}; // dayKey → { drains: [id], energy: 1–5 }
-  state.finance = Object.assign({ income: 0, fixed: [], savePct: 10, rules: {}, expenses: [], noSpend: {}, checked: {} }, state.finance);
+  state.finance = Object.assign({ expected: 0, incomes: [], fixed: [], savePct: 10, rules: {}, expenses: [], noSpend: {}, checked: {} }, state.finance);
+  if (state.finance.income && !state.finance.expected) state.finance.expected = state.finance.income; // раньше был «доход в месяц»
+  delete state.finance.income;
   state.schema = 7;
   return state;
 }
@@ -2883,12 +2885,13 @@ function render() {
 const VIEWS = { status: statusView, quests: questsView, state: stateView, finance: financeView, journal: journalView, settings: settingsView };
 
 function onViewClick(e) {
-  const t = e.target.closest('[data-check], [data-edit], [data-stat], [data-goal], [data-radar], [data-energy], [data-drain], [data-exp], [data-action], [data-day]');
+  const t = e.target.closest('[data-check], [data-edit], [data-stat], [data-goal], [data-radar], [data-energy], [data-drain], [data-exp], [data-inc], [data-action], [data-day]');
   if (!t || !session) return;
   if (t.dataset.radar !== undefined) return selectRadarAxis(Number(t.dataset.radar));
   if (t.dataset.energy) return setEnergy(Number(t.dataset.energy));
   if (t.dataset.drain) return toggleDrain(t.dataset.drain);
   if (t.dataset.exp) return openExpenseEditor(t.dataset.exp);
+  if (t.dataset.inc) return openIncomeEditor(t.dataset.inc);
   if (t.dataset.day !== undefined) {
     // Нажатие на столбик показывает его значение
     const was = t.classList.contains('sel');
@@ -3306,6 +3309,11 @@ function findGoal(id) {
   return session.state.goals.find((g) => g.id === id);
 }
 
+/** Текущее значение цели «по числу»; для цели по доходу — поступления этого месяца. */
+function goalCurrent(goal) {
+  return goal.autoIncome ? incomesThisMonth() : goal.current;
+}
+
 function goalProgress(goal, done = completionIndex()) {
   const { quests, log } = session.state;
   const linked = quests.filter((q) => q.goalId === goal.id);
@@ -3315,7 +3323,7 @@ function goalProgress(goal, done = completionIndex()) {
   const xp = log.reduce((sum, e) => sum + (ids.has(e.questId) ? e.xp : 0), 0);
   let pct = 0;
   if (goal.doneAt) pct = 100;
-  else if (goal.kind === 'number') pct = goal.target > 0 ? Math.max(0, Math.min(100, (goal.current / goal.target) * 100)) : 0;
+  else if (goal.kind === 'number') pct = goal.target > 0 ? Math.max(0, Math.min(100, (goalCurrent(goal) / goal.target) * 100)) : 0;
   else if (steps.length) pct = (stepsDone / steps.length) * 100;
   return { pct, steps: steps.length, stepsDone, xp, count: linked.length };
 }
@@ -3330,7 +3338,7 @@ function goalCard(goal, done) {
   }
   let left;
   if (goal.doneAt) left = `Достигнута ${new Date(goal.doneAt).toLocaleDateString('ru-RU', { day: 'numeric', month: 'long' })}`;
-  else if (goal.kind === 'number') left = `${fmt(goal.current)} / ${fmt(goal.target)} ${esc(goal.unit)}`;
+  else if (goal.kind === 'number') left = `${fmt(goalCurrent(goal))} / ${fmt(goal.target)} ${esc(goal.unit)}${goal.autoIncome ? ' · из «Финансов»' : ''}`;
   else if (g.steps) left = `Этапы: ${g.stepsDone} из ${g.steps}`;
   else left = '<span class="goal-empty">Добавьте квесты-этапы</span>';
   return `<button class="panel goal${goal.doneAt ? ' done' : ''}" type="button" data-goal="${goal.id}" style="--gc:${goal.color}">
@@ -3400,6 +3408,7 @@ function openGoalEditor(goal) {
         <label class="field"><span>Сейчас</span>
           <span class="xp-input"><input name="current" type="number" inputmode="numeric" min="0" step="1" value="${g.current || 0}" style="width:100%;text-align:left"></span>
         </label>
+        <label class="check"><input name="autoIncome" type="checkbox"${g.autoIncome ? ' checked' : ''}><span>Считать «сейчас» по поступлениям этого месяца из «Финансов»</span></label>
         <label class="field"><span>Единица</span>
           <input name="unit" type="text" maxlength="12" autocomplete="off" value="${esc(g.unit || '')}" placeholder="₸">
         </label>
@@ -3443,6 +3452,7 @@ function openGoalEditor(goal) {
       kind,
       target: kind === 'number' ? target : 0,
       current: kind === 'number' ? Math.max(0, Math.round(Number(f.current.value)) || 0) : 0,
+      autoIncome: kind === 'number' && f.autoIncome.checked,
       unit: f.unit.value.trim(),
     });
     if (!goal) state.goals.push(target_);
@@ -3899,8 +3909,10 @@ function supportRepeatHtml(q) {
    Трата вводится одной строкой: «кофе 1500», «такси домой 2к». Сумма и категория находятся сами,
    незнакомое слово Система спрашивает и запоминает (finance.rules).
    Класс траты: need — необходимое, invest — вклад в себя и дело, want — хотелка.
-   Лимиты: бюджет месяца = доход − обязательные платежи − накопления;
-   лимит дня = (бюджет − потрачено в месяце до сегодня) / дней до конца месяца, включая сегодня. */
+   Деньги — реальные: поступления («+150к клиент») за вычетом накоплений − обязательные платежи
+   (списываются в начале каждого месяца, в первый — пропорционально) − траты = свободно сейчас.
+   Лимит дня = свободное на начало дня + сегодняшние поступления / дней до конца месяца, включая сегодня.
+   Остаток переходит в следующий месяц сам. */
 
 const FIN_CATS = [
   { id: 'work', name: 'Для дела', cls: 'invest', words: ['камер', 'микрофон', 'петличк', 'штатив', 'объектив', 'осветител', 'свет для', 'реклам', 'таргет', 'хостинг', 'домен', 'монтаж', 'capcut', 'съёмк', 'съемк', 'для клиент', 'для работ', 'для блог', 'для reels'] },
@@ -3967,9 +3979,7 @@ function learnCategory(text, cat) {
 
 function finBudget() {
   const f = fin();
-  const fixed = f.fixed.reduce((a, x) => a + x.amount, 0);
-  const saving = Math.round((f.income * f.savePct) / 100);
-  return { income: f.income, fixed, saving, free: Math.max(0, f.income - fixed - saving) };
+  return { expected: f.expected || 0, fixed: f.fixed.reduce((a, x) => a + x.amount, 0), savePct: f.savePct };
 }
 
 /** Сколько потрачено за [from, to) без обязательных платежей. */
@@ -3981,25 +3991,40 @@ function daysInMonth(d) {
   return new Date(d.getFullYear(), d.getMonth() + 1, 0).getDate();
 }
 
-/** Бюджет месяца; в месяц, когда бюджет задали впервые, — только на оставшиеся с того дня дни. */
-function monthBudget(date) {
-  const { free } = finBudget();
-  const since = fin().since && new Date(fin().since);
-  if (since && since.getFullYear() === date.getFullYear() && since.getMonth() === date.getMonth()) {
-    const days = daysInMonth(date);
-    return Math.round((free * (days - since.getDate() + 1)) / days);
-  }
-  return free;
+/** Сколько от поступления остаётся на жизнь после накоплений. */
+const netIncome = (amount) => Math.round(amount * (1 - fin().savePct / 100));
+
+function incomesBetween(from, to, net) {
+  return fin().incomes.reduce((a, i) => a + (i.at >= from && i.at < to ? (net ? netIncome(i.amount) : i.amount) : 0), 0);
 }
 
-/** Лимит на день date (или null, если бюджет не задан). */
+/** Обязательные платежи, списанные к моменту t: каждый месяц в его начале, в первый — пропорционально дням. */
+function fixedChargedBy(t) {
+  const f = fin();
+  const total = finBudget().fixed;
+  if (!total || !f.since) return 0;
+  const since = new Date(f.since);
+  let sum = 0;
+  for (let m = new Date(since.getFullYear(), since.getMonth(), 1); m.getTime() <= t; m = new Date(m.getFullYear(), m.getMonth() + 1, 1)) {
+    const days = daysInMonth(m);
+    const first = m.getFullYear() === since.getFullYear() && m.getMonth() === since.getMonth();
+    sum += first ? Math.round((total * (days - since.getDate() + 1)) / days) : total;
+  }
+  return sum;
+}
+
+/** Свободные деньги к моменту t. */
+function availableAt(t) {
+  return incomesBetween(0, t, true) - fixedChargedBy(t) - spentBetween(0, t);
+}
+
+/** Лимит на день date (или null, если поступлений ещё не было). */
 function dayLimit(date) {
-  if (!finBudget().free) return null;
-  const free = monthBudget(date);
-  const monthFrom = new Date(date.getFullYear(), date.getMonth(), 1).getTime();
-  const before = spentBetween(monthFrom, dayStart(date));
+  if (!fin().incomes.length) return null;
+  const from = dayStart(date);
+  const pool = availableAt(from) + incomesBetween(from, dayStart(addDays(date, 1)), true);
   const left = daysInMonth(date) - date.getDate() + 1;
-  return Math.max(0, Math.round((free - before) / left));
+  return Math.max(0, Math.round(pool / left));
 }
 
 function limitsNow() {
@@ -4014,11 +4039,81 @@ function limitsNow() {
   const daysLeftWeek = Math.min(7 - ((now.getDay() + 6) % 7), daysLeftMonth);
   const spentWeekBefore = spentBetween(weekFrom, today);
   const monthFrom = new Date(now.getFullYear(), now.getMonth(), 1).getTime();
+  const spentMonthBefore = spentBetween(monthFrom, today);
   return {
     today: { limit: L, spent: spentToday },
     week: { limit: spentWeekBefore + L * daysLeftWeek, spent: spentWeekBefore + spentToday },
-    month: { limit: monthBudget(now), spent: spentBetween(monthFrom, tomorrow) },
+    month: { limit: spentMonthBefore + L * daysLeftMonth, spent: spentMonthBefore + spentToday },
+    free: availableAt(Date.now() + 1),
   };
+}
+
+function incomesThisMonth() {
+  const now = new Date();
+  return incomesBetween(new Date(now.getFullYear(), now.getMonth(), 1).getTime(), dayStart(addDays(now, 1)), false);
+}
+
+function addIncome(raw) {
+  const parsed = parseExpense(raw);
+  if (!parsed) return false;
+  const f = fin();
+  const inc = { id: uid(), at: Date.now(), amount: parsed.amount, text: parsed.text === 'Трата' ? 'Поступление' : parsed.text };
+  f.incomes.push(inc);
+  if (!f.since) f.since = inc.at;
+  save();
+  render();
+  Sound.play('quest');
+  haptic([20, 40, 20]);
+  const lim = limitsNow();
+  const saved = inc.amount - netIncome(inc.amount);
+  toast({
+    title: '[Поступление]',
+    main: `+${money(inc.amount)}`,
+    sub: `${saved ? `в накопления ${money(saved)} · ` : ''}на сегодня можно ${money(Math.max(0, lim.today.limit - lim.today.spent))}`,
+    kind: 'up',
+    ms: 5000,
+  });
+  return true;
+}
+
+function openIncomeEditor(id) {
+  const f = fin();
+  const inc = f.incomes.find((x) => x.id === id);
+  if (!inc) return;
+  const d = new Date(inc.at);
+  const root = openSheet('Поступление', `
+    <form novalidate>
+      <label class="field"><span>Откуда</span><input name="text" type="text" maxlength="80" autocomplete="off" value="${esc(inc.text)}"></label>
+      <label class="field"><span>Сумма, ₸</span><input name="amount" type="number" inputmode="numeric" min="1" step="1" value="${inc.amount}"></label>
+      <label class="field"><span>Дата</span><input name="date" type="date" value="${dayKey(d)}" max="${dayKey(new Date())}"></label>
+      <p class="error" data-error></p>
+      <button class="btn" type="submit">Сохранить</button>
+      <button class="btn ghost danger-text" type="button" data-action="delete">Удалить поступление</button>
+      <button class="btn ghost" type="button" data-action="close">Отмена</button>
+    </form>`);
+  const form = root.querySelector('form');
+  const el = form.elements;
+  form.addEventListener('submit', (ev) => {
+    ev.preventDefault();
+    const amount = Math.round(Number(el.amount.value));
+    if (!(amount > 0)) return sheetError(root, 'Укажите сумму.');
+    if (el.date.value && el.date.value !== dayKey(d)) {
+      const [y, m, dd] = el.date.value.split('-').map(Number);
+      inc.at = new Date(y, m - 1, dd, 12).getTime();
+    }
+    Object.assign(inc, { text: el.text.value.trim() || inc.text, amount });
+    if (f.since && inc.at < f.since) f.since = inc.at;
+    save();
+    closeSheet();
+    render();
+  });
+  const del = root.querySelector('[data-action="delete"]');
+  del.addEventListener('click', () => confirmPress(del, 'Точно удалить? Нажмите ещё раз', () => {
+    f.incomes = f.incomes.filter((x) => x !== inc);
+    save();
+    closeSheet();
+    render();
+  }));
 }
 
 /** Превысила ли трата лимит своего дня. */
@@ -4042,6 +4137,7 @@ function expenseVerdict(e) {
 }
 
 function addExpense(raw) {
+  if (/^\s*\+/.test(raw)) return addIncome(raw.replace(/^\s*\+/, ''));
   const parsed = parseExpense(raw);
   if (!parsed) return false;
   const f = fin();
@@ -4160,7 +4256,7 @@ function checkFinanceRewards() {
   if (!session) return;
   const { state } = session;
   const f = fin();
-  if (!finBudget().free) return;
+  if (!f.incomes.length) return;
   const discipline = state.stats.find((st) => st.name === 'Дисциплина');
   const now = new Date();
   let gained = 0;
@@ -4215,6 +4311,14 @@ function limitRow(label, part) {
     </div>`;
 }
 
+function incomeRow(i) {
+  const d = new Date(i.at);
+  return `<button class="exp-row" type="button" data-inc="${i.id}">
+      <span class="ic">💰</span><span class="t">${esc(i.text)}</span><span class="a" style="color:var(--ok)">+${money(i.amount)}</span>
+      <span class="m">${d.toLocaleDateString('ru-RU', { day: 'numeric', month: 'long' })}${fin().savePct ? ` · в накопления ${money(i.amount - netIncome(i.amount))}` : ''}</span>
+    </button>`;
+}
+
 function expenseRow(e) {
   const v = expenseVerdict(e);
   const time = new Date(e.at).toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
@@ -4236,17 +4340,18 @@ function financeView() {
   const monthFrom = new Date(now.getFullYear(), now.getMonth(), 1).getTime();
   const month = f.expenses.filter((e) => e.at >= monthFrom);
   const monthName = now.toLocaleDateString('ru-RU', { month: 'long' });
+  const incomes = f.incomes.filter((i) => i.at >= monthFrom).sort((a, b2) => b2.at - a.at);
 
   let limits;
   if (!lim) {
-    limits = `<div class="panel empty"><b>Задайте бюджет</b>Доход, обязательные платежи и накопления — и Система сама посчитает лимиты на день, неделю и месяц.</div>
-      <button class="btn" type="button" data-action="fin-budget">Задать бюджет</button>`;
+    limits = `<div class="panel empty"><b>Поступлений пока нет</b>Когда придут деньги, впиши их с плюсом: «+150к клиент». Если деньги уже есть — внеси текущий остаток: «+50 000 остаток». Лимиты Система посчитает от реальных денег.</div>
+      <button class="btn ghost" type="button" data-action="fin-budget">Обязательные платежи и накопления</button>`;
   } else {
     const left = lim.today.limit - lim.today.spent;
     const streak = finStreak();
     limits = `<section class="panel fin-limits" style="--fc:${left < 0 ? 'var(--danger)' : left < lim.today.limit * 0.2 ? 'var(--warn)' : 'var(--accent-2)'}">
         <div class="fin-left"><small>${left >= 0 ? 'Можно потратить сегодня' : 'Сверх лимита сегодня'}</small><b>${money(Math.abs(left))}</b>
-          <span>${left >= 0 ? 'Сэкономишь — завтра лимит вырастет' : 'Завтрашний лимит уменьшится, чтобы месяц сошёлся'}</span></div>
+          <span>${lim.free < 0 ? `Поступлений не хватает на обязательные платежи: ${money(-lim.free)}` : left >= 0 ? 'Сэкономишь — завтра лимит вырастет' : 'Завтрашний лимит уменьшится, чтобы деньги дотянули до конца месяца'}</span></div>
         ${limitRow('Сегодня', lim.today)}
         ${limitRow('Неделя', lim.week)}
         ${limitRow(monthName[0].toUpperCase() + monthName.slice(1), lim.month)}
@@ -4263,7 +4368,7 @@ function financeView() {
   const maxCat = cats.length ? cats[0][1] : 0;
 
   return `<form class="panel fin-input" data-fin-form novalidate>
-      <input name="exp" type="text" autocomplete="off" enterkeyhint="done" placeholder="кофе 1500 · такси 2к · продукты 8 400" aria-label="Новая трата">
+      <input name="exp" type="text" autocomplete="off" enterkeyhint="done" placeholder="кофе 1500 · +150к клиент" aria-label="Трата или поступление с плюсом">
       <button class="btn" type="submit" aria-label="Записать трату">+</button>
     </form>
     <p class="error" data-fin-error></p>
@@ -4275,6 +4380,13 @@ function financeView() {
       : `<div class="panel empty">Трат сегодня нет.</div>
          <button class="btn${f.noSpend[todayKey] ? ' gold' : ''}" type="button" data-action="fin-nospend">${f.noSpend[todayKey] ? '✓ Сегодня без трат' : 'Сегодня без трат'}</button>`}
 
+    <div class="section-h">Поступления <span class="count">${money(incomesThisMonth())}</span></div>
+    <div class="panel pad">
+      ${b.expected ? `<div class="cat-row"><div class="fin-head"><span>Пришло в этом месяце</span><span>${money(incomesThisMonth())} / ${money(b.expected)}</span></div>
+        <span class="fin-bar" style="--fc:var(--ok)"><i data-pct="${Math.min(100, (incomesThisMonth() / b.expected) * 100).toFixed(1)}"></i></span></div>` : ''}
+      ${incomes.length ? `<div class="log-list" style="padding:0">${incomes.map(incomeRow).join('')}</div>` : '<p class="hint" style="margin:12px 0 0">В этом месяце поступлений пока нет. Впиши «+сумма» в строку сверху.</p>'}
+    </div>
+
     <div class="section-h">${monthName[0].toUpperCase() + monthName.slice(1)} <span class="count">${money(total(month))}</span></div>
     <div class="panel pad">
       ${month.length ? `<div class="fin-sum"><span>✅ <b>${money(byGrade.ok)}</b></span><span>⚠️ <b>${money(byGrade.meh)}</b></span><span>❌ <b>${money(byGrade.bad)}</b></span></div>
@@ -4285,10 +4397,10 @@ function financeView() {
 
     <div class="section-h">Бюджет</div>
     <div class="panel pad">
-      <div class="stat-row"><span>Доход в месяц</span><span class="mono">${money(b.income)}</span></div>
-      <div class="stat-row"><span>Обязательные платежи</span><span class="mono">−${money(b.fixed)}</span></div>
-      <div class="stat-row"><span>Накопления ${f.savePct}%</span><span class="mono">−${money(b.saving)}</span></div>
-      <div class="stat-row"><span>Свободно на месяц</span><span class="mono ok">${money(b.free)}</span></div>
+      <div class="stat-row"><span>Свободно сейчас</span><span class="mono ${lim && lim.free < 0 ? 'warn-text' : 'ok'}">${money(lim ? lim.free : 0)}</span></div>
+      <div class="stat-row"><span>Обязательные платежи в месяц</span><span class="mono">${money(b.fixed)}</span></div>
+      <div class="stat-row"><span>Откладывается с поступлений</span><span class="mono">${f.savePct}% · всего ${money(incomesBetween(0, Date.now() + 1, false) - incomesBetween(0, Date.now() + 1, true))}</span></div>
+      <div class="stat-row"><span>Ожидаемый доход в месяц</span><span class="mono">${b.expected ? money(b.expected) : '—'}</span></div>
       <button class="btn ghost" type="button" data-action="fin-budget">Изменить бюджет</button>
     </div>`;
 }
@@ -4301,7 +4413,7 @@ function wireFinance(view) {
     const raw = input.value.trim();
     if (!raw) return;
     if (!addExpense(raw)) {
-      view.querySelector('[data-fin-error]').textContent = 'Не вижу суммы. Пример: «кофе 1500» или «такси 2к».';
+      view.querySelector('[data-fin-error]').textContent = 'Не вижу суммы. Пример: «кофе 1500», «такси 2к» или «+150к клиент».';
       return;
     }
   });
@@ -4378,7 +4490,7 @@ function openBudgetEditor() {
       <button type="button" data-remove aria-label="Удалить">×</button></div>`;
   const root = openSheet('Бюджет', `
     <form novalidate>
-      <label class="field"><span>Доход в месяц, ₸</span><input name="income" type="number" inputmode="numeric" min="0" step="1" value="${f.income || ''}" placeholder="300000"></label>
+      <p class="dim center">Лимиты считаются от реальных поступлений. Здесь — то, что из них уходит в первую очередь.</p>
       <div class="field"><span>Обязательные платежи в месяц</span>
         <div data-rows>${f.fixed.map(row).join('')}</div>
         <button class="btn ghost" type="button" data-add style="margin-top:4px">+ Платёж</button>
@@ -4387,6 +4499,8 @@ function openBudgetEditor() {
       <div class="field"><span>Откладывать</span>
         <div class="choices">${[0, 5, 10, 15, 20].map((n) => `<label class="choice"><input type="radio" name="save" value="${n}"${f.savePct === n ? ' checked' : ''}><span>${n}%</span></label>`).join('')}</div>
       </div>
+      <label class="field"><span>Ожидаемый доход в месяц, ₸</span><input name="expected" type="number" inputmode="numeric" min="0" step="1" value="${f.expected || ''}" placeholder="300000"></label>
+      <div class="hint">Необязательно: цель, с которой сравниваются поступления месяца.</div>
       <p class="lead" data-free style="margin-top:18px"></p>
       <p class="error" data-error></p>
       <button class="btn" type="submit">Сохранить</button>
@@ -4395,7 +4509,7 @@ function openBudgetEditor() {
   const form = root.querySelector('form');
   const rows = root.querySelector('[data-rows]');
   const read = () => ({
-    income: Math.max(0, Math.round(Number(form.elements.income.value)) || 0),
+    expected: Math.max(0, Math.round(Number(form.elements.expected.value)) || 0),
     savePct: Number(form.elements.save.value) || 0,
     fixed: [...rows.querySelectorAll('.row-fields')].map((r) => {
       const [t, a] = r.querySelectorAll('input');
@@ -4405,9 +4519,9 @@ function openBudgetEditor() {
   const freeEl = root.querySelector('[data-free]');
   const update = () => {
     const v = read();
-    const free = Math.max(0, v.income - v.fixed.reduce((a, x) => a + x.amount, 0) - Math.round((v.income * v.savePct) / 100));
+    const free = Math.max(0, v.expected - v.fixed.reduce((a, x) => a + x.amount, 0) - Math.round((v.expected * v.savePct) / 100));
     const now = new Date();
-    freeEl.innerHTML = v.income ? `Свободно на месяц: <span class="hl">${money(free)}</span><br><span class="dim">≈ ${money(free / daysInMonth(now))} в день</span>` : '';
+    freeEl.innerHTML = v.expected ? `Если придёт ожидаемое — свободно <span class="hl">${money(free)}</span><br><span class="dim">≈ ${money(free / daysInMonth(now))} в день</span>` : '';
   };
   form.addEventListener('input', update);
   form.addEventListener('change', update);
@@ -4417,7 +4531,6 @@ function openBudgetEditor() {
   form.addEventListener('submit', (e) => {
     e.preventDefault();
     const v = read();
-    if (!v.income) return sheetError(root, 'Укажите доход в месяц.');
     Object.assign(f, v);
     if (!f.since) f.since = Date.now(); // первый месяц считается с этого дня
     for (const x of f.expenses) x.overLimit = computeOverLimit(x);
