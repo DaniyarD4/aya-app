@@ -1353,6 +1353,126 @@ html.noscroll, html.noscroll body { overflow: hidden; }
 .radar-caption { min-height: 20px; margin: 6px 6px 0; font-size: 13px; line-height: 1.45; text-align: center; color: var(--text-dim); }
 .radar-caption b { color: var(--text); font-weight: 600; }
 
+/* ---------- Состояние ---------- */
+
+.state-card { margin-top: 16px; padding: 16px; --sc: var(--accent); }
+.state-card.low { --sc: var(--danger); }
+.state-card.mid { --sc: var(--warn); }
+.state-card.good { --sc: var(--accent); }
+.state-card.full { --sc: var(--ok); }
+.state-card { border-color: color-mix(in srgb, var(--sc) 50%, transparent); box-shadow: 0 0 18px color-mix(in srgb, var(--sc) 20%, transparent), inset 0 0 24px color-mix(in srgb, var(--sc) 8%, transparent); }
+.state-top { display: flex; align-items: flex-end; justify-content: space-between; gap: 12px; }
+.state-top small { display: block; font-size: 11px; letter-spacing: 0.24em; text-transform: uppercase; color: var(--text-dim); }
+.state-top b { display: block; margin-top: 2px; font-size: 20px; color: var(--sc); text-shadow: 0 0 10px var(--sc); }
+.state-pct { font-family: var(--mono); font-size: 44px; font-weight: 800; line-height: 1; color: var(--sc); text-shadow: 0 0 16px var(--sc); }
+.state-card .goal-bar { --gc: var(--sc); height: 18px; }
+.state-card .goal-sub { margin-top: 10px; }
+
+.energy-row { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; margin-top: 4px; }
+.energy-row button {
+  min-height: 52px;
+  font-family: var(--mono);
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text-dim);
+  background: rgba(4, 10, 22, 0.75);
+  border: 1px solid var(--line-soft);
+  border-radius: 4px;
+  cursor: pointer;
+  transition: border-color 0.15s, box-shadow 0.15s, color 0.15s;
+}
+.energy-row button[aria-pressed="true"] { color: var(--accent-2); border-color: var(--accent); box-shadow: 0 0 12px var(--glow), inset 0 0 10px rgba(100, 200, 255, 0.18); }
+.energy-scale { display: flex; justify-content: space-between; margin-top: 6px; font-size: 11px; color: var(--text-faint); }
+
+.drain {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+  min-height: 52px;
+  margin-bottom: 8px;
+  padding: 10px 14px;
+  font-size: 15px;
+  text-align: left;
+  cursor: pointer;
+}
+.drain span:last-child { flex: none; font-size: 12px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-faint); }
+.drain[aria-pressed="true"] { border-color: rgba(255, 95, 122, 0.7); background: rgba(255, 60, 90, 0.1); box-shadow: 0 0 12px var(--danger-glow); }
+.drain[aria-pressed="true"] span:last-child { color: var(--danger); }
+
+.insight { display: grid; grid-template-columns: 1fr auto; gap: 2px 12px; padding: 10px 0; border-bottom: 1px solid rgba(120, 205, 255, 0.1); }
+.insight:last-child { border-bottom: 0; }
+.insight b { font-weight: 600; }
+.insight .diff { font-family: var(--mono); font-weight: 700; color: var(--ok); }
+.insight .diff.neg { color: var(--danger); }
+.insight small { grid-column: 1 / 3; font-size: 12px; color: var(--text-faint); }
+
+.state-banner { border-color: rgba(255, 95, 122, 0.6); box-shadow: 0 0 14px var(--danger-glow), inset 0 0 16px rgba(255, 60, 90, 0.06); }
+.state-banner p { color: #ffd6dd; }
+.state-banner p b { color: var(--danger); }
+.row-fields { display: flex; gap: 8px; align-items: center; margin-top: 10px; }
+.row-fields input { flex: 1; min-height: 48px; padding: 10px 12px; font-size: 16px; background: rgba(4, 10, 22, 0.75); border: 1px solid var(--line-soft); border-radius: 4px; outline: none; }
+.row-fields input:focus { border-color: var(--accent); }
+.row-fields button { flex: none; width: 48px; height: 48px; font-size: 22px; color: var(--danger); background: none; border: 1px solid var(--line-soft); border-radius: 4px; cursor: pointer; }
+
+/* ---------- Финансы ---------- */
+
+.fin-input { display: flex; gap: 8px; margin-top: 16px; padding: 8px; }
+.fin-input input {
+  flex: 1;
+  min-width: 0;
+  min-height: 52px;
+  padding: 10px 14px;
+  font-size: 17px;
+  background: rgba(4, 10, 22, 0.75);
+  border: 1px solid var(--line-soft);
+  border-radius: 4px;
+  outline: none;
+}
+.fin-input input:focus { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent), 0 0 14px var(--glow); }
+.fin-input .btn { width: 56px; min-height: 52px; margin: 0; padding: 0; font-size: 26px; letter-spacing: 0; }
+.fin-limits { margin-top: 12px; padding: 16px; }
+.fin-left small { display: block; font-size: 11px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--text-dim); }
+.fin-left b { display: block; margin-top: 4px; font-family: var(--mono); font-size: 34px; line-height: 1.1; color: var(--fc, var(--accent-2)); text-shadow: 0 0 14px var(--fc, var(--accent)); }
+.fin-left span { display: block; margin-top: 4px; font-size: 13px; color: var(--text-dim); }
+.fin-row-limit { margin-top: 14px; --fc: var(--accent); }
+.fin-row-limit.near { --fc: var(--warn); }
+.fin-row-limit.over { --fc: var(--danger); }
+.fin-row-limit .fin-head { display: flex; justify-content: space-between; gap: 10px; font-size: 13px; color: var(--text-dim); }
+.fin-row-limit .fin-head span:last-child { font-family: var(--mono); color: var(--text); }
+.fin-bar { position: relative; display: block; height: 10px; margin-top: 6px; overflow: hidden; border-radius: 5px; background: rgba(100, 190, 255, 0.08); border: 1px solid rgba(120, 205, 255, 0.18); }
+.fin-bar > i { position: absolute; inset: 0 auto 0 0; width: 0; border-radius: inherit; background: var(--fc); box-shadow: 0 0 10px var(--fc); transition: width 1s cubic-bezier(0.2, 0.8, 0.2, 1); }
+.fin-streak { margin-top: 14px; font-size: 13px; color: var(--text-dim); text-align: center; }
+.fin-streak b { color: var(--warn); }
+.exp-row {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 2px 12px;
+  align-items: center;
+  width: 100%;
+  padding: 12px 0;
+  text-align: left;
+  background: none;
+  border: 0;
+  border-bottom: 1px solid rgba(120, 205, 255, 0.1);
+  cursor: pointer;
+}
+.exp-row:last-child { border-bottom: 0; }
+.exp-row .ic { grid-row: 1 / 3; font-size: 20px; }
+.exp-row .t { font-size: 15px; overflow-wrap: anywhere; }
+.exp-row .a { font-family: var(--mono); font-weight: 700; }
+.exp-row .m { grid-column: 2 / 4; font-size: 12px; color: var(--text-faint); }
+.fin-sum { display: flex; flex-wrap: wrap; gap: 6px 14px; margin-top: 10px; font-size: 13px; color: var(--text-dim); }
+.fin-sum b { font-family: var(--mono); color: var(--text); }
+.cat-row { margin-top: 12px; }
+.cat-row .fin-head { display: flex; justify-content: space-between; gap: 10px; font-size: 14px; }
+.cat-row .fin-head span:last-child { font-family: var(--mono); color: var(--text-dim); }
+.cat-row .fin-bar { height: 8px; --fc: var(--accent); }
+.q-options { display: grid; gap: 8px; margin-top: 16px; }
+.q-options.cats { grid-template-columns: 1fr 1fr; }
+.q-options .btn { margin: 0; min-height: 50px; font-size: 14px; letter-spacing: 0.04em; text-transform: none; }
+
 /* ---------- Переключатели ---------- */
 
 .toggle {
@@ -1571,6 +1691,9 @@ html.noscroll, html.noscroll body { overflow: hidden; }
   <header class="topbar">
     <div class="who"><small data-bind="rankline"></small><b data-bind="name"></b></div>
     <div class="xp-total" data-bind="xp"></div>
+    <button class="icon-btn" type="button" data-action="open-settings" aria-label="Настройки">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>
+    </button>
     <button class="icon-btn" type="button" data-action="lock" aria-label="Заблокировать">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>
     </button>
@@ -1586,13 +1709,17 @@ html.noscroll, html.noscroll body { overflow: hidden; }
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M8 12l3 3 5-6"/></svg>
       <span>Квесты</span>
     </button>
+    <button type="button" data-tab="state">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h4l2.5-6 5 12 2.5-6h4"/></svg>
+      <span>Состояние</span>
+    </button>
+    <button type="button" data-tab="finance">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="6" width="18" height="13" rx="2"/><path d="M3 10h18"/><path d="M16 14.5h2"/></svg>
+      <span>Финансы</span>
+    </button>
     <button type="button" data-tab="journal">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19V5"/><path d="M4 19h16"/><path d="M8 16v-4"/><path d="M12 16V8"/><path d="M16 16v-6"/></svg>
       <span>Журнал</span>
-    </button>
-    <button type="button" data-tab="settings">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>
-      <span>Настройки</span>
     </button>
   </nav>
 </template>
@@ -1743,7 +1870,12 @@ function migrate(state) {
   if (state.settings.sound === undefined) state.settings.sound = true;
   if (state.settings.haptics === undefined) state.settings.haptics = true;
   state.goals = state.goals || [];
-  state.schema = 5;
+  state.drains = state.drains || [];
+  state.days = state.days || {}; // dayKey → { drains: [id], energy: 1–5 }
+  state.finance = Object.assign({ expected: 0, incomes: [], fixed: [], savePct: 10, rules: {}, expenses: [], noSpend: {}, checked: {} }, state.finance);
+  if (state.finance.income && !state.finance.expected) state.finance.expected = state.finance.income; // раньше был «доход в месяц»
+  delete state.finance.income;
+  state.schema = 7;
   return state;
 }
 
@@ -1890,7 +2022,7 @@ function weekKey(d) {
 
 /** Текущий период квеста: null для разовых. */
 function periodKey(repeat, d = new Date()) {
-  if (repeat === 'daily') return 'd:' + dayKey(d);
+  if (repeat === 'daily' || repeat === 'xweek') return 'd:' + dayKey(d); // «N раз в неделю» — не чаще раза в день
   if (repeat === 'weekly') return 'w:' + weekKey(d);
   return null;
 }
@@ -2703,6 +2835,12 @@ function showHome() {
   mount('tpl-shell');
   app.classList.add('shell');
   app.querySelector('.topbar [data-action="lock"]').addEventListener('click', () => lock('manual'));
+  app.querySelector('.topbar [data-action="open-settings"]').addEventListener('click', () => {
+    flushInputs();
+    ui.tab = 'settings';
+    render();
+    scrollTo(0, 0);
+  });
   app.querySelector('.tabbar').addEventListener('click', (e) => {
     const btn = e.target.closest('[data-tab]');
     if (!btn || btn.dataset.tab === ui.tab) return;
@@ -2713,6 +2851,7 @@ function showHome() {
     scrollTo(0, 0);
   });
   app.querySelector('[data-view]').addEventListener('click', onViewClick);
+  checkFinanceRewards();
   render();
 }
 
@@ -2735,19 +2874,24 @@ function render() {
   const view = app.querySelector('[data-view]');
   view.innerHTML = VIEWS[ui.tab]();
   if (ui.tab === 'settings') wireSettings(view);
+  if (ui.tab === 'finance') wireFinance(view);
   // Полоски заполняются с нуля — видно, сколько набрано
   requestAnimationFrame(() => requestAnimationFrame(() => {
-    view.querySelectorAll('.bar > i[data-pct], .goal-bar > i[data-pct]').forEach((i) => { i.style.width = i.dataset.pct + '%'; });
+    view.querySelectorAll('.bar > i[data-pct], .goal-bar > i[data-pct], .fin-bar > i[data-pct]').forEach((i) => { i.style.width = i.dataset.pct + '%'; });
     view.querySelectorAll('.bar-track > i[data-h]').forEach((i) => { i.style.height = i.dataset.h + '%'; });
   }));
 }
 
-const VIEWS = { status: statusView, quests: questsView, journal: journalView, settings: settingsView };
+const VIEWS = { status: statusView, quests: questsView, state: stateView, finance: financeView, journal: journalView, settings: settingsView };
 
 function onViewClick(e) {
-  const t = e.target.closest('[data-check], [data-edit], [data-stat], [data-goal], [data-radar], [data-action], [data-day]');
+  const t = e.target.closest('[data-check], [data-edit], [data-stat], [data-goal], [data-radar], [data-energy], [data-drain], [data-exp], [data-inc], [data-action], [data-day]');
   if (!t || !session) return;
   if (t.dataset.radar !== undefined) return selectRadarAxis(Number(t.dataset.radar));
+  if (t.dataset.energy) return setEnergy(Number(t.dataset.energy));
+  if (t.dataset.drain) return toggleDrain(t.dataset.drain);
+  if (t.dataset.exp) return openExpenseEditor(t.dataset.exp);
+  if (t.dataset.inc) return openIncomeEditor(t.dataset.inc);
   if (t.dataset.day !== undefined) {
     // Нажатие на столбик показывает его значение
     const was = t.classList.contains('sel');
@@ -2763,6 +2907,12 @@ function onViewClick(e) {
     case 'new-quest': return openQuestEditor(null);
     case 'new-stat': return openStatEditor(null);
     case 'new-goal': return openGoalEditor(null);
+    case 'new-support': return openQuestEditor(null, { area: 'state' });
+    case 'state-preset': return applyStatePreset();
+    case 'edit-drains': return openDrainsEditor();
+    case 'go-state': ui.tab = 'state'; render(); return scrollTo(0, 0);
+    case 'fin-budget': return openBudgetEditor();
+    case 'fin-nospend': return toggleNoSpend();
     case 'show-done': ui.showAllDone = !ui.showAllDone; return render();
     case 'more-log': ui.logLimit += LOG_PAGE; return render();
     case 'export': return exportBackup();
@@ -2787,7 +2937,7 @@ function findQuest(id) {
 }
 
 function questsView() {
-  const { quests } = session.state;
+  const quests = session.state.quests.filter((q) => q.area !== 'state'); // опоры живут во вкладке «Состояние»
   const done = completionIndex();
   const byNewest = (a, b) => b.createdAt - a.createdAt;
   const recurring = quests.filter((q) => q.repeat !== 'none').sort(byNewest);
@@ -2824,7 +2974,7 @@ function questsView() {
 function questCard(q, entry) {
   const xp = entry ? entry.xp : session.state.settings.xp[q.type];
   const names = q.stats.map(statName).filter((n) => n !== '—');
-  const repeat = q.repeat === 'daily' ? '↻ день' : q.repeat === 'weekly' ? '↻ неделя' : '';
+  const repeat = q.repeat === 'daily' ? '↻ день' : q.repeat === 'weekly' ? '↻ неделя' : q.repeat === 'xweek' ? `${weekCount(q)} из ${q.times} за неделю` : '';
   return `<article class="panel quest${entry ? ' done' : ''}">
     <button class="qcheck" type="button" data-check="${q.id}" role="checkbox" aria-checked="${!!entry}" aria-label="${entry ? 'Снять отметку' : 'Выполнено'}: ${esc(q.title)}"><span class="qbox"></span></button>
     <button class="qbody" type="button" data-edit="${q.id}">
@@ -2968,10 +3118,12 @@ function undoEntry(entryId) {
   render();
 }
 
-function openQuestEditor(quest) {
+function openQuestEditor(quest, opts = {}) {
   const { state } = session;
-  const q = quest || { title: '', note: '', type: 'normal', stats: [], repeat: 'none' };
-  const root = openSheet(quest ? 'Квест' : 'Новый квест', `
+  const area = quest ? quest.area : opts.area;
+  const support = area === 'state';
+  const q = quest || { title: '', note: '', type: 'normal', stats: [], repeat: support ? 'daily' : 'none', times: 3 };
+  const root = openSheet(support ? (quest ? 'Опора' : 'Новая опора') : (quest ? 'Квест' : 'Новый квест'), `
     <form novalidate>
       <label class="field"><span>Название</span>
         <input name="title" type="text" maxlength="120" autocomplete="off" value="${esc(q.title)}">
@@ -2992,12 +3144,12 @@ function openQuestEditor(quest) {
         </div>
         <div class="hint" data-split></div>
       </div>
-      <div class="field"><span>Повтор</span>
+      ${support ? supportRepeatHtml(q) : `<div class="field"><span>Повтор</span>
         <div class="choices">${Object.entries(REPEATS).map(([v, label]) => `
           <label class="choice"><input type="radio" name="repeat" value="${v}"${q.repeat === v ? ' checked' : ''}>
             <span>${label}</span></label>`).join('')}
         </div>
-      </div>
+      </div>`}
       ${goalChoicesHtml(q.goalId)}
       <p class="error" data-error></p>
       <button class="btn" type="submit">${quest ? 'Сохранить' : 'Принять квест'}</button>
@@ -3017,6 +3169,12 @@ function openQuestEditor(quest) {
   };
   form.addEventListener('change', updateSplit);
   updateSplit();
+  const timesField = root.querySelector('[data-times]');
+  if (timesField) {
+    const syncTimes = () => { timesField.hidden = f.repeat.value !== 'xweek'; };
+    form.addEventListener('change', syncTimes);
+    syncTimes();
+  }
   if (!quest) f.title.focus();
 
   form.addEventListener('submit', (e) => {
@@ -3026,6 +3184,7 @@ function openQuestEditor(quest) {
     if (!title) return sheetError(root, 'Введите название квеста.');
     if (!stats.length) return sheetError(root, 'Выберите хотя бы одну характеристику.');
     const data = { title, note: f.note.value.trim(), type: f.type.value, stats, repeat: f.repeat.value, goalId: (f.goal && f.goal.value) || undefined };
+    if (support) Object.assign(data, { area: 'state', times: data.repeat === 'xweek' ? Number(f.times.value) || 3 : undefined });
     if (quest) Object.assign(quest, data);
     else state.quests.push({ id: uid(), createdAt: Date.now(), ...data });
     save();
@@ -3150,6 +3309,11 @@ function findGoal(id) {
   return session.state.goals.find((g) => g.id === id);
 }
 
+/** Текущее значение цели «по числу»; для цели по доходу — поступления этого месяца. */
+function goalCurrent(goal) {
+  return goal.autoIncome ? incomesThisMonth() : goal.current;
+}
+
 function goalProgress(goal, done = completionIndex()) {
   const { quests, log } = session.state;
   const linked = quests.filter((q) => q.goalId === goal.id);
@@ -3159,7 +3323,7 @@ function goalProgress(goal, done = completionIndex()) {
   const xp = log.reduce((sum, e) => sum + (ids.has(e.questId) ? e.xp : 0), 0);
   let pct = 0;
   if (goal.doneAt) pct = 100;
-  else if (goal.kind === 'number') pct = goal.target > 0 ? Math.max(0, Math.min(100, (goal.current / goal.target) * 100)) : 0;
+  else if (goal.kind === 'number') pct = goal.target > 0 ? Math.max(0, Math.min(100, (goalCurrent(goal) / goal.target) * 100)) : 0;
   else if (steps.length) pct = (stepsDone / steps.length) * 100;
   return { pct, steps: steps.length, stepsDone, xp, count: linked.length };
 }
@@ -3174,7 +3338,7 @@ function goalCard(goal, done) {
   }
   let left;
   if (goal.doneAt) left = `Достигнута ${new Date(goal.doneAt).toLocaleDateString('ru-RU', { day: 'numeric', month: 'long' })}`;
-  else if (goal.kind === 'number') left = `${fmt(goal.current)} / ${fmt(goal.target)} ${esc(goal.unit)}`;
+  else if (goal.kind === 'number') left = `${fmt(goalCurrent(goal))} / ${fmt(goal.target)} ${esc(goal.unit)}${goal.autoIncome ? ' · из «Финансов»' : ''}`;
   else if (g.steps) left = `Этапы: ${g.stepsDone} из ${g.steps}`;
   else left = '<span class="goal-empty">Добавьте квесты-этапы</span>';
   return `<button class="panel goal${goal.doneAt ? ' done' : ''}" type="button" data-goal="${goal.id}" style="--gc:${goal.color}">
@@ -3244,6 +3408,7 @@ function openGoalEditor(goal) {
         <label class="field"><span>Сейчас</span>
           <span class="xp-input"><input name="current" type="number" inputmode="numeric" min="0" step="1" value="${g.current || 0}" style="width:100%;text-align:left"></span>
         </label>
+        <label class="check"><input name="autoIncome" type="checkbox"${g.autoIncome ? ' checked' : ''}><span>Считать «сейчас» по поступлениям этого месяца из «Финансов»</span></label>
         <label class="field"><span>Единица</span>
           <input name="unit" type="text" maxlength="12" autocomplete="off" value="${esc(g.unit || '')}" placeholder="₸">
         </label>
@@ -3287,6 +3452,7 @@ function openGoalEditor(goal) {
       kind,
       target: kind === 'number' ? target : 0,
       current: kind === 'number' ? Math.max(0, Math.round(Number(f.current.value)) || 0) : 0,
+      autoIncome: kind === 'number' && f.autoIncome.checked,
       unit: f.unit.value.trim(),
     });
     if (!goal) state.goals.push(target_);
@@ -3450,6 +3616,930 @@ function selectRadarAxis(i) {
   caption.innerHTML = `<b>${esc(d.name)}</b> · ур. ${d.level} · ${fmt(d.into)} / ${fmt(d.need)} XP до следующего · всего ${fmt(d.xp)} XP`;
 }
 
+/* ---------- Состояние ----------
+   Опоры — обязательные квесты (area: 'state'): каждый день или N раз в неделю.
+   Состояние дня = выполненные опоры / (ежедневные опоры + выполненные в этот день недельные) − 15 % за каждый слив.
+   Недельная опора не снижает состояние в день отдыха, но поднимает его, когда сделана. */
+
+const DRAIN_PENALTY = 15;
+const ENERGY_WORDS = ['пусто', 'мало', 'норма', 'хорошо', 'полон'];
+
+/** Стартовый набор по схеме «опоры → состояние → энергия»; всё можно поменять. */
+const STATE_PRESET = {
+  supports: [
+    { title: 'Сон', note: 'Лечь вовремя и выспаться', repeat: 'daily', stats: ['Дисциплина'] },
+    { title: 'Тренировка', note: '', repeat: 'xweek', times: 3, stats: ['Сила'] },
+    { title: 'Питание', note: 'Нормально поесть, без мусора', repeat: 'daily', stats: ['Сила', 'Дисциплина'] },
+    { title: 'Майндсет', note: 'Работа над убеждениями и идентичностью', repeat: 'daily', stats: ['Интеллект', 'Сила'] },
+    { title: 'Время наедине', note: 'Без людей и телефона', repeat: 'daily', stats: ['Творческая реализация'] },
+    { title: 'Проявленность: танцы и творчество', note: '', repeat: 'xweek', times: 3, stats: ['Проявленность', 'Харизма'] },
+  ],
+  drains: ['Отношения в одни ворота', 'Общение с людьми с другим майндсетом', 'Напряжённое общение с родителями', 'Залип в Insta / TikTok'],
+};
+
+const supports = () => session.state.quests.filter((q) => q.area === 'state');
+
+function dayData(key) {
+  return session.state.days[key] || { drains: [], energy: null };
+}
+
+function setDayData(key, patch) {
+  const day = Object.assign({ drains: [], energy: null }, session.state.days[key], patch);
+  session.state.days[key] = day;
+}
+
+/** Сколько раз опора отмечена на этой неделе. */
+function weekCount(q, now = new Date()) {
+  const week = weekKey(now);
+  return session.state.log.filter((e) => e.questId === q.id && weekKey(new Date(e.at)) === week).length;
+}
+
+/** dayKey → Set(questId) выполненных в этот день опор. */
+function supportDoneByDay() {
+  const ids = new Set(supports().map((q) => q.id));
+  const map = new Map();
+  for (const e of session.state.log) {
+    if (!ids.has(e.questId) || !e.period || !e.period.startsWith('d:')) continue;
+    const key = e.period.slice(2);
+    if (!map.has(key)) map.set(key, new Set());
+    map.get(key).add(e.questId);
+  }
+  return map;
+}
+
+/** Состояние дня 0–100 или null, если опор тогда ещё не было. */
+function dayScore(date, doneByDay = supportDoneByDay()) {
+  const key = dayKey(date);
+  const end = addDays(date, 1).getTime();
+  const list = supports().filter((q) => q.createdAt < end);
+  if (!list.length) return null;
+  const done = doneByDay.get(key) || new Set();
+  const daily = list.filter((q) => q.repeat === 'daily');
+  const weeklyDone = list.filter((q) => q.repeat === 'xweek' && done.has(q.id)).length;
+  const dailyDone = daily.filter((q) => done.has(q.id)).length;
+  const denom = daily.length + weeklyDone;
+  const base = denom ? ((dailyDone + weeklyDone) / denom) * 100 : 100;
+  const drains = dayData(key).drains.length;
+  return { score: Math.max(0, Math.min(100, Math.round(base - DRAIN_PENALTY * drains))), dailyDone, daily: daily.length, weeklyDone, drains };
+}
+
+function scoreClass(v) {
+  if (v >= 80) return ['full', 'Заряжен'];
+  if (v >= 50) return ['good', 'Норма'];
+  if (v >= 25) return ['mid', 'Просадка'];
+  return ['low', 'На нуле'];
+}
+
+/** Ранние сигналы: ежедневная опора без отметки 2+ дня, недельная — не успевается. */
+function supportWarnings() {
+  const doneByDay = supportDoneByDay();
+  const today = new Date();
+  const out = [];
+  for (const q of supports()) {
+    if (q.repeat === 'daily') {
+      let miss = 0;
+      for (let i = 1; i <= 7; i++) {
+        const d = addDays(today, -i);
+        if (q.createdAt >= addDays(d, 1).getTime()) break; // опоры тогда ещё не было
+        if ((doneByDay.get(dayKey(d)) || new Set()).has(q.id)) break;
+        miss++;
+      }
+      if (miss >= 2) out.push(`${q.title} — ${miss} ${plural(miss, ['день', 'дня', 'дней'])} без отметки`);
+    } else if (q.repeat === 'xweek' && weekKey(new Date(q.createdAt)) !== weekKey(today)) {
+      // опору, заведённую на этой неделе, не торопим
+      const left = q.times - weekCount(q, today);
+      const daysLeft = 7 - ((today.getDay() + 6) % 7); // включая сегодня
+      if (left > 0 && left >= daysLeft) out.push(`${q.title} — нужно ещё ${left} из ${q.times}, а дней осталось ${daysLeft}`);
+    }
+  }
+  return out;
+}
+
+/** Средняя энергия в дни с фактором и без него. */
+function energyInsights() {
+  const { days } = session.state;
+  const rated = Object.entries(days).filter(([, d]) => d.energy);
+  if (rated.length < 5) return { need: 5 - rated.length, items: [] };
+  const doneByDay = supportDoneByDay();
+  const avg = (arr) => arr.reduce((a, b) => a + b, 0) / arr.length;
+  const items = [];
+  const compare = (title, hasFactor) => {
+    const yes = [];
+    const no = [];
+    for (const [key, d] of rated) (hasFactor(key) ? yes : no).push(d.energy);
+    if (yes.length >= 2 && no.length >= 2) items.push({ title, yes: avg(yes), no: avg(no), diff: avg(yes) - avg(no) });
+  };
+  for (const q of supports()) compare(q.title, (key) => (doneByDay.get(key) || new Set()).has(q.id));
+  for (const dr of session.state.drains) compare(dr.title, (key) => (days[key].drains || []).includes(dr.id));
+  items.sort((a, b) => Math.abs(b.diff) - Math.abs(a.diff));
+  return { need: 0, items: items.slice(0, 5) };
+}
+
+function stateView() {
+  const { state } = session;
+  const list = supports();
+  const now = new Date();
+  const todayKey = dayKey(now);
+  const doneToday = completionIndex();
+  if (!list.length) {
+    return `<div class="section-h">Состояние</div>
+      <div class="panel empty"><b>Опор пока нет</b>Опоры — то, что держит состояние: сон, спорт, питание, майндсет. Без них падает энергия, а с ней всё остальное.</div>
+      <button class="btn" type="button" data-action="state-preset">Создать опоры из моей схемы</button>
+      <button class="btn ghost" type="button" data-action="new-support">+ Своя опора</button>`;
+  }
+  const s = dayScore(now);
+  const [cls, word] = scoreClass(s.score);
+  const today = dayData(todayKey);
+  const daily = list.filter((q) => q.repeat === 'daily');
+  const weekly = list.filter((q) => q.repeat === 'xweek');
+
+  // 7 дней состояния
+  const doneByDay = supportDoneByDay();
+  const cols = [];
+  for (let i = 6; i >= 0; i--) {
+    const d = addDays(now, -i);
+    const v = dayScore(d, doneByDay);
+    cols.push({ d, v: v ? v.score : null, today: i === 0 });
+  }
+  const scored = cols.filter((c) => c.v !== null);
+  const minV = scored.length ? Math.min(...scored.map((c) => c.v)) : null;
+  const minIdx = cols.findIndex((c) => c.v === minV && c.v !== null && !c.today);
+  const chart = `<div class="panel chart">
+      <div class="chart-head"><b>Состояние за 7 дней</b><span>${scored.length ? `в среднем ${Math.round(scored.reduce((a, c) => a + c.v, 0) / scored.length)}%` : ''}</span></div>
+      <div class="bars">${cols.map((c, i) => `
+        <button class="bar-col${c.today || i === minIdx ? ' lbl' : ''}" type="button" data-day="s${i}" aria-label="${dayTitle(c.d)}: ${c.v === null ? 'нет данных' : c.v + '%'}">
+          <span class="bar-val">${c.v === null ? '—' : c.v + '%'}</span>
+          <span class="bar-track"><i data-h="${c.v || 0}"></i></span>
+        </button>`).join('')}
+      </div>
+      <div class="bar-days">${cols.map((c) => `<span${c.today ? ' class="today"' : ''}>${WEEKDAYS[c.d.getDay()]}</span>`).join('')}</div>
+    </div>`;
+
+  const ins = energyInsights();
+  const insights = ins.items.length
+    ? ins.items.map((it) => `<div class="insight"><b>${esc(it.title)}</b><span class="diff${it.diff < 0 ? ' neg' : ''}">${it.diff >= 0 ? '+' : '−'}${Math.abs(it.diff).toFixed(1).replace('.', ',')}</span>
+        <small>энергия ${it.yes.toFixed(1).replace('.', ',')} в дни с этим · ${it.no.toFixed(1).replace('.', ',')} без</small></div>`).join('')
+    : `<p class="hint" style="margin:10px 0 0">${ins.need ? `Оценивайте энергию каждый день — ещё ${ins.need} ${plural(ins.need, ['оценка', 'оценки', 'оценок'])}, и Система начнёт показывать, что на неё влияет.` : 'Пока мало различий: нужны дни и с опорой, и без неё.'}</p>`;
+
+  return `<section class="panel state-card ${cls}">
+      <div class="state-top">
+        <div><small>Состояние сегодня</small><b>${word}</b></div>
+        <div class="state-pct">${s.score}%</div>
+      </div>
+      <span class="goal-bar"><i data-pct="${s.score}"></i>${[25, 50, 75].map((k) => `<b class="q" style="left:${k}%"></b>`).join('')}</span>
+      <span class="goal-sub"><span>Опоры: ${s.dailyDone} из ${s.daily}${s.weeklyDone ? ` · недельных +${s.weeklyDone}` : ''}</span><span>${s.drains ? `сливы: ${s.drains} · −${s.drains * DRAIN_PENALTY}%` : ''}</span></span>
+    </section>
+
+    <div class="section-h">Энергия сегодня</div>
+    <div class="panel pad" style="padding-top:12px">
+      <div class="energy-row">${[1, 2, 3, 4, 5].map((n) => `<button type="button" data-energy="${n}" aria-pressed="${today.energy === n}" aria-label="Энергия ${n} — ${ENERGY_WORDS[n - 1]}">${n}</button>`).join('')}</div>
+      <div class="energy-scale"><span>${ENERGY_WORDS[0]}</span><span>${today.energy ? `сегодня: ${ENERGY_WORDS[today.energy - 1]}` : 'оцените вечером'}</span><span>${ENERGY_WORDS[4]}</span></div>
+    </div>
+
+    <div class="section-h">Опоры на каждый день <span class="count">${daily.filter((q) => doneToday.has(q.id)).length}/${daily.length}</span></div>
+    ${daily.map((q) => questCard(q, doneToday.get(q.id))).join('') || '<div class="panel empty">Ежедневных опор нет.</div>'}
+    ${weekly.length ? `<div class="section-h">Опоры на неделю</div>${weekly.map((q) => questCard(q, doneToday.get(q.id))).join('')}` : ''}
+    <button class="btn" type="button" data-action="new-support">+ Опора</button>
+
+    <div class="section-h">Слив энергии</div>
+    ${state.drains.map((dr) => `<button class="panel drain" type="button" data-drain="${dr.id}" aria-pressed="${today.drains.includes(dr.id)}"><span>${esc(dr.title)}</span><span>${today.drains.includes(dr.id) ? 'было сегодня' : 'не было'}</span></button>`).join('') || '<div class="panel empty">Сливов в списке нет.</div>'}
+    <p class="hint">Отметьте, если было сегодня. Слив снижает состояние, но опыт не отнимает: задача — замечать, а не наказывать себя.</p>
+    <button class="btn ghost" type="button" data-action="edit-drains">Изменить список сливов</button>
+
+    <div class="section-h">Неделя</div>
+    ${chart}
+
+    <div class="section-h">Что влияет на энергию</div>
+    <div class="panel pad">${insights}</div>`;
+}
+
+function applyStatePreset() {
+  const { state } = session;
+  const byName = new Map(state.stats.map((st) => [st.name.toLowerCase(), st.id]));
+  const now = Date.now();
+  STATE_PRESET.supports.forEach((sp, i) => {
+    state.quests.push({
+      id: uid(),
+      createdAt: now + i,
+      title: sp.title,
+      note: sp.note,
+      type: 'normal',
+      stats: sp.stats.map((n) => byName.get(n.toLowerCase())).filter(Boolean),
+      repeat: sp.repeat,
+      times: sp.times,
+      area: 'state',
+    });
+  });
+  for (const title of STATE_PRESET.drains) {
+    if (!state.drains.some((d) => d.title === title)) state.drains.push({ id: uid(), title });
+  }
+  save();
+  render();
+  toast({ title: 'Состояние', main: 'Опоры созданы', sub: 'Любую можно изменить — нажмите на неё', kind: 'up', ms: 4000 });
+}
+
+function setEnergy(n) {
+  const key = dayKey(new Date());
+  setDayData(key, { energy: dayData(key).energy === n ? null : n });
+  save();
+  haptic(10);
+  render();
+}
+
+function toggleDrain(id) {
+  const key = dayKey(new Date());
+  const drains = dayData(key).drains.slice();
+  const i = drains.indexOf(id);
+  if (i >= 0) drains.splice(i, 1);
+  else drains.push(id);
+  setDayData(key, { drains });
+  save();
+  if (i < 0) {
+    haptic(15);
+    toast({ title: 'Слив энергии', main: `−${DRAIN_PENALTY}% состояния`, sub: 'Заметил — уже хорошо. Восстановись опорой', kind: 'minus', ms: 3500 });
+  }
+  render();
+}
+
+function openDrainsEditor() {
+  const { state } = session;
+  const row = (d) => `<div class="row-fields" data-row="${d ? d.id : ''}"><input type="text" maxlength="60" value="${d ? esc(d.title) : ''}" placeholder="Например: залип в ленте"><button type="button" data-remove aria-label="Удалить">×</button></div>`;
+  const root = openSheet('Сливы энергии', `
+    <form novalidate>
+      <p class="dim center">Что забирает энергию. Отметки за прошлые дни сохранятся.</p>
+      <div data-rows>${state.drains.map(row).join('')}</div>
+      <button class="btn ghost" type="button" data-add>+ Добавить слив</button>
+      <button class="btn" type="submit">Сохранить</button>
+      <button class="btn ghost" type="button" data-action="close">Отмена</button>
+    </form>`);
+  const rows = root.querySelector('[data-rows]');
+  rows.addEventListener('click', (e) => { if (e.target.closest('[data-remove]')) e.target.closest('.row-fields').remove(); });
+  root.querySelector('[data-add]').addEventListener('click', () => {
+    rows.insertAdjacentHTML('beforeend', row(null));
+    rows.lastElementChild.querySelector('input').focus();
+  });
+  root.querySelector('form').addEventListener('submit', (e) => {
+    e.preventDefault();
+    const next = [];
+    for (const r of rows.querySelectorAll('.row-fields')) {
+      const title = r.querySelector('input').value.trim();
+      if (title) next.push({ id: r.dataset.row || uid(), title });
+    }
+    state.drains = next;
+    save();
+    closeSheet();
+    render();
+  });
+}
+
+function supportRepeatHtml(q) {
+  return `<div class="field"><span>Как часто</span>
+      <div class="choices">
+        <label class="choice"><input type="radio" name="repeat" value="daily"${q.repeat !== 'xweek' ? ' checked' : ''}><span>Каждый день</span></label>
+        <label class="choice"><input type="radio" name="repeat" value="xweek"${q.repeat === 'xweek' ? ' checked' : ''}><span>Несколько раз в неделю</span></label>
+      </div>
+    </div>
+    <div class="field" data-times><span>Раз в неделю</span>
+      <div class="choices">${[1, 2, 3, 4, 5, 6].map((n) => `<label class="choice"><input type="radio" name="times" value="${n}"${(q.times || 3) === n ? ' checked' : ''}><span>${n}</span></label>`).join('')}</div>
+      <div class="hint">Для «нескольких раз в неделю»: в дни отдыха состояние не падает.</div>
+    </div>`;
+}
+
+/* ---------- Финансы ----------
+   Трата вводится одной строкой: «кофе 1500», «такси домой 2к». Сумма и категория находятся сами,
+   незнакомое слово Система спрашивает и запоминает (finance.rules).
+   Класс траты: need — необходимое, invest — вклад в себя и дело, want — хотелка.
+   Деньги — реальные: поступления («+150к клиент») за вычетом накоплений − обязательные платежи
+   (списываются в начале каждого месяца, в первый — пропорционально) − траты = свободно сейчас.
+   Лимит дня = свободное на начало дня + сегодняшние поступления / дней до конца месяца, включая сегодня.
+   Остаток переходит в следующий месяц сам. */
+
+const FIN_CATS = [
+  { id: 'work', name: 'Для дела', cls: 'invest', words: ['камер', 'микрофон', 'петличк', 'штатив', 'объектив', 'осветител', 'свет для', 'реклам', 'таргет', 'хостинг', 'домен', 'монтаж', 'capcut', 'съёмк', 'съемк', 'для клиент', 'для работ', 'для блог', 'для reels'] },
+  { id: 'education', name: 'Обучение', cls: 'invest', words: ['курс', 'обучен', 'книг', 'тренинг', 'урок', 'мастер-класс', 'вебинар', 'ментор', 'наставник', 'учебн'] },
+  { id: 'subs', name: 'Подписки', cls: 'want', words: ['подписк', 'spotify', 'netflix', 'нетфликс', 'youtube premium', 'ютуб премиум', 'icloud', 'apple music', 'яндекс плюс', 'chatgpt', 'кинопоиск'] },
+  { id: 'sport', name: 'Спорт', cls: 'invest', words: ['зал', 'абонемент', 'фитнес', 'тренер', 'спортпит', 'протеин', 'бассейн', 'танц', 'хореограф', 'йога'] },
+  { id: 'cafe', name: 'Кафе и доставка', cls: 'want', words: ['кофе', 'coffee', 'кафе', 'ресторан', 'доставк', 'glovo', 'wolt', 'chocofood', 'шаурм', 'донер', 'бургер', 'пицц', 'kfc', 'макдон', 'mcdonald', 'суши', 'ролл', 'обед', 'ужин', 'завтрак', 'фастфуд', 'starbucks', 'перекус', 'столов', 'кофейн', 'латте', 'капучино', 'энергетик'] },
+  { id: 'groceries', name: 'Продукты', cls: 'need', words: ['продукт', 'magnum', 'магнум', 'small', 'смолл', 'анвар', 'galmart', 'галмарт', 'рынок', 'базар', 'хлеб', 'молок', 'мяс', 'овощ', 'фрукт', 'яйц', 'супермаркет', 'гипермаркет', 'крупа'] },
+  { id: 'transport', name: 'Транспорт', cls: 'need', words: ['такси', 'yandex go', 'яндекс go', 'яндекс го', 'indrive', 'индрайв', 'автобус', 'метро', 'бензин', 'заправк', 'парковк', 'проезд', 'onay', 'онай', 'каршеринг', 'anytime'] },
+  { id: 'home', name: 'Жильё и коммуналка', cls: 'need', words: ['аренд', 'квартир', 'коммунал', 'электричеств', 'отоплен', 'жкх', 'квартплат', 'ремонт'] },
+  { id: 'connect', name: 'Связь и интернет', cls: 'need', words: ['связь', 'интернет', 'баланс', 'beeline', 'билайн', 'kcell', 'кселл', 'activ', 'актив', 'tele2', 'теле2', 'altel', 'алтел', 'мобильн'] },
+  { id: 'health', name: 'Здоровье', cls: 'need', words: ['аптек', 'лекарств', 'таблет', 'врач', 'стоматолог', 'зуб', 'анализ', 'витамин', 'клиник', 'больниц', 'массаж'] },
+  { id: 'household', name: 'Быт', cls: 'need', words: ['бытов', 'порошок', 'шампун', 'мыло', 'туалетн', 'салфетк', 'хозтовар', 'посуд', 'стирк'] },
+  { id: 'fun', name: 'Развлечения', cls: 'want', words: ['кино', 'игр', 'бар ', 'клуб', 'концерт', 'боулинг', 'кальян', 'steam', 'playstation', 'ps5', 'караоке', 'развлеч', 'бильярд'] },
+  { id: 'shopping', name: 'Шопинг', cls: 'want', words: ['одежд', 'кроссов', 'обув', 'футболк', 'худи', 'куртк', 'джинс', 'штаны', 'wildberries', 'вайлдберриз', 'ozon', 'озон', 'lamoda', 'ламода', 'косметик', 'парфюм', 'духи', 'аксессуар', 'сумк', 'очки'] },
+  { id: 'gifts', name: 'Подарки и люди', cls: 'want', words: ['подар', 'цветы', 'букет', 'день рождени', 'скинул', 'праздник'] },
+  { id: 'tech', name: 'Техника', cls: 'want', words: ['телефон', 'айфон', 'iphone', 'ноутбук', 'макбук', 'macbook', 'наушник', 'airpods', 'планшет', 'ipad', 'техник', 'гаджет', 'компьютер', 'монитор', 'клавиатур', 'зарядк'] },
+  { id: 'other', name: 'Другое', cls: 'want', words: [] },
+];
+const FIN_CAT = Object.fromEntries(FIN_CATS.map((c) => [c.id, c]));
+const FIN_CLASS = { need: 'необходимое', invest: 'вклад', want: 'хотелка' };
+const STOPWORDS = new Set(['на', 'за', 'для', 'и', 'в', 'во', 'от', 'по', 'с', 'со', 'к', 'у', 'тг', 'тенге']);
+const money = (n) => `${fmt(Math.round(n))} ₸`;
+
+const fin = () => session.state.finance;
+const dayStart = (d) => new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime();
+
+/** «кофе 1500», «такси 2к», «1 500 продукты» → { amount, text }; null — если суммы нет. */
+function parseExpense(raw) {
+  const re = /(\d[\d\s]*(?:[.,]\d+)?)\s*(к|k|тыс\.?)?(?![a-zа-яё])/gi;
+  let best = null;
+  for (const m of raw.matchAll(re)) {
+    let amount = parseFloat(m[1].replace(/\s/g, '').replace(',', '.'));
+    if (m[2]) amount *= 1000;
+    if (amount > 0 && (!best || amount > best.amount)) best = { amount: Math.round(amount), index: m.index, len: m[0].length };
+  }
+  if (!best) return null;
+  const text = (raw.slice(0, best.index) + ' ' + raw.slice(best.index + best.len))
+    .replace(/₸/g, ' ')
+    .replace(/(^|\s)(тг|тенге)(?=\s|$)/gi, ' ')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .replace(/^(на|за)\s+/i, '');
+  return { amount: best.amount, text: text || 'Трата' };
+}
+
+function tokens(text) {
+  return text.toLowerCase().split(/[^a-zа-яё0-9-]+/i).filter((w) => w.length >= 3 && !STOPWORDS.has(w));
+}
+
+/** Категория по выученным словам, затем по словарю; null — если не понятно. */
+function guessCategory(text) {
+  const { rules } = fin();
+  for (const w of tokens(text)) if (rules[w]) return rules[w];
+  const low = ` ${text.toLowerCase()} `;
+  for (const c of FIN_CATS) if (c.words.some((w) => low.includes(w))) return c.id;
+  return null;
+}
+
+function learnCategory(text, cat) {
+  const [first] = tokens(text);
+  if (first) fin().rules[first] = cat;
+}
+
+function finBudget() {
+  const f = fin();
+  return { expected: f.expected || 0, fixed: f.fixed.reduce((a, x) => a + x.amount, 0), savePct: f.savePct };
+}
+
+/** Сколько потрачено за [from, to) без обязательных платежей. */
+function spentBetween(from, to, except) {
+  return fin().expenses.reduce((a, e) => a + (!e.fixed && e !== except && e.at >= from && e.at < to ? e.amount : 0), 0);
+}
+
+function daysInMonth(d) {
+  return new Date(d.getFullYear(), d.getMonth() + 1, 0).getDate();
+}
+
+/** Сколько от поступления остаётся на жизнь после накоплений. */
+const netIncome = (amount) => Math.round(amount * (1 - fin().savePct / 100));
+
+function incomesBetween(from, to, net) {
+  return fin().incomes.reduce((a, i) => a + (i.at >= from && i.at < to ? (net ? netIncome(i.amount) : i.amount) : 0), 0);
+}
+
+/** Обязательные платежи, списанные к моменту t: каждый месяц в его начале, в первый — пропорционально дням. */
+function fixedChargedBy(t) {
+  const f = fin();
+  const total = finBudget().fixed;
+  if (!total || !f.since) return 0;
+  const since = new Date(f.since);
+  let sum = 0;
+  for (let m = new Date(since.getFullYear(), since.getMonth(), 1); m.getTime() <= t; m = new Date(m.getFullYear(), m.getMonth() + 1, 1)) {
+    const days = daysInMonth(m);
+    const first = m.getFullYear() === since.getFullYear() && m.getMonth() === since.getMonth();
+    sum += first ? Math.round((total * (days - since.getDate() + 1)) / days) : total;
+  }
+  return sum;
+}
+
+/** Свободные деньги к моменту t. */
+function availableAt(t) {
+  return incomesBetween(0, t, true) - fixedChargedBy(t) - spentBetween(0, t);
+}
+
+/** Лимит на день date (или null, если поступлений ещё не было). */
+function dayLimit(date) {
+  if (!fin().incomes.length) return null;
+  const from = dayStart(date);
+  const pool = availableAt(from) + incomesBetween(from, dayStart(addDays(date, 1)), true);
+  const left = daysInMonth(date) - date.getDate() + 1;
+  return Math.max(0, Math.round(pool / left));
+}
+
+function limitsNow() {
+  const now = new Date();
+  const L = dayLimit(now);
+  if (L === null) return null;
+  const today = dayStart(now);
+  const tomorrow = dayStart(addDays(now, 1));
+  const spentToday = spentBetween(today, tomorrow);
+  const weekFrom = dayStart(addDays(now, -((now.getDay() + 6) % 7)));
+  const daysLeftMonth = daysInMonth(now) - now.getDate() + 1;
+  const daysLeftWeek = Math.min(7 - ((now.getDay() + 6) % 7), daysLeftMonth);
+  const spentWeekBefore = spentBetween(weekFrom, today);
+  const monthFrom = new Date(now.getFullYear(), now.getMonth(), 1).getTime();
+  const spentMonthBefore = spentBetween(monthFrom, today);
+  return {
+    today: { limit: L, spent: spentToday },
+    week: { limit: spentWeekBefore + L * daysLeftWeek, spent: spentWeekBefore + spentToday },
+    month: { limit: spentMonthBefore + L * daysLeftMonth, spent: spentMonthBefore + spentToday },
+    free: availableAt(Date.now() + 1),
+  };
+}
+
+function incomesThisMonth() {
+  const now = new Date();
+  return incomesBetween(new Date(now.getFullYear(), now.getMonth(), 1).getTime(), dayStart(addDays(now, 1)), false);
+}
+
+function addIncome(raw) {
+  const parsed = parseExpense(raw);
+  if (!parsed) return false;
+  const f = fin();
+  const inc = { id: uid(), at: Date.now(), amount: parsed.amount, text: parsed.text === 'Трата' ? 'Поступление' : parsed.text };
+  f.incomes.push(inc);
+  if (!f.since) f.since = inc.at;
+  save();
+  render();
+  Sound.play('quest');
+  haptic([20, 40, 20]);
+  const lim = limitsNow();
+  const saved = inc.amount - netIncome(inc.amount);
+  toast({
+    title: '[Поступление]',
+    main: `+${money(inc.amount)}`,
+    sub: `${saved ? `в накопления ${money(saved)} · ` : ''}на сегодня можно ${money(Math.max(0, lim.today.limit - lim.today.spent))}`,
+    kind: 'up',
+    ms: 5000,
+  });
+  return true;
+}
+
+function openIncomeEditor(id) {
+  const f = fin();
+  const inc = f.incomes.find((x) => x.id === id);
+  if (!inc) return;
+  const d = new Date(inc.at);
+  const root = openSheet('Поступление', `
+    <form novalidate>
+      <label class="field"><span>Откуда</span><input name="text" type="text" maxlength="80" autocomplete="off" value="${esc(inc.text)}"></label>
+      <label class="field"><span>Сумма, ₸</span><input name="amount" type="number" inputmode="numeric" min="1" step="1" value="${inc.amount}"></label>
+      <label class="field"><span>Дата</span><input name="date" type="date" value="${dayKey(d)}" max="${dayKey(new Date())}"></label>
+      <p class="error" data-error></p>
+      <button class="btn" type="submit">Сохранить</button>
+      <button class="btn ghost danger-text" type="button" data-action="delete">Удалить поступление</button>
+      <button class="btn ghost" type="button" data-action="close">Отмена</button>
+    </form>`);
+  const form = root.querySelector('form');
+  const el = form.elements;
+  form.addEventListener('submit', (ev) => {
+    ev.preventDefault();
+    const amount = Math.round(Number(el.amount.value));
+    if (!(amount > 0)) return sheetError(root, 'Укажите сумму.');
+    if (el.date.value && el.date.value !== dayKey(d)) {
+      const [y, m, dd] = el.date.value.split('-').map(Number);
+      inc.at = new Date(y, m - 1, dd, 12).getTime();
+    }
+    Object.assign(inc, { text: el.text.value.trim() || inc.text, amount });
+    if (f.since && inc.at < f.since) f.since = inc.at;
+    save();
+    closeSheet();
+    render();
+  });
+  const del = root.querySelector('[data-action="delete"]');
+  del.addEventListener('click', () => confirmPress(del, 'Точно удалить? Нажмите ещё раз', () => {
+    f.incomes = f.incomes.filter((x) => x !== inc);
+    save();
+    closeSheet();
+    render();
+  }));
+}
+
+/** Превысила ли трата лимит своего дня. */
+function computeOverLimit(e) {
+  const d = new Date(e.at);
+  const L = dayLimit(d);
+  if (L === null) return false;
+  const before = spentBetween(dayStart(d), e.at, e);
+  return before + e.amount > L;
+}
+
+function expenseVerdict(e) {
+  if (e.fixed) return { icon: '📌', grade: 'fixed', text: 'Обязательный платёж — уже в бюджете' };
+  if (e.cls === 'need') return { icon: '✅', grade: 'ok', text: 'Грамотная: необходимое' };
+  if (e.cls === 'invest' && e.overLimit) return { icon: '⚠️', grade: 'meh', text: 'Вклад, но сверх лимита — убедись, что окупится' };
+  if (e.cls === 'invest') return { icon: '✅', grade: 'ok', text: 'Грамотная: вклад в себя и дело' };
+  if (e.overLimit) return { icon: '❌', grade: 'bad', text: 'Слив: хотелка сверх лимита' };
+  if (e.planned === false) return { icon: '⚠️', grade: 'meh', text: 'Спорная: импульсивная хотелка' };
+  if (e.planned === true) return { icon: '✅', grade: 'ok', text: 'В рамках: запланированная хотелка' };
+  return { icon: '⚠️', grade: 'meh', text: 'Спорная: хотелка' };
+}
+
+function addExpense(raw) {
+  if (/^\s*\+/.test(raw)) return addIncome(raw.replace(/^\s*\+/, ''));
+  const parsed = parseExpense(raw);
+  if (!parsed) return false;
+  const f = fin();
+  const cat = guessCategory(parsed.text);
+  const e = {
+    id: uid(),
+    at: Date.now(),
+    amount: parsed.amount,
+    text: parsed.text,
+    cat: cat || 'other',
+    cls: FIN_CAT[cat || 'other'].cls,
+    planned: null,
+    fixed: false,
+    asked: { cat: !!cat },
+  };
+  e.overLimit = computeOverLimit(e);
+  f.expenses.push(e);
+  delete f.noSpend[dayKey(new Date())];
+  save();
+  render();
+  askNext(e);
+  return true;
+}
+
+/** Задаёт следующий нужный вопрос или подводит итог. */
+function askNext(e) {
+  const f = fin();
+  const ask = (question, options, onAnswer, cats) => {
+    clearToasts(); // уведомления о прошлых тратах не должны закрывать вопрос
+    const root = openSheet('Уточнение', `
+      <p class="lead">${esc(e.text)} · ${money(e.amount)}</p>
+      <p class="dim center">${question}</p>
+      <div class="q-options${cats ? ' cats' : ''}">${options.map((o, i) => `<button class="btn" type="button" data-opt="${i}">${o.label}</button>`).join('')}</div>
+      <button class="btn ghost" type="button" data-skip>Пропустить</button>`);
+    root.querySelector('[data-skip]').addEventListener('click', () => {
+      closeSheet();
+      finishExpense(e);
+    });
+    root.querySelectorAll('[data-opt]').forEach((b) => b.addEventListener('click', () => {
+      onAnswer(options[Number(b.dataset.opt)].value);
+      closeSheet();
+      save();
+      askNext(e);
+    }));
+  };
+  if (!e.asked.cat) {
+    e.asked.cat = true;
+    return ask('На что это? Запомню на будущее.', FIN_CATS.filter((c) => c.id !== 'other').map((c) => ({ label: c.name, value: c.id })).concat({ label: 'Другое', value: 'other' }), (v) => {
+      e.cat = v;
+      e.cls = FIN_CAT[v].cls;
+      if (v !== 'other') learnCategory(e.text, v);
+    }, true);
+  }
+  if (e.cat === 'tech' && !e.asked.purpose) {
+    e.asked.purpose = true;
+    return ask('Это для дела или для себя?', [{ label: 'Для дела', value: 'invest' }, { label: 'Для себя', value: 'want' }], (v) => { e.cls = v; });
+  }
+  if (f.fixed.length && ['home', 'connect', 'subs'].includes(e.cat) && !e.asked.fixed) {
+    e.asked.fixed = true;
+    return ask(`Это обязательный платёж из бюджета (${f.fixed.map((x) => esc(x.title)).join(', ')})?`, [{ label: 'Да, обязательный', value: true }, { label: 'Нет, отдельная трата', value: false }], (v) => { e.fixed = v; });
+  }
+  if (e.cls === 'want' && !e.fixed && !e.asked.planned) {
+    e.asked.planned = true;
+    return ask('Это было запланировано?', [{ label: 'Да, запланировано', value: true }, { label: 'Нет, импульсивно', value: false }], (v) => { e.planned = v; });
+  }
+  finishExpense(e);
+}
+
+function finishExpense(e) {
+  if (!session) return;
+  const v = expenseVerdict(e);
+  const lim = limitsNow();
+  const left = lim ? lim.today.limit - lim.today.spent : null;
+  save();
+  render();
+  if (v.grade === 'ok') Sound.play('quest');
+  else if (v.grade === 'bad') Sound.play('undo');
+  toast({
+    title: '[Трата записана]',
+    main: `${v.icon} −${money(e.amount)} · ${FIN_CAT[e.cat].name}`,
+    sub: `${v.text}${left !== null ? ` · ${left >= 0 ? `осталось на сегодня ${money(left)}` : `сверх лимита на ${money(-left)}`}` : ''}`,
+    kind: v.grade === 'bad' ? 'minus' : undefined,
+    ms: 5000,
+  });
+  if (v.grade === 'bad') markSpendDrain();
+}
+
+/** Трата-слив отмечается и в сливах энергии на вкладке «Состояние». */
+function markSpendDrain() {
+  const { state } = session;
+  let drain = state.drains.find((d) => d.id === 'finance-impulse');
+  if (!drain) {
+    drain = { id: 'finance-impulse', title: 'Трата-слив' };
+    state.drains.push(drain);
+  }
+  const key = dayKey(new Date());
+  const day = dayData(key);
+  if (!day.drains.includes(drain.id)) {
+    setDayData(key, { drains: day.drains.concat(drain.id) });
+    save();
+  }
+}
+
+function toggleNoSpend() {
+  const key = dayKey(new Date());
+  const f = fin();
+  if (f.noSpend[key]) delete f.noSpend[key];
+  else f.noSpend[key] = true;
+  save();
+  render();
+  if (f.noSpend[key]) toast({ title: 'Финансы', main: 'День без трат', sub: 'Завтра Система засчитает его опытом', kind: 'up', ms: 3500 });
+}
+
+/** Награды за прошедшие дни: день в лимите или без трат даёт опыт; проверка один раз на день. */
+function checkFinanceRewards() {
+  if (!session) return;
+  const { state } = session;
+  const f = fin();
+  if (!f.incomes.length) return;
+  const discipline = state.stats.find((st) => st.name === 'Дисциплина');
+  const now = new Date();
+  let gained = 0;
+  for (let i = 1; i <= 7; i++) {
+    const d = addDays(now, -i);
+    const key = dayKey(d);
+    if (key in f.checked) continue;
+    const from = dayStart(d);
+    const to = dayStart(addDays(d, 1));
+    if (f.since && from < dayStart(new Date(f.since))) break; // до того, как задан бюджет, дни не оцениваем
+    const any = f.expenses.some((e) => e.at >= from && e.at < to);
+    if (!any && !f.noSpend[key]) continue; // день не вели — ни награды, ни штрафа
+    const ok = spentBetween(from, to) <= dayLimit(d);
+    f.checked[key] = ok;
+    if (!ok) continue;
+    const type = f.noSpend[key] ? 'normal' : 'chore';
+    const xp = state.settings.xp[type];
+    state.log.push({
+      id: uid(),
+      questId: null,
+      title: f.noSpend[key] ? 'День без трат' : 'День в финансовом лимите',
+      type,
+      xp,
+      stats: discipline ? { [discipline.id]: xp } : {},
+      period: null,
+      at: to - 60000,
+      source: 'finance',
+    });
+    gained += xp;
+  }
+  state.log.sort((a, b) => a.at - b.at);
+  save();
+  if (gained) toast({ title: 'Финансы', main: `+${fmt(gained)} XP`, sub: 'За дни в лимите', kind: 'up', ms: 4500 });
+}
+
+function finStreak() {
+  const f = fin();
+  let n = 0;
+  for (let i = 1; i <= 365; i++) {
+    if (f.checked[dayKey(addDays(new Date(), -i))] !== true) break;
+    n++;
+  }
+  return n;
+}
+
+function limitRow(label, part) {
+  const pct = part.limit ? (part.spent / part.limit) * 100 : part.spent ? 100 : 0;
+  const cls = pct > 100 ? ' over' : pct > 80 ? ' near' : '';
+  return `<div class="fin-row-limit${cls}">
+      <div class="fin-head"><span>${label}</span><span>${money(part.spent)} / ${money(part.limit)}</span></div>
+      <span class="fin-bar"><i data-pct="${Math.min(100, pct).toFixed(1)}"></i></span>
+    </div>`;
+}
+
+function incomeRow(i) {
+  const d = new Date(i.at);
+  return `<button class="exp-row" type="button" data-inc="${i.id}">
+      <span class="ic">💰</span><span class="t">${esc(i.text)}</span><span class="a" style="color:var(--ok)">+${money(i.amount)}</span>
+      <span class="m">${d.toLocaleDateString('ru-RU', { day: 'numeric', month: 'long' })}${fin().savePct ? ` · в накопления ${money(i.amount - netIncome(i.amount))}` : ''}</span>
+    </button>`;
+}
+
+function expenseRow(e) {
+  const v = expenseVerdict(e);
+  const time = new Date(e.at).toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
+  return `<button class="exp-row" type="button" data-exp="${e.id}">
+      <span class="ic">${v.icon}</span><span class="t">${esc(e.text)}</span><span class="a">−${money(e.amount)}</span>
+      <span class="m">${time} · ${FIN_CAT[e.cat].name} · ${e.fixed ? 'обязательный' : FIN_CLASS[e.cls]}${e.planned === false ? ' · импульсивно' : ''}</span>
+    </button>`;
+}
+
+function financeView() {
+  checkFinanceRewards();
+  const f = fin();
+  const b = finBudget();
+  const lim = limitsNow();
+  const now = new Date();
+  const todayKey = dayKey(now);
+  const from = dayStart(now);
+  const todayList = f.expenses.filter((e) => e.at >= from).sort((a, b2) => b2.at - a.at);
+  const monthFrom = new Date(now.getFullYear(), now.getMonth(), 1).getTime();
+  const month = f.expenses.filter((e) => e.at >= monthFrom);
+  const monthName = now.toLocaleDateString('ru-RU', { month: 'long' });
+  const incomes = f.incomes.filter((i) => i.at >= monthFrom).sort((a, b2) => b2.at - a.at);
+
+  let limits;
+  if (!lim) {
+    limits = `<div class="panel empty"><b>Поступлений пока нет</b>Когда придут деньги, впиши их с плюсом: «+150к клиент». Если деньги уже есть — внеси текущий остаток: «+50 000 остаток». Лимиты Система посчитает от реальных денег.</div>
+      <button class="btn ghost" type="button" data-action="fin-budget">Обязательные платежи и накопления</button>`;
+  } else {
+    const left = lim.today.limit - lim.today.spent;
+    const streak = finStreak();
+    limits = `<section class="panel fin-limits" style="--fc:${left < 0 ? 'var(--danger)' : left < lim.today.limit * 0.2 ? 'var(--warn)' : 'var(--accent-2)'}">
+        <div class="fin-left"><small>${left >= 0 ? 'Можно потратить сегодня' : 'Сверх лимита сегодня'}</small><b>${money(Math.abs(left))}</b>
+          <span>${lim.free < 0 ? `Поступлений не хватает на обязательные платежи: ${money(-lim.free)}` : left >= 0 ? 'Сэкономишь — завтра лимит вырастет' : 'Завтрашний лимит уменьшится, чтобы деньги дотянули до конца месяца'}</span></div>
+        ${limitRow('Сегодня', lim.today)}
+        ${limitRow('Неделя', lim.week)}
+        ${limitRow(monthName[0].toUpperCase() + monthName.slice(1), lim.month)}
+        ${streak ? `<p class="fin-streak"><b>${streak}</b> ${plural(streak, ['день', 'дня', 'дней'])} подряд в лимите</p>` : ''}
+      </section>`;
+  }
+
+  const total = (list) => list.reduce((a, e) => a + (e.fixed ? 0 : e.amount), 0);
+  const byGrade = { ok: 0, meh: 0, bad: 0 };
+  for (const e of month) if (!e.fixed) byGrade[expenseVerdict(e).grade] += e.amount;
+  const byCat = new Map();
+  for (const e of month) if (!e.fixed) byCat.set(e.cat, (byCat.get(e.cat) || 0) + e.amount);
+  const cats = [...byCat.entries()].sort((a, b2) => b2[1] - a[1]);
+  const maxCat = cats.length ? cats[0][1] : 0;
+
+  return `<form class="panel fin-input" data-fin-form novalidate>
+      <input name="exp" type="text" autocomplete="off" enterkeyhint="done" placeholder="кофе 1500 · +150к клиент" aria-label="Трата или поступление с плюсом">
+      <button class="btn" type="submit" aria-label="Записать трату">+</button>
+    </form>
+    <p class="error" data-fin-error></p>
+    ${limits}
+
+    <div class="section-h">Сегодня <span class="count">${todayList.length ? money(total(todayList)) : ''}</span></div>
+    ${todayList.length
+      ? `<div class="panel log-list">${todayList.map(expenseRow).join('')}</div>`
+      : `<div class="panel empty">Трат сегодня нет.</div>
+         <button class="btn${f.noSpend[todayKey] ? ' gold' : ''}" type="button" data-action="fin-nospend">${f.noSpend[todayKey] ? '✓ Сегодня без трат' : 'Сегодня без трат'}</button>`}
+
+    <div class="section-h">Поступления <span class="count">${money(incomesThisMonth())}</span></div>
+    <div class="panel pad">
+      ${b.expected ? `<div class="cat-row"><div class="fin-head"><span>Пришло в этом месяце</span><span>${money(incomesThisMonth())} / ${money(b.expected)}</span></div>
+        <span class="fin-bar" style="--fc:var(--ok)"><i data-pct="${Math.min(100, (incomesThisMonth() / b.expected) * 100).toFixed(1)}"></i></span></div>` : ''}
+      ${incomes.length ? `<div class="log-list" style="padding:0">${incomes.map(incomeRow).join('')}</div>` : '<p class="hint" style="margin:12px 0 0">В этом месяце поступлений пока нет. Впиши «+сумма» в строку сверху.</p>'}
+    </div>
+
+    <div class="section-h">${monthName[0].toUpperCase() + monthName.slice(1)} <span class="count">${money(total(month))}</span></div>
+    <div class="panel pad">
+      ${month.length ? `<div class="fin-sum"><span>✅ <b>${money(byGrade.ok)}</b></span><span>⚠️ <b>${money(byGrade.meh)}</b></span><span>❌ <b>${money(byGrade.bad)}</b></span></div>
+        ${cats.map(([id, sum]) => `<div class="cat-row"><div class="fin-head"><span>${FIN_CAT[id].name} <small style="color:var(--text-faint)">· ${FIN_CLASS[FIN_CAT[id].cls]}</small></span><span>${money(sum)}</span></div>
+          <span class="fin-bar"><i data-pct="${((sum / maxCat) * 100).toFixed(1)}"></i></span></div>`).join('')}`
+        : '<p class="hint" style="margin:12px 0 0">Трат в этом месяце пока нет.</p>'}
+    </div>
+
+    <div class="section-h">Бюджет</div>
+    <div class="panel pad">
+      <div class="stat-row"><span>Свободно сейчас</span><span class="mono ${lim && lim.free < 0 ? 'warn-text' : 'ok'}">${money(lim ? lim.free : 0)}</span></div>
+      <div class="stat-row"><span>Обязательные платежи в месяц</span><span class="mono">${money(b.fixed)}</span></div>
+      <div class="stat-row"><span>Откладывается с поступлений</span><span class="mono">${f.savePct}% · всего ${money(incomesBetween(0, Date.now() + 1, false) - incomesBetween(0, Date.now() + 1, true))}</span></div>
+      <div class="stat-row"><span>Ожидаемый доход в месяц</span><span class="mono">${b.expected ? money(b.expected) : '—'}</span></div>
+      <button class="btn ghost" type="button" data-action="fin-budget">Изменить бюджет</button>
+    </div>`;
+}
+
+function wireFinance(view) {
+  const form = view.querySelector('[data-fin-form]');
+  const input = form.elements.namedItem('exp');
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const raw = input.value.trim();
+    if (!raw) return;
+    if (!addExpense(raw)) {
+      view.querySelector('[data-fin-error]').textContent = 'Не вижу суммы. Пример: «кофе 1500», «такси 2к» или «+150к клиент».';
+      return;
+    }
+  });
+}
+
+function openExpenseEditor(id) {
+  const f = fin();
+  const e = f.expenses.find((x) => x.id === id);
+  if (!e) return;
+  const root = openSheet('Трата', `
+    <form novalidate>
+      <label class="field"><span>На что</span><input name="text" type="text" maxlength="80" autocomplete="off" value="${esc(e.text)}"></label>
+      <label class="field"><span>Сумма, ₸</span><input name="amount" type="number" inputmode="numeric" min="1" step="1" value="${e.amount}"></label>
+      <div class="field"><span>Категория</span>
+        <div class="choices">${FIN_CATS.map((c) => `<label class="choice"><input type="radio" name="cat" value="${c.id}"${e.cat === c.id ? ' checked' : ''}><span>${c.name}</span></label>`).join('')}</div>
+      </div>
+      <div class="field"><span>Для чего</span>
+        <div class="choices">${Object.entries(FIN_CLASS).map(([k, label]) => `<label class="choice"><input type="radio" name="cls" value="${k}"${e.cls === k ? ' checked' : ''}><span>${label[0].toUpperCase() + label.slice(1)}</span></label>`).join('')}</div>
+      </div>
+      <div class="field"><span>Запланировано?</span>
+        <div class="choices">
+          <label class="choice"><input type="radio" name="planned" value="yes"${e.planned === true ? ' checked' : ''}><span>Да</span></label>
+          <label class="choice"><input type="radio" name="planned" value="no"${e.planned === false ? ' checked' : ''}><span>Импульсивно</span></label>
+          <label class="choice"><input type="radio" name="planned" value=""${e.planned === null ? ' checked' : ''}><span>Не указано</span></label>
+        </div>
+      </div>
+      <label class="check"><input name="fixed" type="checkbox"${e.fixed ? ' checked' : ''}><span>Обязательный платёж — уже учтён в бюджете</span></label>
+      <p class="error" data-error></p>
+      <button class="btn" type="submit">Сохранить</button>
+      <button class="btn ghost danger-text" type="button" data-action="delete">Удалить трату</button>
+      <button class="btn ghost" type="button" data-action="close">Отмена</button>
+    </form>`);
+  const form = root.querySelector('form');
+  const el = form.elements;
+  form.addEventListener('change', (ev) => {
+    if (ev.target.name === 'cat') {
+      const c = FIN_CAT[ev.target.value];
+      form.querySelector(`input[name="cls"][value="${c.cls}"]`).checked = true;
+    }
+  });
+  form.addEventListener('submit', (ev) => {
+    ev.preventDefault();
+    const amount = Math.round(Number(el.amount.value));
+    if (!(amount > 0)) return sheetError(root, 'Укажите сумму.');
+    const cat = el.cat.value;
+    if (cat !== e.cat && cat !== 'other') learnCategory(el.text.value, cat);
+    Object.assign(e, {
+      text: el.text.value.trim() || e.text,
+      amount,
+      cat,
+      cls: el.cls.value,
+      planned: el.planned.value === 'yes' ? true : el.planned.value === 'no' ? false : null,
+      fixed: el.fixed.checked,
+    });
+    e.overLimit = computeOverLimit(e);
+    save();
+    closeSheet();
+    render();
+  });
+  const del = root.querySelector('[data-action="delete"]');
+  del.addEventListener('click', () => confirmPress(del, 'Точно удалить? Нажмите ещё раз', () => {
+    f.expenses = f.expenses.filter((x) => x !== e);
+    save();
+    closeSheet();
+    render();
+  }));
+}
+
+function openBudgetEditor() {
+  const f = fin();
+  const row = (x) => `<div class="row-fields" data-row="${x ? x.id : ''}">
+      <input type="text" maxlength="40" value="${x ? esc(x.title) : ''}" placeholder="Аренда">
+      <input type="number" inputmode="numeric" min="0" step="1" value="${x ? x.amount : ''}" placeholder="₸" style="flex:0 0 110px">
+      <button type="button" data-remove aria-label="Удалить">×</button></div>`;
+  const root = openSheet('Бюджет', `
+    <form novalidate>
+      <p class="dim center">Лимиты считаются от реальных поступлений. Здесь — то, что из них уходит в первую очередь.</p>
+      <div class="field"><span>Обязательные платежи в месяц</span>
+        <div data-rows>${f.fixed.map(row).join('')}</div>
+        <button class="btn ghost" type="button" data-add style="margin-top:4px">+ Платёж</button>
+        <div class="hint">Аренда, связь, кредиты — то, что платится в любом случае. Их не нужно вносить как траты.</div>
+      </div>
+      <div class="field"><span>Откладывать</span>
+        <div class="choices">${[0, 5, 10, 15, 20].map((n) => `<label class="choice"><input type="radio" name="save" value="${n}"${f.savePct === n ? ' checked' : ''}><span>${n}%</span></label>`).join('')}</div>
+      </div>
+      <label class="field"><span>Ожидаемый доход в месяц, ₸</span><input name="expected" type="number" inputmode="numeric" min="0" step="1" value="${f.expected || ''}" placeholder="300000"></label>
+      <div class="hint">Необязательно: цель, с которой сравниваются поступления месяца.</div>
+      <p class="lead" data-free style="margin-top:18px"></p>
+      <p class="error" data-error></p>
+      <button class="btn" type="submit">Сохранить</button>
+      <button class="btn ghost" type="button" data-action="close">Отмена</button>
+    </form>`);
+  const form = root.querySelector('form');
+  const rows = root.querySelector('[data-rows]');
+  const read = () => ({
+    expected: Math.max(0, Math.round(Number(form.elements.expected.value)) || 0),
+    savePct: Number(form.elements.save.value) || 0,
+    fixed: [...rows.querySelectorAll('.row-fields')].map((r) => {
+      const [t, a] = r.querySelectorAll('input');
+      return { id: r.dataset.row || uid(), title: t.value.trim(), amount: Math.max(0, Math.round(Number(a.value)) || 0) };
+    }).filter((x) => x.title && x.amount),
+  });
+  const freeEl = root.querySelector('[data-free]');
+  const update = () => {
+    const v = read();
+    const free = Math.max(0, v.expected - v.fixed.reduce((a, x) => a + x.amount, 0) - Math.round((v.expected * v.savePct) / 100));
+    const now = new Date();
+    freeEl.innerHTML = v.expected ? `Если придёт ожидаемое — свободно <span class="hl">${money(free)}</span><br><span class="dim">≈ ${money(free / daysInMonth(now))} в день</span>` : '';
+  };
+  form.addEventListener('input', update);
+  form.addEventListener('change', update);
+  rows.addEventListener('click', (e) => { if (e.target.closest('[data-remove]')) { e.target.closest('.row-fields').remove(); update(); } });
+  root.querySelector('[data-add]').addEventListener('click', () => { rows.insertAdjacentHTML('beforeend', row(null)); rows.lastElementChild.querySelector('input').focus(); });
+  update();
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const v = read();
+    Object.assign(f, v);
+    if (!f.since) f.since = Date.now(); // первый месяц считается с этого дня
+    for (const x of f.expenses) x.overLimit = computeOverLimit(x);
+    save();
+    closeSheet();
+    render();
+  });
+}
+
 /* ---------- Статус: персонаж и характеристики ---------- */
 
 function statusView() {
@@ -3471,10 +4561,15 @@ function statusView() {
     </button>`;
   }).join('');
 
-  const banner = backupDue()
+  const warn = supportWarnings();
+  const stateBanner = warn.length
+    ? `<div class="panel backup-banner state-banner"><p><b>Система: опоры проседают</b>${warn.slice(0, 3).map(esc).join(' · ')}${warn.length > 3 ? ` · и ещё ${warn.length - 3}` : ''}. Состояние под угрозой.</p>
+        <button class="btn danger" type="button" data-action="go-state">Открыть</button></div>`
+    : '';
+  const banner = stateBanner + (backupDue()
     ? `<div class="panel backup-banner"><p><b>Напоминание</b>Бэкап ${backupAge() === null ? 'ещё не делали' : `делали ${backupAgeText()}`}. Сохраните файл на случай потери телефона.</p>
         <button class="btn" type="button" data-action="export">Бэкап</button></div>`
-    : '';
+    : '');
   return `${banner}<section class="panel status r-${p.rank}">
       <header class="status-head"><span class="sys-icon">!</span><span>Статус</span></header>
       <div class="status-main">
