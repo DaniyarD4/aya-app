@@ -1572,6 +1572,44 @@ html.noscroll, html.noscroll body { overflow: hidden; }
 .worry .btn-pair { grid-template-columns: 1fr 1fr 1fr; }
 .worry .btn-pair .btn { margin-top: 8px; min-height: 42px; font-size: 12px; letter-spacing: 0.02em; text-transform: none; }
 
+/* ---------- Сверка баланса и продукты ---------- */
+
+.bal-card.stale { border-color: rgba(255, 197, 107, 0.55); }
+.rec-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+.rec-chips button {
+  min-height: 42px;
+  padding: 8px 12px;
+  font-size: 14px;
+  color: var(--text);
+  background: rgba(4, 10, 22, 0.75);
+  border: 1px solid var(--line-soft);
+  border-radius: 4px;
+  cursor: pointer;
+}
+.rec-chips button[aria-pressed="true"] { color: var(--accent-2); border-color: var(--accent); box-shadow: 0 0 10px var(--glow); }
+.rec-chips small { color: var(--text-faint); font-family: var(--mono); }
+.rec-row { display: flex; align-items: center; gap: 8px; margin-top: 10px; }
+.rec-row span { flex: 1; min-width: 0; font-size: 15px; overflow-wrap: anywhere; }
+.rec-row input { width: 120px; min-height: 46px; padding: 8px 10px; font-family: var(--mono); font-size: 16px; text-align: right; background: rgba(4, 10, 22, 0.75); border: 1px solid var(--line-soft); border-radius: 4px; outline: none; }
+.rec-left { margin: 14px 0 0 !important; text-align: center; font-size: 14px; color: var(--text-dim) !important; }
+.rec-left b { font-family: var(--mono); color: var(--warn); }
+.basket-row { display: grid; grid-template-columns: auto 1fr auto; gap: 2px 12px; align-items: center; padding: 10px 0; border-bottom: 1px solid rgba(120, 205, 255, 0.1); cursor: pointer; }
+.basket-row:last-child { border-bottom: 0; }
+.basket-row input { width: 24px; height: 24px; margin: 0; accent-color: var(--accent); }
+.basket-row b { font-size: 15px; font-weight: 600; }
+.basket-row.got b { color: var(--text-faint); text-decoration: line-through; }
+.basket-row .a { font-family: var(--mono); font-size: 14px; }
+.basket-row small { grid-column: 2 / 4; font-size: 12px; color: var(--text-faint); }
+.cover { margin-top: 12px; }
+.cover .fin-head { display: flex; justify-content: space-between; font-size: 13px; color: var(--text-dim); }
+.cover .fin-bar { --fc: var(--ok); }
+.cover.short .fin-bar { --fc: var(--warn); }
+.price-row { display: grid; grid-template-columns: auto 1fr 110px; gap: 8px; align-items: center; padding: 6px 0; }
+.price-row input[type="checkbox"] { width: 22px; height: 22px; accent-color: var(--accent); }
+.price-row span { font-size: 14px; }
+.price-row span small { display: block; font-size: 11px; color: var(--text-faint); }
+.price-row input[type="number"] { min-height: 42px; padding: 6px 8px; font-family: var(--mono); font-size: 15px; text-align: right; background: rgba(4, 10, 22, 0.75); border: 1px solid var(--line-soft); border-radius: 4px; outline: none; }
+
 /* ---------- Переключатели ---------- */
 
 .toggle {
@@ -1985,7 +2023,8 @@ function migrate(state) {
   if (!state.menu.items) state.menu.items = MENU_PRESET.map((it) => ({ id: uid(), ratings: [], ...it }));
   state.purchases = state.purchases || [];
   if (state.finance.joyPct === undefined) state.finance.joyPct = 5;
-  state.schema = 8;
+  state.food = Object.assign({ weight: 70, tripDays: 6, share: 60, prices: {}, off: [], lastTrip: null, list: null }, state.food);
+  state.schema = 9;
   return state;
 }
 
@@ -2966,6 +3005,7 @@ function showHome() {
   clearInterval(activeTimer);
   activeTimer = setInterval(tickActive, 1000);
   checkFinanceRewards();
+  ensureGroceryQuest();
   render();
 }
 
@@ -3031,6 +3071,10 @@ function onViewClick(e) {
     case 'edit-drains': return openDrainsEditor();
     case 'go-state': ui.tab = 'state'; render(); return scrollTo(0, 0);
     case 'fin-budget': return openBudgetEditor();
+    case 'fin-check': return openReconcile();
+    case 'grocery-basket': return openBasket();
+    case 'grocery-now': return ensureGroceryQuest(true);
+    case 'grocery-settings': return openFoodSettings();
     case 'evening': return openEveningFlow();
     case 'anxiety': return startAnxietyFlow();
     case 'active-done': return finishActive();
@@ -3126,6 +3170,7 @@ function toggleQuest(id, checkBtn) {
   const x = box.left + box.width / 2;
   const y = box.top + box.height / 2;
   const xp = completeQuest(q);
+  if (q.system === 'groceries') setTimeout(() => askGrocerySpend(), 900);
   floatXp(x + 40, y - 6, `+${fmt(xp)} XP`);
   FX.burst(x, y, { count: 26, speed: 300, life: 0.8, gravity: 260 });
   // Даём досмотреть вспышку, потом квест переезжает в «Выполнено»
@@ -4059,6 +4104,8 @@ const FIN_CATS = [
   { id: 'gifts', name: 'Подарки и люди', cls: 'want', words: ['подар', 'цветы', 'букет', 'день рождени', 'скинул', 'праздник'] },
   { id: 'tech', name: 'Техника', cls: 'want', words: ['телефон', 'айфон', 'iphone', 'ноутбук', 'макбук', 'macbook', 'наушник', 'airpods', 'планшет', 'ipad', 'техник', 'гаджет', 'компьютер', 'монитор', 'клавиатур', 'зарядк'] },
   { id: 'other', name: 'Другое', cls: 'want', words: [] },
+  { id: 'unknown', name: 'Без записи', cls: 'want', words: [] },
+  { id: 'savings', name: 'В накопления', cls: 'invest', words: [] },
 ];
 const FIN_CAT = Object.fromEntries(FIN_CATS.map((c) => [c.id, c]));
 const FIN_CLASS = { need: 'необходимое', invest: 'вклад', want: 'хотелка' };
@@ -4123,7 +4170,7 @@ function daysInMonth(d) {
 const netIncome = (amount) => Math.round(amount * (1 - (fin().savePct + (fin().joyPct || 0)) / 100));
 
 function incomesBetween(from, to, net) {
-  return fin().incomes.reduce((a, i) => a + (i.at >= from && i.at < to ? (net ? netIncome(i.amount) : i.amount) : 0), 0);
+  return fin().incomes.reduce((a, i) => a + (i.at >= from && i.at < to ? (net && !i.adjust ? netIncome(i.amount) : i.amount) : 0), 0);
 }
 
 /** Обязательные платежи, списанные к моменту t: каждый месяц в его начале, в первый — пропорционально дням. */
@@ -4255,6 +4302,7 @@ function computeOverLimit(e) {
 }
 
 function expenseVerdict(e) {
+  if (e.cat === 'unknown') return { icon: '❔', grade: 'meh', text: 'Неучтённая трата — нашлась при сверке' };
   if (e.fixed) return { icon: '📌', grade: 'fixed', text: 'Обязательный платёж — уже в бюджете' };
   if (e.cls === 'need') return { icon: '✅', grade: 'ok', text: 'Грамотная: необходимое' };
   if (e.cls === 'invest' && e.overLimit) return { icon: '⚠️', grade: 'meh', text: 'Вклад, но сверх лимита — убедись, что окупится' };
@@ -4314,7 +4362,7 @@ function askNext(e) {
   };
   if (!e.asked.cat) {
     e.asked.cat = true;
-    return ask('На что это? Запомню на будущее.', FIN_CATS.filter((c) => c.id !== 'other').map((c) => ({ label: c.name, value: c.id })).concat({ label: 'Другое', value: 'other' }), (v) => {
+    return ask('На что это? Запомню на будущее.', FIN_CATS.filter((c) => !['other', 'unknown', 'savings'].includes(c.id)).map((c) => ({ label: c.name, value: c.id })).concat({ label: 'Другое', value: 'other' }), (v) => {
       e.cat = v;
       e.cls = FIN_CAT[v].cls;
       if (v !== 'other') learnCategory(e.text, v);
@@ -4337,6 +4385,7 @@ function askNext(e) {
 
 function finishExpense(e) {
   if (!session) return;
+  if (e.cat === 'groceries' && e.amount >= 2000) groceryTripDone(true);
   const v = expenseVerdict(e);
   const lim = limitsNow();
   const left = lim ? lim.today.limit - lim.today.spent : null;
@@ -4453,7 +4502,7 @@ function expenseRow(e) {
   const time = new Date(e.at).toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
   return `<button class="exp-row" type="button" data-exp="${e.id}">
       <span class="ic">${v.icon}</span><span class="t">${esc(e.text)}</span><span class="a">−${money(e.amount)}</span>
-      <span class="m">${time} · ${FIN_CAT[e.cat].name} · ${e.fixed ? 'обязательный' : FIN_CLASS[e.cls]}${e.planned === false ? ' · импульсивно' : ''}</span>
+      <span class="m">${time}${e.reconciled ? ' · сверка' : ''} · ${FIN_CAT[e.cat].name} · ${e.fixed ? 'обязательный' : FIN_CLASS[e.cls]}${e.planned === false ? ' · импульсивно' : ''}</span>
     </button>`;
 }
 
@@ -4502,6 +4551,8 @@ function financeView() {
     </form>
     <p class="error" data-fin-error></p>
     ${limits}
+    ${balanceHtml()}
+    ${groceryHtml()}
 
     <div class="section-h">Сегодня <span class="count">${todayList.length ? money(total(todayList)) : ''}</span></div>
     ${todayList.length
@@ -4741,7 +4792,7 @@ function goldBalance() {
 /** Деньги фонда радостей: доля поступлений минус покупки наград. */
 function joyFund() {
   const f = fin();
-  const inflow = f.incomes.reduce((a, i) => a + (i.amount * (f.joyPct || 0)) / 100, 0);
+  const inflow = f.incomes.reduce((a, i) => a + (i.adjust ? 0 : (i.amount * (f.joyPct || 0)) / 100), 0);
   return Math.round(inflow - session.state.purchases.reduce((a, x) => a + (x.kzt || 0), 0));
 }
 
@@ -5285,6 +5336,518 @@ function openMenuItemEditor(id) {
     closeSheet();
     render();
   }));
+}
+
+/* ---------- Сверка баланса ----------
+   Ожидаемые деньги = последняя сверка + поступления (без доли накоплений) − траты (включая обязательные) − покупки из фонда.
+   Разницу Система помогает разобрать: подсказывает категории по привычкам последних 30 дней,
+   незаписанные обязательные платежи и дни без записей. Остаток уходит в «Без записи». */
+
+function daysAgoText(t) {
+  const days = Math.floor((dayStart(new Date()) - dayStart(new Date(t))) / 864e5);
+  if (days <= 0) return 'сегодня';
+  if (days === 1) return 'вчера';
+  return `${days} ${plural(days, ['день', 'дня', 'дней'])} назад`;
+}
+
+function expectedBalance(t = Date.now() + 1) {
+  const f = fin();
+  const a = f.anchor || { at: 0, amount: 0 };
+  const inc = f.incomes.reduce((sum, i) => sum + (i.at >= a.at && i.at < t ? (i.adjust ? i.amount : Math.round(i.amount * (1 - f.savePct / 100))) : 0), 0);
+  const exp = f.expenses.reduce((sum, e) => sum + (e.at >= a.at && e.at < t ? e.amount : 0), 0);
+  const buys = session.state.purchases.reduce((sum, x) => sum + (x.at >= a.at && x.at < t ? x.kzt || 0 : 0), 0);
+  return a.amount + inc - exp - buys;
+}
+
+function balanceHtml() {
+  const f = fin();
+  if (!f.incomes.length) return '';
+  const last = f.anchor && f.anchor.at;
+  const stale = !last || Date.now() - last > 7 * 864e5;
+  return `<div class="panel pad bal-card${stale ? ' stale' : ''}" style="margin-top:12px">
+      <div class="stat-row"><span>По записям у тебя</span><span class="mono">${money(expectedBalance())}</span></div>
+      <p class="hint">${last ? `Последняя сверка ${daysAgoText(last)}` : 'Сверки ещё не было'}. ${stale ? 'Пора сверить с реальными деньгами — забытые траты найдутся сами.' : 'Сверяй раз в неделю.'}</p>
+      <button class="btn${stale ? ' gold' : ' ghost'}" type="button" data-action="fin-check">Сверить баланс</button>
+    </div>`;
+}
+
+function openReconcile() {
+  clearToasts();
+  const expected = expectedBalance();
+  const root = openSheet('Сверка баланса', `
+    <p class="dim center">Сколько у тебя сейчас денег — на картах и наличными, не считая отложенных накоплений?</p>
+    <label class="field"><span>Реально есть, ₸</span><input name="actual" type="number" inputmode="numeric" min="0" step="1" placeholder="${Math.max(0, expected)}"></label>
+    <p class="hint">По записям должно быть ${money(expected)}.</p>
+    <p class="error" data-error></p>
+    <button class="btn" type="button" data-go>Сверить</button>
+    <button class="btn ghost" type="button" data-action="close">Отмена</button>`);
+  const input = root.querySelector('input');
+  input.focus();
+  root.querySelector('[data-go]').addEventListener('click', () => {
+    if (input.value === '') return sheetError(root, 'Впиши, сколько денег есть сейчас.');
+    const actual = Math.round(Number(input.value));
+    if (!(actual >= 0)) return sheetError(root, 'Сумма не может быть отрицательной.');
+    const diff = expected - actual;
+    const tolerance = Math.max(300, Math.abs(expected) * 0.01);
+    if (Math.abs(diff) <= tolerance) return finishReconcile(actual, 'Всё сходится');
+    if (diff > 0) return reconcileMissing(diff, actual);
+    reconcileExtra(-diff, actual);
+  });
+}
+
+/** Время для найденных трат: середина периода с прошлой сверки, но не сегодня. */
+function reconcileTime() {
+  const f = fin();
+  const today = dayStart(new Date());
+  const since = f.anchor ? f.anchor.at : f.since || today - 7 * 864e5;
+  return since >= today ? Date.now() - 60000 : Math.round((since + today) / 2);
+}
+
+function addFoundExpense(cat, amount, text, fixed) {
+  fin().expenses.push({
+    id: uid(),
+    at: reconcileTime(),
+    amount: Math.round(amount),
+    text,
+    cat,
+    cls: FIN_CAT[cat].cls,
+    planned: null,
+    fixed: !!fixed,
+    overLimit: false,
+    asked: { cat: true, planned: true, fixed: true },
+    reconciled: true,
+  });
+}
+
+function reconcileMissing(diff, actual) {
+  clearToasts();
+  const f = fin();
+  const now = Date.now();
+  const since = f.anchor ? f.anchor.at : f.since || now - 7 * 864e5;
+  const days = Math.max(1, Math.round((now - since) / 864e5));
+  const round100 = (n) => Math.max(100, Math.round(n / 100) * 100);
+
+  // привычки за 30 дней: какие категории и сколько в день
+  const from = now - 30 * 864e5;
+  const habits = new Map();
+  for (const e of f.expenses) {
+    if (e.at < from || e.fixed || e.reconciled) continue;
+    const h = habits.get(e.cat) || { sum: 0, n: 0 };
+    h.sum += e.amount;
+    h.n++;
+    habits.set(e.cat, h);
+  }
+  let options = [...habits.entries()].sort((a, b) => b[1].n - a[1].n).slice(0, 6)
+    .map(([cat, h]) => ({ key: cat, cat, label: FIN_CAT[cat].name, amount: Math.min(diff, round100((h.sum / 30) * days)) }));
+  if (!options.length) options = ['cafe', 'groceries', 'transport', 'shopping'].map((cat) => ({ key: cat, cat, label: FIN_CAT[cat].name, amount: 0 }));
+
+  // обязательные платежи, которые в этом месяце не записаны
+  const monthFrom = new Date(new Date().getFullYear(), new Date().getMonth(), 1).getTime();
+  const loggedFixed = f.expenses.filter((e) => e.fixed && e.at >= monthFrom).reduce((a, e) => a + e.amount, 0);
+  if (loggedFixed < finBudget().fixed) {
+    for (const x of f.fixed) if (x.amount <= diff * 1.1) options.unshift({ key: 'fx-' + x.id, cat: /связ|интернет|телефон/i.test(x.title) ? 'connect' : 'home', label: `📌 ${x.title}`, amount: Math.min(diff, x.amount), fixed: true, text: x.title });
+  }
+
+  // дни без единой записи — подсказка для памяти
+  const quiet = [];
+  for (let d = new Date(Math.max(since, now - 14 * 864e5)); dayStart(d) < dayStart(new Date()); d = addDays(d, 1)) {
+    const a = dayStart(d);
+    const b = dayStart(addDays(d, 1));
+    if (!f.expenses.some((e) => e.at >= a && e.at < b) && !f.noSpend[dayKey(d)]) quiet.push(d.toLocaleDateString('ru-RU', { day: 'numeric', month: 'short' }));
+  }
+
+  const rows = new Map();
+  const root = openSheet('Сверка баланса', `
+    <p class="lead">Не хватает <span class="hl">${money(diff)}</span></p>
+    <p class="dim center">Куда они ушли? Отметь, что было, суммы можно поправить.${quiet.length ? ` Дни без записей: ${quiet.join(', ')}.` : ''}</p>
+    <div class="rec-chips">${options.map((o) => `<button type="button" data-opt="${o.key}" aria-pressed="false">${esc(o.label)}${o.amount ? ` <small>~${fmt(o.amount)}</small>` : ''}</button>`).join('')}</div>
+    <div data-rows></div>
+    <p class="rec-left" data-left></p>
+    <button class="btn" type="button" data-save>Записать</button>
+    <button class="btn ghost" type="button" data-unknown>Не помню — одной суммой</button>
+    <button class="btn ghost" type="button" data-saved>Перевёл в накопления</button>
+    <button class="btn ghost" type="button" data-action="close">Отмена</button>`);
+  const box = root.querySelector('[data-rows]');
+  const leftEl = root.querySelector('[data-left]');
+  const sum = () => [...rows.values()].reduce((a, r) => a + (Number(r.input.value) || 0), 0);
+  const update = () => {
+    const left = diff - sum();
+    leftEl.innerHTML = left > 0
+      ? `Осталось разобрать <b>${money(left)}</b> — уйдёт в «Без записи»`
+      : left < 0 ? `Больше разницы на <b>${money(-left)}</b> — проверь суммы` : 'Разобрано всё ✓';
+  };
+  root.querySelectorAll('[data-opt]').forEach((b) => b.addEventListener('click', () => {
+    const o = options.find((x) => x.key === b.dataset.opt);
+    if (rows.has(o.key)) {
+      rows.get(o.key).el.remove();
+      rows.delete(o.key);
+      b.setAttribute('aria-pressed', 'false');
+    } else {
+      const left = Math.max(0, diff - sum());
+      const el = document.createElement('div');
+      el.className = 'rec-row';
+      el.innerHTML = `<span>${esc(o.label)}</span><input type="number" inputmode="numeric" min="0" step="100" value="${Math.min(o.amount || left, left) || ''}">`;
+      box.append(el);
+      const input = el.querySelector('input');
+      input.addEventListener('input', update);
+      rows.set(o.key, { o, el, input });
+      b.setAttribute('aria-pressed', 'true');
+    }
+    update();
+  }));
+  update();
+  root.querySelector('[data-save]').addEventListener('click', () => {
+    for (const { o, input } of rows.values()) {
+      const amount = Math.round(Number(input.value) || 0);
+      if (amount > 0) addFoundExpense(o.cat, amount, o.text || `${o.label} (сверка)`, o.fixed);
+    }
+    const left = diff - sum();
+    if (left > 0) addFoundExpense('unknown', left, 'Без записи (сверка)');
+    finishReconcile(actual, 'Разница разобрана');
+  });
+  root.querySelector('[data-unknown]').addEventListener('click', () => {
+    addFoundExpense('unknown', diff, 'Без записи (сверка)');
+    finishReconcile(actual, 'Записано одной суммой');
+  });
+  root.querySelector('[data-saved]').addEventListener('click', () => {
+    addFoundExpense('savings', diff, 'Перевёл в накопления');
+    finishReconcile(actual, 'Учтено как накопления');
+  });
+}
+
+function reconcileExtra(extra, actual) {
+  clearToasts();
+  const root = openSheet('Сверка баланса', `
+    <p class="lead">Денег больше на <span class="hl">${money(extra)}</span></p>
+    <p class="dim center">Откуда они?</p>
+    <label class="field"><span>Откуда (необязательно)</span><input name="src" type="text" maxlength="60" autocomplete="off" placeholder="Например: клиент"></label>
+    <div class="q-options">
+      <button class="btn" type="button" data-kind="income">Забыл внести поступление</button>
+      <button class="btn" type="button" data-kind="gift">Кэшбэк, возврат, подарок</button>
+      <button class="btn ghost" type="button" data-kind="fix">Просто поправить баланс</button>
+    </div>
+    <button class="btn ghost" type="button" data-action="close">Отмена</button>`);
+  root.querySelectorAll('[data-kind]').forEach((b) => b.addEventListener('click', () => {
+    const src = root.querySelector('input').value.trim();
+    const kind = b.dataset.kind;
+    fin().incomes.push({
+      id: uid(),
+      at: Date.now() - 60000,
+      amount: extra,
+      text: src || (kind === 'income' ? 'Поступление (сверка)' : kind === 'gift' ? 'Кэшбэк / возврат' : 'Корректировка'),
+      ...(kind === 'income' ? {} : { adjust: true }),
+    });
+    finishReconcile(actual, kind === 'income' ? 'Поступление добавлено' : 'Баланс поправлен');
+  }));
+}
+
+function finishReconcile(actual, message) {
+  const { state } = session;
+  const f = fin();
+  f.anchor = { at: Date.now(), amount: actual };
+  const key = 'c:' + dayKey(new Date());
+  let bonus = '';
+  if (!state.log.some((e) => e.source === 'finance-check' && e.period === key)) {
+    const discipline = state.stats.find((st) => st.name === 'Дисциплина');
+    const xp = state.settings.xp.chore;
+    state.log.push({ id: uid(), questId: null, title: 'Сверка баланса', type: 'chore', xp, stats: discipline ? { [discipline.id]: xp } : {}, period: key, at: Date.now(), source: 'finance-check' });
+    bonus = ` · +${xp} XP`;
+  }
+  save();
+  closeSheet();
+  render();
+  Sound.play('quest');
+  const lim = limitsNow();
+  toast({ title: 'Сверка', main: `✓ ${message}${bonus}`, sub: lim ? `Теперь на сегодня можно ${money(Math.max(0, lim.today.limit - lim.today.spent))}` : '', kind: 'up', ms: 5000 });
+}
+
+/* ---------- Продукты: квест и бюджетная корзина под набор массы ----------
+   Норма в день: белок 1,8 г на кг веса, калории 35 ккал на кг. Корзина собирается жадно:
+   база (овощи, фрукт) → белок по максимуму граммов на тенге → калории по максимуму ккал на тенге,
+   с ограничением количества каждого продукта и штрафом за повторы ради разнообразия.
+   Цены примерные — правятся под свой магазин. */
+
+const FOOD = [
+  { id: 'eggs', name: 'Яйца', unit: '10 шт', price: 800, protein: 63, kcal: 780, kind: 'protein', max: 3 },
+  { id: 'chicken', name: 'Куриное филе', unit: '1 кг', price: 2400, protein: 230, kcal: 1100, kind: 'protein', max: 2 },
+  { id: 'thighs', name: 'Куриные бёдра', unit: '1 кг', price: 1700, protein: 140, kcal: 1650, kind: 'protein', max: 2 },
+  { id: 'cottage', name: 'Творог 5%', unit: '500 г', price: 1000, protein: 85, kcal: 600, kind: 'protein', max: 4 },
+  { id: 'milk', name: 'Молоко', unit: '1 л', price: 550, protein: 30, kcal: 600, kind: 'protein', max: 3 },
+  { id: 'kefir', name: 'Кефир', unit: '1 л', price: 550, protein: 29, kcal: 510, kind: 'protein', max: 3 },
+  { id: 'liver', name: 'Говяжья печень', unit: '1 кг', price: 2000, protein: 200, kcal: 1270, kind: 'protein', max: 1 },
+  { id: 'pollock', name: 'Минтай мороженый', unit: '1 кг', price: 1700, protein: 130, kcal: 600, kind: 'protein', max: 1 },
+  { id: 'lentils', name: 'Чечевица', unit: '1 кг', price: 900, protein: 240, kcal: 3500, kind: 'protein', max: 1 },
+  { id: 'buckwheat', name: 'Гречка', unit: '1 кг', price: 700, protein: 126, kcal: 3300, kind: 'carb', max: 1 },
+  { id: 'rice', name: 'Рис', unit: '1 кг', price: 700, protein: 70, kcal: 3600, kind: 'carb', max: 1 },
+  { id: 'oats', name: 'Овсянка', unit: '1 кг', price: 600, protein: 120, kcal: 3700, kind: 'carb', max: 1 },
+  { id: 'pasta', name: 'Макароны', unit: '1 кг', price: 600, protein: 110, kcal: 3500, kind: 'carb', max: 1 },
+  { id: 'potato', name: 'Картофель', unit: '1 кг', price: 300, protein: 20, kcal: 770, kind: 'carb', max: 2 },
+  { id: 'bread', name: 'Хлеб', unit: '500 г', price: 250, protein: 40, kcal: 1250, kind: 'carb', max: 2 },
+  { id: 'oil', name: 'Подсолнечное масло', unit: '1 л', price: 1000, protein: 0, kcal: 8200, kind: 'fat', max: 1 },
+  { id: 'peanut', name: 'Арахисовая паста', unit: '340 г', price: 1300, protein: 85, kcal: 2000, kind: 'fat', max: 1 },
+  { id: 'cabbage', name: 'Капуста', unit: '1 кг', price: 250, protein: 18, kcal: 280, kind: 'veg', max: 1 },
+  { id: 'carrot', name: 'Морковь', unit: '1 кг', price: 300, protein: 9, kcal: 410, kind: 'veg', max: 1 },
+  { id: 'onion', name: 'Лук', unit: '1 кг', price: 250, protein: 14, kcal: 410, kind: 'veg', max: 1 },
+  { id: 'frozenveg', name: 'Замороженные овощи', unit: '400 г', price: 700, protein: 10, kcal: 200, kind: 'veg', max: 2 },
+  { id: 'banana', name: 'Бананы', unit: '1 кг', price: 900, protein: 10, kcal: 580, kind: 'fruit', max: 2 },
+  { id: 'apple', name: 'Яблоки', unit: '1 кг', price: 700, protein: 4, kcal: 470, kind: 'fruit', max: 1 },
+];
+
+const food = () => session.state.food;
+const foodItems = () => FOOD.filter((x) => !food().off.includes(x.id)).map((x) => ({ ...x, price: food().prices[x.id] || x.price }));
+const foodTargets = () => ({ protein: Math.round(food().weight * 1.8), kcal: Math.round(food().weight * 35) });
+
+function lastGroceryTrip() {
+  const big = fin().expenses.filter((e) => e.cat === 'groceries' && e.amount >= 2000).map((e) => e.at);
+  return Math.max(food().lastTrip || 0, ...big, 0) || null;
+}
+
+function groceryDue() {
+  const last = lastGroceryTrip();
+  return !last || Date.now() - last >= food().tripDays * 864e5 - 12 * 3600000;
+}
+
+/** Бюджет корзины: доля лимита дня × дни до следующей закупки, не больше свободных денег. */
+function groceryBudget() {
+  const lim = limitsNow();
+  if (!lim) return null;
+  const b = Math.round((lim.today.limit * food().tripDays * food().share) / 100 / 100) * 100;
+  return Math.max(0, Math.min(b, Math.max(0, lim.free)));
+}
+
+function activeGroceryQuest() {
+  const done = completionIndex();
+  return session.state.quests.find((q) => q.system === 'groceries' && !done.has(q.id));
+}
+
+/** Ставит квест «Купить продукты», когда пора (или сразу — по кнопке «Холодильник пустой»). */
+function ensureGroceryQuest(force) {
+  if (!session) return;
+  const { state } = session;
+  if (activeGroceryQuest()) {
+    if (force) toast({ title: 'Продукты', main: 'Квест уже стоит', sub: 'Он во вкладке «Квесты»', ms: 2500 });
+    return;
+  }
+  if (!force && !groceryDue()) return;
+  const b = groceryBudget();
+  const ids = ['Сила', 'Дисциплина'].map((n) => (state.stats.find((st) => st.name === n) || {}).id).filter(Boolean);
+  state.quests.push({
+    id: uid(),
+    createdAt: Date.now(),
+    title: 'Купить продукты',
+    note: `Корзина на ${food().tripDays} дн.${b !== null ? ` · бюджет ≈ ${money(b)}` : ''} · список: «Финансы» → «Продукты»`,
+    type: 'normal',
+    stats: ids,
+    repeat: 'none',
+    system: 'groceries',
+  });
+  save();
+  render();
+  toast({ title: 'Система', main: 'Новый квест: купить продукты', sub: b !== null ? `Бюджет корзины ≈ ${money(b)}` : 'Список — в «Финансах»', kind: 'up', ms: 5000 });
+}
+
+/** Закупка сделана: закрыть квест (если стоит) и сбросить список. */
+function groceryTripDone(fromExpense) {
+  const f = food();
+  f.lastTrip = Date.now();
+  f.list = null;
+  const q = activeGroceryQuest();
+  if (q && fromExpense) completeQuest(q);
+  save();
+}
+
+function askGrocerySpend() {
+  if (!session) return;
+  const list = food().list;
+  const guess = list ? basketCost(list.lines, true) || basketCost(list.lines) : '';
+  const root = openSheet('Продукты куплены', `
+    <p class="dim center">Сколько потратил? Запишу трату — лимиты пересчитаются.</p>
+    <label class="field"><span>Сумма, ₸</span><input name="amount" type="number" inputmode="numeric" min="1" step="1" value="${guess || ''}"></label>
+    <button class="btn" type="button" data-save>Записать</button>
+    <button class="btn ghost" type="button" data-skip>Уже записал / пропустить</button>`);
+  root.querySelector('[data-save]').addEventListener('click', () => {
+    const amount = Math.round(Number(root.querySelector('input').value));
+    if (amount > 0) {
+      const e = { id: uid(), at: Date.now(), amount, text: 'продукты', cat: 'groceries', cls: 'need', planned: null, fixed: false, asked: { cat: true } };
+      e.overLimit = computeOverLimit(e);
+      fin().expenses.push(e);
+    }
+    groceryTripDone(false);
+    closeSheet();
+    render();
+    if (amount > 0) toast({ title: '[Трата записана]', main: `✅ −${money(amount)} · Продукты`, sub: 'Грамотная: необходимое', ms: 4000 });
+  });
+  root.querySelector('[data-skip]').addEventListener('click', () => {
+    groceryTripDone(false);
+    closeSheet();
+    render();
+  });
+}
+
+function buildBasket(budget, days) {
+  const items = foodItems();
+  const t = foodTargets();
+  const needP = t.protein * days;
+  const needK = t.kcal * days;
+  const qty = new Map();
+  let cost = 0;
+  let P = 0;
+  let K = 0;
+  const maxFor = (it) => Math.max(1, Math.round((it.max * days) / 7));
+  const can = (it) => cost + it.price <= budget && (qty.get(it.id) || 0) < maxFor(it);
+  const add = (it) => { qty.set(it.id, (qty.get(it.id) || 0) + 1); cost += it.price; P += it.protein; K += it.kcal; };
+  const best = (list, score, cap = budget) => list.filter((it) => can(it) && cost + it.price <= cap).sort((a, b) => score(b) - score(a))[0];
+  const rep = (it) => 1 + 0.6 * (qty.get(it.id) || 0);
+  const proteins = items.filter((x) => x.kind === 'protein');
+  const fillProtein = (cap) => {
+    for (let guard = 0; P < needP && guard < 60; guard++) {
+      const it = best(proteins, (x) => x.protein / x.price / rep(x), cap);
+      if (!it) break;
+      add(it);
+    }
+  };
+  // база: самый дешёвый овощ и фрукт, яйца на завтраки
+  for (const kind of ['veg', 'fruit']) {
+    const it = best(items.filter((x) => x.kind === kind), (x) => -x.price);
+    if (it) add(it);
+  }
+  const eggs = items.find((x) => x.id === 'eggs');
+  if (eggs && can(eggs)) add(eggs);
+  // белок по максимуму граммов на тенге — но не больше 60% остатка, чтобы хватило на калории
+  fillProtein(cost + (budget - cost) * 0.6);
+  // калории по максимуму ккал на тенге: сначала крупы и хлеб, масло — в последнюю очередь
+  for (let guard = 0; K < needK && guard < 60; guard++) {
+    const it = best(items.filter((x) => x.kind === 'carb' || x.kind === 'fat'), (x) => (x.kcal * (x.kind === 'fat' ? 0.4 : 1)) / x.price / rep(x));
+    if (!it) break;
+    add(it);
+  }
+  // остались деньги, а белка мало — добрать
+  fillProtein(budget);
+  // если деньги остались — второй овощ для разнообразия
+  const veg2 = best(items.filter((x) => x.kind === 'veg' && !qty.has(x.id)), (x) => -x.price);
+  if (veg2 && budget - cost > budget * 0.1) add(veg2);
+  const lines = [...qty.entries()].map(([id, n]) => ({ id, n, got: false }));
+  return { at: Date.now(), days, budget, lines };
+}
+
+function basketCost(lines, onlyGot) {
+  const items = foodItems();
+  return lines.reduce((a, l) => {
+    const it = items.find((x) => x.id === l.id) || FOOD.find((x) => x.id === l.id);
+    return a + (onlyGot && !l.got ? 0 : it.price * l.n);
+  }, 0);
+}
+
+function groceryHtml() {
+  const f = food();
+  const last = lastGroceryTrip();
+  const b = groceryBudget();
+  const t = foodTargets();
+  const active = activeGroceryQuest();
+  const nextIn = last ? Math.max(0, Math.ceil((last + f.tripDays * 864e5 - Date.now()) / 864e5)) : 0;
+  return `<div class="section-h">Продукты · набор массы</div>
+    <div class="panel pad">
+      <div class="stat-row"><span>Последняя закупка</span><span>${last ? daysAgoText(last) : 'не записана'}</span></div>
+      <div class="stat-row"><span>Следующая</span><span>${active ? 'квест стоит' : nextIn ? `через ${nextIn} ${plural(nextIn, ['день', 'дня', 'дней'])}` : 'сегодня'}</span></div>
+      <div class="stat-row"><span>Бюджет корзины</span><span class="mono">${b !== null ? `${money(b)} на ${f.tripDays} дн.` : '— (нет поступлений)'}</span></div>
+      <div class="stat-row"><span>Норма в день</span><span class="mono">белок ${t.protein} г · ${fmt(t.kcal)} ккал</span></div>
+      <button class="btn" type="button" data-action="grocery-basket">${f.list ? 'Открыть корзину' : 'Собрать корзину'}</button>
+      ${active ? '' : '<button class="btn ghost" type="button" data-action="grocery-now">Холодильник пустой</button>'}
+      <button class="btn ghost" type="button" data-action="grocery-settings">Вес, частота и цены</button>
+    </div>`;
+}
+
+function openBasket(rebuild) {
+  clearToasts();
+  const f = food();
+  if (!f.list || rebuild) {
+    const b = typeof rebuild === 'number' ? rebuild : groceryBudget() ?? 10000;
+    f.list = buildBasket(b, f.tripDays);
+    save();
+  }
+  const list = f.list;
+  const items = foodItems();
+  const byId = (id) => items.find((x) => x.id === id) || FOOD.find((x) => x.id === id);
+  const t = foodTargets();
+  const P = list.lines.reduce((a, l) => a + byId(l.id).protein * l.n, 0);
+  const K = list.lines.reduce((a, l) => a + byId(l.id).kcal * l.n, 0);
+  const pPct = Math.round((P / (t.protein * list.days)) * 100);
+  const kPct = Math.round((K / (t.kcal * list.days)) * 100);
+  const total = basketCost(list.lines);
+  const cover = (label, pct) => `<div class="cover${pct < 90 ? ' short' : ''}"><div class="fin-head"><span>${label}</span><span>${pct}%</span></div><span class="fin-bar"><i style="width:${Math.min(100, pct)}%"></i></span></div>`;
+  const root = openSheet('Корзина', `
+    <p class="dim center">На ${list.days} дн. под набор массы. Бюджет ${money(list.budget)}, в корзине ${money(total)}${total < list.budget * 0.8 && pPct >= 90 && kPct >= 90 ? ' — норма закрыта, остальное остаётся в лимите' : ''}.</p>
+    <div class="panel log-list" style="margin-top:8px">${list.lines.map((l, i) => {
+      const it = byId(l.id);
+      return `<label class="basket-row${l.got ? ' got' : ''}"><input type="checkbox" data-line="${i}"${l.got ? ' checked' : ''}>
+        <b>${it.name} · ${it.unit}${l.n > 1 ? ` × ${l.n}` : ''}</b><span class="a">${money(it.price * l.n)}</span>
+        <small>белок ${it.protein * l.n} г · ${fmt(it.kcal * l.n)} ккал</small></label>`;
+    }).join('')}</div>
+    ${cover('Белок на эти дни', pPct)}
+    ${cover('Калории на эти дни', kPct)}
+    ${pPct < 90 ? '<p class="hint">Денег не хватает на полную норму белка. Когда придут деньги — пересобери корзину.</p>' : ''}
+    <label class="field"><span>Другой бюджет, ₸</span><input name="budget" type="number" inputmode="numeric" min="0" step="500" value="${list.budget}"></label>
+    <button class="btn ghost" type="button" data-rebuild>Пересобрать</button>
+    <button class="btn" type="button" data-bought>Купил — записать трату</button>
+    <button class="btn ghost" type="button" data-action="close">Закрыть</button>`);
+  root.querySelectorAll('[data-line]').forEach((box) => box.addEventListener('change', () => {
+    list.lines[Number(box.dataset.line)].got = box.checked;
+    box.closest('.basket-row').classList.toggle('got', box.checked);
+    save();
+  }));
+  root.querySelector('[data-rebuild]').addEventListener('click', () => {
+    const v = Math.round(Number(root.querySelector('input[name="budget"]').value));
+    openBasket(v > 0 ? v : true);
+  });
+  root.querySelector('[data-bought]').addEventListener('click', () => {
+    const q = activeGroceryQuest();
+    if (q) {
+      closeSheet();
+      completeQuest(q); // опыт за квест; сумму спросит следующее окно
+      setTimeout(askGrocerySpend, 500);
+    } else askGrocerySpend();
+  });
+}
+
+function openFoodSettings() {
+  const f = food();
+  const root = openSheet('Продукты', `
+    <form novalidate>
+      <label class="field"><span>Твой вес, кг</span><input name="weight" type="number" inputmode="numeric" min="35" max="200" step="1" value="${f.weight}"></label>
+      <div class="hint">От веса считается норма: белок 1,8 г/кг, калории 35 ккал/кг — ориентир для набора массы, не диета.</div>
+      <div class="field"><span>Закупка раз в</span>
+        <div class="choices">${[3, 4, 5, 6, 7, 10].map((n) => `<label class="choice"><input type="radio" name="days" value="${n}"${f.tripDays === n ? ' checked' : ''}><span>${n} дн.</span></label>`).join('')}</div>
+      </div>
+      <div class="field"><span>На еду — доля дневного лимита</span>
+        <div class="choices">${[40, 50, 60, 70, 80].map((n) => `<label class="choice"><input type="radio" name="share" value="${n}"${f.share === n ? ' checked' : ''}><span>${n}%</span></label>`).join('')}</div>
+      </div>
+      <div class="field"><span>Продукты и цены в твоём магазине</span>
+        ${FOOD.map((x) => `<div class="price-row"><input type="checkbox" data-on="${x.id}"${f.off.includes(x.id) ? '' : ' checked'} aria-label="Брать ${x.name}">
+          <span>${x.name}<small>${x.unit}</small></span>
+          <input type="number" inputmode="numeric" min="1" step="10" data-price="${x.id}" value="${f.prices[x.id] || x.price}"></div>`).join('')}
+        <div class="hint">Сними галочку с того, что не ешь. Цены по умолчанию примерные — поправь под свой магазин.</div>
+      </div>
+      <button class="btn" type="submit">Сохранить</button>
+      <button class="btn ghost" type="button" data-action="close">Отмена</button>
+    </form>`);
+  root.querySelector('form').addEventListener('submit', (e) => {
+    e.preventDefault();
+    const el = e.target.elements;
+    f.weight = Math.min(200, Math.max(35, Math.round(Number(el.weight.value)) || 70));
+    f.tripDays = Number(el.days.value) || 6;
+    f.share = Number(el.share.value) || 60;
+    f.off = [...root.querySelectorAll('[data-on]')].filter((c) => !c.checked).map((c) => c.dataset.on);
+    for (const inp of root.querySelectorAll('[data-price]')) {
+      const def = FOOD.find((x) => x.id === inp.dataset.price).price;
+      const v = Math.round(Number(inp.value));
+      if (v > 0 && v !== def) f.prices[inp.dataset.price] = v;
+      else delete f.prices[inp.dataset.price];
+    }
+    f.list = null; // корзину пересоберём по новым данным
+    save();
+    closeSheet();
+    render();
+  });
 }
 
 /* ---------- Статус: персонаж и характеристики ---------- */
