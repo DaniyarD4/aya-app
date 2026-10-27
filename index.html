@@ -4013,7 +4013,8 @@ const BUBBLE_FS = `precision highp float;
 varying vec2 vUv;
 uniform sampler2D uEnv;
 uniform float uTime, uScale, uSpeed, uView, uPx;
-uniform vec3 uTint;
+uniform vec3 uTint, uPal1, uPal2, uPal3;
+uniform float uRag;
 uniform vec4 uBurst;
 float hash(vec2 p) { return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }
 float noise(vec2 p) {
@@ -4042,12 +4043,30 @@ float thickness(vec3 n) {
 vec3 film(float d, float c) {
   float ct = sqrt(1.0 - (1.0 - c * c) / 1.769);
   vec3 ph = 12.566371 * 1.33 * d * ct / vec3(650.0, 532.0, 450.0);
-  return 0.5 - 0.5 * cos(ph);
+  vec3 f = 0.5 - 0.5 * cos(ph);
+  // переливы в палитре состояния: каждая «полоса» интерференции получает свой цвет
+  vec3 t = uPal1 * f.r + uPal2 * f.g + uPal3 * f.b;
+  t *= max(f.r, max(f.g, f.b)) / max(max(t.r, max(t.g, t.b)), 0.001);
+  return mix(f, t, 0.65);
+}
+// 1 — плёнка цела, 0 — дыра. Чем ниже состояние, тем больше дыр; они медленно ползут
+float holes(vec3 m, out float edge) {
+  edge = 0.0;
+  if (uRag <= 0.001) return 1.0;
+  float h = fbm(m.xy * 2.2 + m.z * 1.3 + vec2(uTime * 0.03, -uTime * 0.02));
+  float th = 1.0 - uRag * 0.42;
+  float keep = smoothstep(th + 0.01, th - 0.01, h);
+  edge = keep * smoothstep(0.06, 0.0, th - h); // светится только край уцелевшей плёнки
+  return keep;
 }
 void main() {
   vec2 p = (vUv * 2.0 - 1.0) * uView;
   float ang = atan(p.y, p.x);
-  float rad = uScale * (1.0 + 0.012 * sin(ang * 3.0 + uTime * 1.3) + 0.008 * sin(ang * 5.0 - uTime * 1.7));
+  vec2 dirP = p / max(length(p), 0.0001);
+  float wob = 0.012 * sin(ang * 3.0 + uTime * 1.3) + 0.008 * sin(ang * 5.0 - uTime * 1.7);
+  // рваный, дрожащий силуэт при низком состоянии
+  wob += uRag * (0.07 * (noise(dirP * 2.5 + uTime * 0.6) - 0.5) + 0.04 * (noise(dirP * 9.0 + uTime * 1.4) - 0.5));
+  float rad = uScale * (1.0 + wob);
   float r = length(p) / max(rad, 0.001);
   if (r >= 1.0 || uScale <= 0.0) { gl_FragColor = vec4(0.0); return; }
   vec3 n = vec3(p / rad, sqrt(1.0 - r * r));
@@ -4064,6 +4083,11 @@ void main() {
     back = step(0.0, ab);
     rim = front * smoothstep(0.14, 0.0, af) + back * smoothstep(0.14, 0.0, ab) * 0.6;
   }
+  float ef, eb;
+  float hf = holes(n, ef), hb = holes(nb, eb);
+  rim += (ef * front + eb * back * 0.6) * 0.8;
+  front *= hf;
+  back *= hb;
   vec3 cf = env(reflect(vec3(0.0, 0.0, -1.0), n)) * film(thickness(n), c);
   vec3 cb = env(reflect(vec3(0.0, 0.0, -1.0), -nb)) * film(thickness(nb), c);
   vec3 col = (cf * front + cb * back * 0.6) * F * 2.1;
@@ -4071,14 +4095,14 @@ void main() {
   col += vec3(1.0) * pow(max(dot(reflect(vec3(0.0, 0.0, -1.0), n), key), 0.0), 90.0) * 1.6 * front;
   col += vec3(1.0) * pow(max(dot(reflect(vec3(0.0, 0.0, -1.0), -nb), key), 0.0), 60.0) * 0.5 * back;
   col += uTint * pow(1.0 - c, 3.0) * 0.45 * max(front, back);
-  col += vec3(1.0) * rim * 0.9;
+  col += mix(vec3(1.0), uPal1, 0.45) * rim * 0.9;
   col = col / (1.0 + col * 0.35);
   float a = clamp(max(max(col.r, col.g), col.b) * 1.05, 0.0, 1.0);
   float aa = smoothstep(1.0, 1.0 - 1.5 * uPx / max(rad, 0.001), r); // мягкая кромка без лесенки
   gl_FragColor = vec4(min(col, vec3(a)), a) * aa;
 }`;
 
-const bubble = { ok: null, canvas: null, drops: null, gl: null, u: null, raf: 0, t0: performance.now(), burst: null, grow: null, pulse: null, parts: [], energy: 3, tint: [0.4, 0.8, 1], score: null };
+const bubble = { cur: null, target: null, ok: null, canvas: null, drops: null, gl: null, u: null, raf: 0, t0: performance.now(), burst: null, grow: null, pulse: null, parts: [], energy: 3, score: null };
 
 function bubbleInit() {
   if (bubble.ok !== null) return bubble.ok;
@@ -4121,7 +4145,7 @@ function bubbleInit() {
     gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, img);
   };
   img.src = BUBBLE_ENV;
-  bubble.u = Object.fromEntries(['uTime', 'uScale', 'uSpeed', 'uView', 'uPx', 'uTint', 'uBurst', 'uEnv'].map((k) => [k, gl.getUniformLocation(prog, k)]));
+  bubble.u = Object.fromEntries(['uTime', 'uScale', 'uSpeed', 'uView', 'uPx', 'uTint', 'uPal1', 'uPal2', 'uPal3', 'uRag', 'uBurst', 'uEnv'].map((k) => [k, gl.getUniformLocation(prog, k)]));
   canvas.addEventListener('webglcontextlost', (e) => {
     e.preventDefault();
     bubble.ok = false;
@@ -4142,8 +4166,12 @@ const BUBBLE_VIEW = 1.9; // холст больше пузыря — чтобы 
 function mountBubble(root) {
   const core = root.querySelector('.orb-core');
   if (!core || !bubbleInit()) return;
-  const hex = core.dataset.orbTint || '#66d0ff';
-  bubble.tint = [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16) / 255);
+  const rgb = (hex) => [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16) / 255);
+  const pal = (core.dataset.orbPal || '#66d0ff,#4f7dff,#b99bff').split(',').map(rgb);
+  const scoreNow = Number(core.dataset.orbScore) || 0;
+  // рваность: до 80% пузырь цел, к нулю — весь в дырах
+  bubble.target = { pal, tint: pal[0], rag: Math.min(1, Math.max(0, (80 - scoreNow) / 80)) ** 1.2 };
+  if (!bubble.cur) bubble.cur = { pal: pal.map((c) => c.slice()), tint: pal[0].slice(), rag: bubble.target.rag };
   bubble.energy = Number(core.dataset.orbEnergy) || 3;
   const score = Number(core.dataset.orbScore);
   if (bubble.score !== null && score > bubble.score) bubble.pulse = performance.now();
@@ -4230,6 +4258,18 @@ function bubbleFrame(now) {
     else scale *= 1 + 0.07 * Math.sin(k * Math.PI) * (1 - k);
   }
   const speed = 0.5 + bubble.energy * 0.3;
+  // цвет и рваность плавно перетекают к новому состоянию
+  const cur = bubble.cur;
+  const tg = bubble.target;
+  const ease = (a, b) => a + (b - a) * 0.04;
+  cur.rag = ease(cur.rag, tg.rag);
+  cur.pal = cur.pal.map((c, i) => c.map((v, j) => ease(v, tg.pal[i][j])));
+  cur.tint = cur.pal[0];
+  // с рваных краёв срываются капли
+  if (!bubble.burst && !bubble.grow && cur.rag > 0.25 && Math.random() < cur.rag * 0.05) {
+    const a = Math.random() * Math.PI * 2;
+    bubble.parts.push({ x: Math.cos(a), y: Math.sin(a), vx: Math.cos(a) * 0.25, vy: Math.sin(a) * 0.25 - 0.1, life: 0, max: 0.7 + Math.random() * 0.5, r: 0.5 + Math.random() * 1.1 });
+  }
   gl.viewport(0, 0, w, w);
   gl.clearColor(0, 0, 0, 0);
   gl.clear(gl.COLOR_BUFFER_BIT);
@@ -4238,7 +4278,11 @@ function bubbleFrame(now) {
   gl.uniform1f(u.uSpeed, speed);
   gl.uniform1f(u.uView, BUBBLE_VIEW);
   gl.uniform1f(u.uPx, (2 * BUBBLE_VIEW) / w);
-  gl.uniform3fv(u.uTint, bubble.tint);
+  gl.uniform3fv(u.uTint, cur.tint);
+  gl.uniform3fv(u.uPal1, cur.pal[0]);
+  gl.uniform3fv(u.uPal2, cur.pal[1]);
+  gl.uniform3fv(u.uPal3, cur.pal[2]);
+  gl.uniform1f(u.uRag, cur.rag);
   gl.uniform4f(u.uBurst, ...(bubble.burst ? bubble.burst.dir : [0, 0, 1]), burstW);
   gl.uniform1i(u.uEnv, 0);
   gl.drawArrays(gl.TRIANGLES, 0, 3);
@@ -4261,7 +4305,7 @@ function bubbleFrame(now) {
     const r = p.r * dpr * (0.6 + a * 0.6);
     const g = ctx.createRadialGradient(x - r * 0.3, y - r * 0.3, 0, x, y, r);
     g.addColorStop(0, `rgba(255,255,255,${0.95 * a})`);
-    g.addColorStop(0.6, `rgba(${bubble.tint.map((c) => Math.round(150 + c * 105)).join(',')},${0.55 * a})`);
+    g.addColorStop(0.6, `rgba(${cur.tint.map((c) => Math.round(150 + c * 105)).join(',')},${0.55 * a})`);
     g.addColorStop(1, 'rgba(255,255,255,0)');
     ctx.fillStyle = g;
     ctx.beginPath();
@@ -4330,7 +4374,7 @@ function orbHtml(s, cls, word, energy) {
       <div class="orb-wrap" data-orb>
         <svg class="orb-lines" aria-hidden="true"></svg>
         <div class="orb-side l"><span class="orb-cap">Держит</span>${plus.length ? plus.map(lbl).join('') : lbl({ t: 'Пусто', s: 'отметь опору — сфера засветится', kind: 'empty' })}</div>
-        <div class="orb-core${surge ? ' surge' : ''}" data-orb-energy="${energy || 3}" data-orb-tint="${c1}" data-orb-score="${s.score}">
+        <div class="orb-core${surge ? ' surge' : ''}" data-orb-energy="${energy || 3}" data-orb-tint="${c1}" data-orb-pal="${c1},${c2},${c3}" data-orb-score="${s.score}">
           <span class="orb-halo"></span><span class="orb-ring"></span><span class="orb-ring r2"></span>
           <div class="orb" role="img" aria-label="Состояние ${s.score}%, ${word}${energy ? `, энергия ${energy} из 5` : ''}">
             <i class="blob b1"></i><i class="blob b2"></i><i class="blob b3"></i>
