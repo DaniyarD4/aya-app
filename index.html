@@ -1355,6 +1355,54 @@ html.noscroll, html.noscroll body { overflow: hidden; }
 
 /* ---------- Состояние ---------- */
 
+/* Сфера состояния */
+.orb-panel { margin-top: 16px; padding: 14px 12px 16px; overflow: hidden; border-color: color-mix(in srgb, var(--c2) 45%, transparent); box-shadow: 0 0 22px color-mix(in srgb, var(--c2) 22%, transparent), inset 0 0 30px color-mix(in srgb, var(--c2) 8%, transparent); }
+.orb-head { display: flex; justify-content: space-between; align-items: baseline; }
+.orb-head small { font-size: 11px; letter-spacing: 0.24em; text-transform: uppercase; color: var(--text-dim); }
+.orb-wrap { --orb: 132px; position: relative; display: grid; grid-template-columns: minmax(0, 1fr) var(--orb) minmax(0, 1fr); column-gap: 16px; min-height: 236px; margin-top: 4px; }
+@media (min-width: 420px) { .orb-wrap { --orb: 150px; column-gap: 24px; } }
+@media (max-width: 359px) { .orb-wrap { --orb: 104px; column-gap: 12px; min-height: 210px; } .orb-panel { padding-left: 10px; padding-right: 10px; } .orb-txt b { font-size: 26px; } }
+.orb-lines { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; pointer-events: none; }
+.orb-lines polyline { fill: none; stroke: var(--ok); stroke-width: 1; opacity: 0.7; stroke-dasharray: 400; stroke-dashoffset: 400; animation: orb-draw 0.9s ease-out forwards; }
+.orb-lines circle { fill: var(--ok); }
+.orb-lines .k-drain { stroke: var(--danger); } .orb-lines circle.k-drain { fill: var(--danger); }
+.orb-lines .k-miss { stroke: var(--warn); } .orb-lines circle.k-miss { fill: var(--warn); }
+.orb-lines .k-empty, .orb-lines .k-calm { stroke: var(--text-faint); } .orb-lines circle.k-empty, .orb-lines circle.k-calm { fill: var(--text-faint); }
+.orb-side { position: relative; z-index: 1; display: flex; flex-direction: column; justify-content: space-around; gap: 10px; padding: 22px 0 6px; min-width: 0; }
+.orb-side.l { text-align: right; }
+.orb-cap { position: absolute; top: 2px; left: 0; right: 0; font-size: 9.5px; letter-spacing: 0.12em; white-space: nowrap; text-transform: uppercase; color: var(--text-faint); }
+.orb-lbl { animation: orb-fade 0.5s ease-out both; }
+.orb-lbl { hyphens: auto; -webkit-hyphens: auto; overflow-wrap: break-word; }
+.orb-lbl b { display: block; font-size: 12.5px; line-height: 1.25; font-weight: 600; color: var(--ok); }
+.orb-lbl small { display: block; margin-top: 2px; font-size: 11px; line-height: 1.3; color: var(--text-dim); }
+.orb-lbl.k-drain b { color: var(--danger); }
+.orb-lbl.k-miss b { color: var(--warn); }
+.orb-lbl.k-empty b, .orb-lbl.k-calm b { color: var(--text-dim); }
+.orb-core { position: relative; align-self: center; width: var(--orb); height: var(--orb); animation: orb-breathe calc(var(--spin) * 0.5) ease-in-out infinite; }
+.orb-halo { position: absolute; inset: -38%; border-radius: 50%; background: radial-gradient(circle, color-mix(in srgb, var(--c2) 60%, transparent) 0%, transparent 62%); opacity: var(--glow); filter: blur(8px); pointer-events: none; }
+.orb-ring { position: absolute; inset: -9px; border-radius: 50%; border: 1px dashed color-mix(in srgb, var(--c1) 55%, transparent); animation: orb-spin 40s linear infinite; }
+.orb-ring.r2 { inset: -17px; border: 1px solid color-mix(in srgb, var(--c2) 35%, transparent); border-left-color: transparent; border-right-color: transparent; animation-duration: 26s; animation-direction: reverse; }
+.orb { position: absolute; inset: 0; border-radius: 50%; overflow: hidden; isolation: isolate; background: radial-gradient(circle at 35% 30%, var(--c1) 0%, var(--c2) 45%, var(--c3) 80%, #070a16 100%); box-shadow: 0 0 34px -4px var(--c2), inset -14px -20px 40px rgba(0, 0, 0, 0.5), inset 6px 8px 24px rgba(255, 255, 255, 0.16); }
+.orb::before { content: ''; position: absolute; inset: -35%; z-index: 0; background: conic-gradient(from 0deg, var(--c1), var(--c3), var(--c2), var(--c1), var(--c3), var(--c1)); filter: blur(16px); opacity: 0.7; mix-blend-mode: screen; animation: orb-spin var(--spin) linear infinite; }
+.orb .blob { position: absolute; z-index: 1; width: 62%; height: 62%; border-radius: 50%; filter: blur(14px); mix-blend-mode: screen; opacity: 0.75; }
+.orb .b1 { top: 4%; left: 8%; background: var(--c1); animation: orb-drift1 calc(var(--spin) * 0.9) ease-in-out infinite alternate; }
+.orb .b2 { right: 4%; bottom: 0; background: var(--c3); animation: orb-drift2 calc(var(--spin) * 1.1) ease-in-out infinite alternate; }
+.orb .b3 { top: 32%; left: 38%; width: 30%; height: 30%; background: #fff; opacity: 0.22; animation: orb-drift1 calc(var(--spin) * 0.7) ease-in-out infinite alternate-reverse; }
+.orb::after { content: ''; position: absolute; inset: 0; z-index: 2; border-radius: 50%; background: radial-gradient(circle at 30% 24%, rgba(255, 255, 255, 0.85) 0, rgba(255, 255, 255, 0.22) 11%, transparent 28%), radial-gradient(circle at 70% 86%, rgba(0, 0, 0, 0.45), transparent 58%); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.16), inset 0 0 22px rgba(255, 255, 255, 0.1); }
+.orb-txt { position: absolute; inset: 0; z-index: 3; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #fff; text-align: center; text-shadow: 0 1px 10px rgba(0, 0, 0, 0.6); }
+.orb-txt b { font-family: var(--mono); font-size: 32px; font-weight: 800; line-height: 1; }
+.orb-txt small { margin-top: 5px; font-size: 10.5px; letter-spacing: 0.2em; text-transform: uppercase; }
+.orb-txt em { margin-top: 4px; font-size: 12px; font-style: normal; opacity: 0.9; }
+.orb-core.surge::after { content: ''; position: absolute; inset: 0; border-radius: 50%; border: 2px solid var(--c1); box-shadow: 0 0 18px var(--c1); animation: orb-wave 1.2s ease-out forwards; pointer-events: none; }
+.orb-panel .goal-sub { margin-top: 12px; }
+.orb-panel .hint { margin: 8px 0 0; }
+@keyframes orb-spin { to { transform: rotate(360deg); } }
+@keyframes orb-drift1 { from { transform: translate(0, 0) scale(1); } to { transform: translate(35%, 45%) scale(1.25); } }
+@keyframes orb-drift2 { from { transform: translate(0, 0) scale(1.1); } to { transform: translate(-45%, -35%) scale(0.85); } }
+@keyframes orb-breathe { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.035); } }
+@keyframes orb-draw { to { stroke-dashoffset: 0; } }
+@keyframes orb-fade { from { opacity: 0; transform: translateY(4px); } }
+@keyframes orb-wave { from { transform: scale(1); opacity: 0.9; } to { transform: scale(1.9); opacity: 0; } }
 .state-card { margin-top: 16px; padding: 16px; --sc: var(--accent); }
 .state-card.low { --sc: var(--danger); }
 .state-card.mid { --sc: var(--warn); }
@@ -3053,6 +3101,7 @@ function render() {
   requestAnimationFrame(() => requestAnimationFrame(() => {
     view.querySelectorAll('.bar > i[data-pct], .goal-bar > i[data-pct], .fin-bar > i[data-pct]').forEach((i) => { i.style.width = i.dataset.pct + '%'; });
     view.querySelectorAll('.bar-track > i[data-h]').forEach((i) => { i.style.height = i.dataset.h + '%'; });
+    if (ui.tab === 'state') layoutOrb(view);
   }));
 }
 
@@ -3926,6 +3975,104 @@ function energyInsights() {
   return { need: 0, items: items.slice(0, 5) };
 }
 
+/* ---------- Сфера состояния ----------
+   Цвет — состояние дня (опоры и сливы), скорость переливов и свечение — энергия.
+   Линии слева ведут к тому, что держит, справа — к сливам и несделанным опорам. */
+
+const ORB_COLORS = {
+  full: ['#6dffc0', '#66d0ff', '#b99bff'],
+  good: ['#66d0ff', '#4f7dff', '#b99bff'],
+  mid: ['#ffc56b', '#ff7ab0', '#8a6bff'],
+  low: ['#ff5f7a', '#a43bff', '#2a1650'],
+};
+
+const shortTitle = (t) => {
+  const s = t.split(/[:(—]/)[0].trim() || t;
+  return s.length > 22 ? s.slice(0, 21) + '…' : s;
+};
+
+/** Что держит состояние сегодня и что тянет вниз. */
+function orbFactors() {
+  const { state } = session;
+  const done = completionIndex();
+  const today = dayData(dayKey(new Date()));
+  const now = new Date();
+  const daysLeft = 7 - ((now.getDay() + 6) % 7); // включая сегодня
+  const plus = [];
+  const minus = [];
+  for (const dr of state.drains) if (today.drains.includes(dr.id)) minus.push({ t: shortTitle(dr.title), s: `слив · −${DRAIN_PENALTY}%`, kind: 'drain' });
+  for (const q of supports()) {
+    const t = shortTitle(q.title);
+    if (q.repeat === 'daily') {
+      if (done.has(q.id)) plus.push({ t, s: 'сегодня ✓' });
+      else minus.push({ t, s: 'ещё не сегодня', kind: 'miss' });
+    } else if (q.repeat === 'xweek') {
+      const n = weekCount(q, now);
+      if (done.has(q.id)) plus.push({ t, s: `${n} из ${q.times} за неделю` });
+      else if (n < q.times && q.times - n >= daysLeft) minus.push({ t, s: `${n} из ${q.times} — не успеваешь`, kind: 'miss' });
+    }
+  }
+  const cap = (list) => (list.length <= 3 ? list : list.slice(0, 2).concat({ t: `и ещё ${list.length - 2}`, s: list.slice(2).map((x) => x.t).join(', '), kind: list[2].kind }));
+  return { plus: cap(plus), minus: cap(minus) };
+}
+
+function orbHtml(s, cls, word, energy) {
+  const [c1, c2, c3] = ORB_COLORS[cls];
+  const { plus, minus } = orbFactors();
+  const lbl = (x) => `<div class="orb-lbl k-${x.kind || 'plus'}" data-lbl="${x.kind || 'plus'}"><b>${esc(x.t)}</b><small>${esc(x.s)}</small></div>`;
+  const spin = energy ? 24 - energy * 3 : 15; // энергия 5 — быстрые переливы, 1 — медленные
+  const glow = energy ? (0.35 + energy * 0.13).toFixed(2) : 0.6;
+  const surge = ui.orbScore !== undefined && s.score > ui.orbScore;
+  ui.orbScore = s.score;
+  return `<section class="panel orb-panel" style="--c1:${c1};--c2:${c2};--c3:${c3};--spin:${spin}s;--glow:${glow}">
+      <div class="orb-head"><small>Состояние сейчас</small></div>
+      <div class="orb-wrap" data-orb>
+        <svg class="orb-lines" aria-hidden="true"></svg>
+        <div class="orb-side l"><span class="orb-cap">Держит</span>${plus.length ? plus.map(lbl).join('') : lbl({ t: 'Пусто', s: 'отметь опору — сфера засветится', kind: 'empty' })}</div>
+        <div class="orb-core${surge ? ' surge' : ''}">
+          <span class="orb-halo"></span><span class="orb-ring"></span><span class="orb-ring r2"></span>
+          <div class="orb" role="img" aria-label="Состояние ${s.score}%, ${word}${energy ? `, энергия ${energy} из 5` : ''}">
+            <i class="blob b1"></i><i class="blob b2"></i><i class="blob b3"></i>
+            <span class="orb-txt"><b>${s.score}%</b><small>${word}</small>${energy ? `<em>⚡ ${energy}/5</em>` : ''}</span>
+          </div>
+        </div>
+        <div class="orb-side r"><span class="orb-cap">Тянет вниз</span>${minus.length ? minus.map(lbl).join('') : lbl({ t: 'Ничего', s: 'всё по плану ✓', kind: 'calm' })}</div>
+      </div>
+      <span class="goal-sub"><span>Опоры: ${s.dailyDone} из ${s.daily}${s.weeklyDone ? ` · недельных +${s.weeklyDone}` : ''}</span><span>${s.drains ? `сливы: ${s.drains} · −${s.drains * DRAIN_PENALTY}%` : ''}</span></span>
+      ${energy ? '' : '<p class="hint">Оцени энергию ниже — от неё зависит, как ярко и быстро переливается сфера.</p>'}
+    </section>`;
+}
+
+/** Линии от сферы к подписям: считаются по реальным размерам, поэтому после отрисовки и при повороте экрана. */
+function layoutOrb(root) {
+  const wrap = root.querySelector('[data-orb]');
+  if (!wrap) return;
+  const svg = wrap.querySelector('.orb-lines');
+  const core = wrap.querySelector('.orb-core');
+  const cx = core.offsetLeft + core.offsetWidth / 2;
+  const cy = core.offsetTop + core.offsetHeight / 2;
+  const r = core.offsetWidth / 2 + 2;
+  svg.setAttribute('viewBox', `0 0 ${wrap.clientWidth} ${wrap.clientHeight}`);
+  let out = '';
+  wrap.querySelectorAll('[data-lbl]').forEach((el, i) => {
+    const side = el.parentElement;
+    const left = side.classList.contains('l');
+    const ax = left ? side.offsetLeft + side.offsetWidth + 4 : side.offsetLeft - 4;
+    const ay = side.offsetTop + el.offsetTop + 9;
+    const ex = left ? ax + 8 : ax - 8;
+    const d = Math.hypot(ex - cx, ay - cy) || 1;
+    const px = (cx + ((ex - cx) / d) * r).toFixed(1);
+    const py = (cy + ((ay - cy) / d) * r).toFixed(1);
+    const kind = el.dataset.lbl;
+    out += `<polyline class="k-${kind}" points="${px},${py} ${ex},${ay} ${ax},${ay}" style="animation-delay:${i * 90}ms"/><circle class="k-${kind}" cx="${px}" cy="${py}" r="2.5"/>`;
+  });
+  svg.innerHTML = out;
+}
+
+addEventListener('resize', () => {
+  if (session && ui.tab === 'state') layoutOrb(app);
+});
+
 function stateView() {
   const { state } = session;
   const list = supports();
@@ -3973,14 +4120,7 @@ function stateView() {
         <small>энергия ${it.yes.toFixed(1).replace('.', ',')} в дни с этим · ${it.no.toFixed(1).replace('.', ',')} без</small></div>`).join('')
     : `<p class="hint" style="margin:10px 0 0">${ins.need ? `Оценивайте энергию каждый день — ещё ${ins.need} ${plural(ins.need, ['оценка', 'оценки', 'оценок'])}, и Система начнёт показывать, что на неё влияет.` : 'Пока мало различий: нужны дни и с опорой, и без неё.'}</p>`;
 
-  return `<section class="panel state-card ${cls}">
-      <div class="state-top">
-        <div><small>Состояние сегодня</small><b>${word}</b></div>
-        <div class="state-pct">${s.score}%</div>
-      </div>
-      <span class="goal-bar"><i data-pct="${s.score}"></i>${[25, 50, 75].map((k) => `<b class="q" style="left:${k}%"></b>`).join('')}</span>
-      <span class="goal-sub"><span>Опоры: ${s.dailyDone} из ${s.daily}${s.weeklyDone ? ` · недельных +${s.weeklyDone}` : ''}</span><span>${s.drains ? `сливы: ${s.drains} · −${s.drains * DRAIN_PENALTY}%` : ''}</span></span>
-    </section>
+  return `${orbHtml(s, cls, word, today.energy)}
 
     <div class="section-h">Энергия сегодня</div>
     <div class="panel pad" style="padding-top:12px">
