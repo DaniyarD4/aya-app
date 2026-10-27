@@ -1575,6 +1575,23 @@ html.noscroll, html.noscroll body { overflow: hidden; }
 /* ---------- Сверка баланса и продукты ---------- */
 
 .bal-card.stale { border-color: rgba(255, 197, 107, 0.55); }
+.leak { display: block; width: 100%; text-align: left; padding: 12px 0; border: 0; border-bottom: 1px solid rgba(120, 205, 255, 0.1); background: none; color: var(--text); font: inherit; cursor: pointer; }
+.leak:last-of-type { border-bottom: 0; }
+.leak .fin-head b { color: var(--warn); font-family: var(--mono); font-weight: 600; }
+.leak small { display: block; margin-top: 4px; color: var(--text-dim); font-size: 13px; line-height: 1.4; }
+.leak .guess { color: var(--accent-2); }
+.facts { margin: 12px 0 4px; padding: 0 0 0 18px; color: var(--text-dim); font-size: 14px; line-height: 1.5; }
+.facts li + li { margin-top: 4px; }
+.why-chips button.guess { border-color: var(--accent); color: var(--accent-2); }
+.why-chips button.guess::after { content: ' · похоже'; color: var(--text-faint); font-size: 12px; }
+.swap { display: block; width: 100%; margin-top: 10px; padding: 14px; text-align: left; border: 1px solid rgba(120, 205, 255, 0.25); border-radius: 12px; background: rgba(10, 20, 36, 0.6); color: var(--text); font: inherit; cursor: pointer; }
+.swap b { display: block; color: var(--accent-2); }
+.swap small { display: block; margin-top: 4px; color: var(--text-dim); font-size: 13px; line-height: 1.4; }
+.xp-card { padding: 4px 0 14px; margin-bottom: 4px; border-bottom: 1px solid rgba(120, 205, 255, 0.1); }
+.xp-card .fin-head span:first-child { color: var(--accent-2); }
+.xp-card small { display: block; margin-top: 6px; color: var(--text-dim); font-size: 13px; }
+.xp-card.over .fin-bar { --fc: var(--danger); }
+.xp-card .link { margin-top: 6px; padding: 0; border: 0; background: none; color: var(--text-faint); font: inherit; font-size: 13px; text-decoration: underline; cursor: pointer; }
 .rec-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
 .rec-chips button {
   min-height: 42px;
@@ -2024,7 +2041,8 @@ function migrate(state) {
   state.purchases = state.purchases || [];
   if (state.finance.joyPct === undefined) state.finance.joyPct = 5;
   state.food = Object.assign({ weight: 70, tripDays: 6, share: 60, prices: {}, off: [], lastTrip: null, list: null }, state.food);
-  state.schema = 9;
+  state.finance.experiments = state.finance.experiments || []; // эксперименты-замены из «Разбора трат»
+  state.schema = 10;
   return state;
 }
 
@@ -3005,6 +3023,7 @@ function showHome() {
   clearInterval(activeTimer);
   activeTimer = setInterval(tickActive, 1000);
   checkFinanceRewards();
+  checkExperiments();
   ensureGroceryQuest();
   render();
 }
@@ -3040,7 +3059,7 @@ function render() {
 const VIEWS = { status: statusView, quests: questsView, state: stateView, finance: financeView, journal: journalView, settings: settingsView };
 
 function onViewClick(e) {
-  const t = e.target.closest('[data-check], [data-edit], [data-stat], [data-goal], [data-radar], [data-energy], [data-drain], [data-exp], [data-inc], [data-item], [data-buy], [data-take], [data-worry], [data-action], [data-day]');
+  const t = e.target.closest('[data-check], [data-edit], [data-stat], [data-goal], [data-radar], [data-energy], [data-drain], [data-exp], [data-inc], [data-item], [data-buy], [data-take], [data-worry], [data-leak], [data-xstop], [data-action], [data-day]');
   if (!t || !session) return;
   if (t.dataset.radar !== undefined) return selectRadarAxis(Number(t.dataset.radar));
   if (t.dataset.energy) return setEnergy(Number(t.dataset.energy));
@@ -3051,6 +3070,8 @@ function onViewClick(e) {
   if (t.dataset.buy) return buySpecial(t.dataset.buy, t);
   if (t.dataset.take) return takeItem(menuItem(t.dataset.take));
   if (t.dataset.worry) return resolveWorry(t.dataset.worry, t.dataset.how);
+  if (t.dataset.leak) return openSpendCase(t.dataset.leak);
+  if (t.dataset.xstop) return stopExperiment(t.dataset.xstop, t);
   if (t.dataset.day !== undefined) {
     // Нажатие на столбик показывает его значение
     const was = t.classList.contains('sel');
@@ -4380,6 +4401,10 @@ function askNext(e) {
     e.asked.planned = true;
     return ask('Это было запланировано?', [{ label: 'Да, запланировано', value: true }, { label: 'Нет, импульсивно', value: false }], (v) => { e.planned = v; });
   }
+  if (e.cls === 'want' && !e.fixed && (e.planned === false || e.overLimit) && !e.asked.why) {
+    e.asked.why = true;
+    return ask('Что подтолкнуло? Честно — Система подберёт замену, а не запрет.', Object.entries(WHY).map(([id, w]) => ({ label: w.label, value: id })), (v) => { e.why = v; }, true);
+  }
   finishExpense(e);
 }
 
@@ -4393,12 +4418,15 @@ function finishExpense(e) {
   render();
   if (v.grade === 'ok') Sound.play('quest');
   else if (v.grade === 'bad') Sound.play('undo');
+  const x = !e.fixed && activeExperiment(e.cat);
+  const xs = x ? experimentSpent(x) : 0;
   toast({
     title: '[Трата записана]',
     main: `${v.icon} −${money(e.amount)} · ${FIN_CAT[e.cat].name}`,
-    sub: `${v.text}${left !== null ? ` · ${left >= 0 ? `осталось на сегодня ${money(left)}` : `сверх лимита на ${money(-left)}`}` : ''}`,
-    kind: v.grade === 'bad' ? 'minus' : undefined,
-    ms: 5000,
+    sub: `${v.text}${left !== null ? ` · ${left >= 0 ? `осталось на сегодня ${money(left)}` : `сверх лимита на ${money(-left)}`}` : ''}${x ? ` · эксперимент: ${money(xs)} из ${money(x.cap)}${xs > x.cap ? ' — потолок пробит' : ''}` : ''}`,
+    kind: v.grade === 'bad' || (x && xs > x.cap) ? 'minus' : undefined,
+    action: e.why && !x ? { label: 'Чем заменить', run: () => openSwaps(e.cat, e.why) } : undefined,
+    ms: e.why && !x ? 8000 : 5000,
   });
   if (v.grade === 'bad') markSpendDrain();
 }
@@ -4508,6 +4536,7 @@ function expenseRow(e) {
 
 function financeView() {
   checkFinanceRewards();
+  checkExperiments();
   const f = fin();
   const b = finBudget();
   const lim = limitsNow();
@@ -4574,6 +4603,8 @@ function financeView() {
           <span class="fin-bar"><i data-pct="${((sum / maxCat) * 100).toFixed(1)}"></i></span></div>`).join('')}`
         : '<p class="hint" style="margin:12px 0 0">Трат в этом месяце пока нет.</p>'}
     </div>
+
+    ${spendHtml()}
 
     <div class="section-h">Бюджет</div>
     <div class="panel pad">
@@ -5336,6 +5367,272 @@ function openMenuItemEditor(id) {
     closeSheet();
     render();
   }));
+}
+
+/* ---------- Разбор трат: почему и чем заменить ----------
+   Система ищет хотелки, которые повторяются за 30 дней, и смотрит, когда они случаются:
+   вечером, в дни без сил, рядом с тревогой, сразу после поступлений, когда дома нет еды.
+   Причину уточняет у тебя (в момент траты или в разборе) и предлагает не запрет, а замену —
+   эксперимент на 7 дней с потолком на категорию. Прошёл — опыт целевого квеста и ачивка. */
+
+const WHY = {
+  tired: { label: 'Устал, нет сил', short: 'усталость' },
+  stress: { label: 'Тревога, стресс', short: 'стресс' },
+  bored: { label: 'Скучно, пусто', short: 'скука' },
+  reward: { label: 'Наградить себя', short: 'награда себе' },
+  hungry: { label: 'Голод, дома нет еды', short: 'голод и пустой холодильник' },
+  rush: { label: 'Не успевал', short: 'спешка' },
+  social: { label: 'За компанию', short: 'компания' },
+  auto: { label: 'На автомате', short: 'привычка' },
+  deal: { label: 'Скидка, «надо брать»', short: 'скидка' },
+};
+const WHY_BY_CAT = { cafe: 'hungry', transport: 'rush', shopping: 'bored', fun: 'bored', subs: 'auto', tech: 'deal', gifts: 'social' };
+
+/** Замены: why — на какие причины отвечает, cats — только для этих категорий.
+    menu — добавить блюдо в дофаминовое меню, quest — поставить квест, run — открыть нужный экран. */
+const SWAPS = [
+  { why: ['hungry'], text: 'Закупка продуктов по списку', how: 'Корзина под твой бюджет — когда дома есть еда, доставка не нужна', run: 'groceries' },
+  { why: ['hungry', 'tired', 'rush'], cats: ['cafe'], text: 'Заготовка еды на 3 дня', how: 'Раз в неделю варишь крупу и мясо — вечером только разогреть. Дешевле доставки в 3–4 раза', quest: { title: 'Заготовка еды на 3 дня', repeat: 'weekly' } },
+  { why: ['hungry', 'rush'], cats: ['cafe'], text: 'Перекус с собой', how: 'Банан, варёные яйца или творог в рюкзак — не придётся покупать на бегу', quest: { title: 'Собрать перекус с собой', repeat: 'daily', type: 'chore' } },
+  { why: ['tired'], cats: ['cafe'], text: 'Запас «на нет сил»', how: 'Пельмени, яйца, лаваш, творог — ужин за 10 минут дешевле доставки', run: 'groceries' },
+  { why: ['tired', 'rush'], cats: ['transport'], text: 'Выходить на 10 минут раньше', how: 'Такси чаще всего — плата за опоздание. Автобус + подкаст', quest: { title: 'Выйти на 10 минут раньше', repeat: 'daily', type: 'chore' } },
+  { why: ['tired', 'stress', 'bored'], text: 'Ванна с подкастом или музыкой', how: 'Тот же отдых и дофамин, но бесплатно', menu: 'Ванна с подкастом или музыкой' },
+  { why: ['tired', 'bored', 'stress'], text: 'Прогулка 20 минут', how: 'Переключает голову лучше покупки', menu: 'Прогулка' },
+  { why: ['stress'], text: 'Сначала выгрузить тревогу', how: 'Мысли на бумагу и минута дыхания — потом решай, нужна ли покупка', run: 'anxiety' },
+  { why: ['stress', 'deal', 'bored', 'reward'], cats: ['shopping', 'tech', 'fun', 'other'], text: 'Правило 48 часов', how: 'Хочется купить — пишешь в заметку и ждёшь 2 дня. Если всё ещё нужно — покупаешь спокойно' },
+  { why: ['bored'], text: 'Снять ролик для блога', how: 'Скука → проявленность. Это вклад, а не трата', menu: 'Снять ролик для блога' },
+  { why: ['bored', 'auto', 'tired'], text: 'Кнопка «Мне нужно»', how: 'Дофаминовое меню подберёт занятие вместо покупки', run: 'need' },
+  { why: ['reward'], text: 'Награда за золото', how: 'Награда, заработанная квестами, — без чувства вины и без удара по лимиту', run: 'shop' },
+  { why: ['reward'], text: 'Копить на большую радость', how: 'Мелкие награды съедают деньги незаметно. Одна большая — Лего, шопинг-вечер из фонда радостей — радует сильнее' },
+  { why: ['social'], text: 'Предлагать прогулку вместо кафе', how: 'Встреча та же, трат нет' },
+  { why: ['social'], cats: ['cafe', 'fun', 'gifts'], text: 'Сумма на встречу заранее', how: 'До выхода из дома решаешь, сколько тратишь, — и берёшь только её' },
+  { why: ['auto'], cats: ['cafe'], text: 'Убрать доставку с главного экрана', how: 'Лишние три нажатия — это 10 секунд, чтобы передумать' },
+  { why: ['auto'], cats: ['subs'], text: 'Ревизия подписок', how: 'Оставь только то, чем пользовался на этой неделе', quest: { title: 'Ревизия подписок', repeat: 'none', type: 'chore' } },
+  { why: ['auto', 'deal', 'stress'], text: 'Пауза 10 минут перед оплатой', how: 'Импульс проходит за 10 минут. Не прошёл — покупай' },
+  { why: ['deal'], text: 'Покупать только по списку', how: 'Скидка — тоже трата. Чего не было в списке, того нет и в бюджете' },
+];
+
+const isLeakCat = (cat) => !['unknown', 'savings'].includes(cat);
+const round100 = (n) => Math.round(n / 100) * 100;
+
+function swapsFor(cat, why) {
+  const fit = SWAPS.filter((x) => x.why.includes(why) && (!x.cats || x.cats.includes(cat)));
+  const list = fit.filter((x) => x.cats).concat(fit.filter((x) => !x.cats)).slice(0, 3);
+  if (list.length < 2) list.push(SWAPS.find((x) => x.text === 'Пауза 10 минут перед оплатой'));
+  return [...new Set(list)];
+}
+
+/** Сколько обычно уходит на категорию в неделю (по последним 4 неделям или сколько есть записей). */
+function weeklyUsual(cat) {
+  const now = Date.now();
+  const list = fin().expenses;
+  if (!list.length) return 0;
+  const days = Math.min(28, Math.max(7, (now - Math.min(...list.map((e) => e.at))) / 864e5)); // записи могут быть моложе 4 недель
+  const sum = list.filter((e) => e.cat === cat && !e.fixed && e.at >= now - days * 864e5).reduce((a, e) => a + e.amount, 0);
+  return Math.round((sum / days) * 7);
+}
+
+function spendPatterns() {
+  const f = fin();
+  const now = Date.now();
+  const from = now - 30 * 864e5;
+  const recent = f.expenses.filter((e) => e.at >= from && !e.fixed);
+  if (!recent.length) return [];
+  const total = recent.reduce((a, e) => a + e.amount, 0);
+  const first = Math.min(...f.expenses.map((e) => e.at));
+  const days = Math.min(30, Math.max(7, (now - first) / 864e5));
+  const by = new Map();
+  for (const e of recent) {
+    if (e.cls !== 'want' || !isLeakCat(e.cat)) continue;
+    if (!by.has(e.cat)) by.set(e.cat, []);
+    by.get(e.cat).push(e);
+  }
+  const out = [];
+  for (const [cat, items] of by) {
+    const sum = items.reduce((a, e) => a + e.amount, 0);
+    if (items.length < 3 && sum < total * 0.15) continue;
+    out.push(analyzeLeak(cat, items, sum, total, days));
+  }
+  return out.sort((a, b) => b.sum - a.sum);
+}
+
+/** Факты о категории и догадка, почему так. */
+function analyzeLeak(cat, items, sum, total, days) {
+  const f = fin();
+  const { state } = session;
+  const n = items.length;
+  const share = (pred) => items.filter(pred).length / n;
+  const pct = (x) => Math.round(x * 100);
+  const evStart = state.evening.start;
+  const evening = share((e) => { const d = new Date(e.at); const m = d.getHours() * 60 + d.getMinutes(); return m >= evStart || m < 240; });
+  const lowDay = share((e) => { const d = dayData(dayKey(new Date(e.at))); return (d.energy && d.energy <= 2) || d.drains.length >= 2; });
+  const anxious = share((e) => state.worries.some((w) => Math.abs(w.at - e.at) < 6 * 3600000));
+  const weekend = share((e) => [0, 6].includes(new Date(e.at).getDay()));
+  const afterIncome = share((e) => f.incomes.some((i) => !i.adjust && i.at <= e.at && e.at - i.at < 2 * 864e5));
+  const impulsive = share((e) => e.planned === false);
+  const noFood = cat === 'cafe' ? share((e) => !f.expenses.some((g) => g.cat === 'groceries' && g.amount >= 2000 && g.at < e.at && e.at - g.at < food().tripDays * 864e5)) : 0;
+  const whys = new Map();
+  for (const e of items) if (e.why) whys.set(e.why, (whys.get(e.why) || 0) + 1);
+  const topWhy = [...whys.entries()].sort((a, b) => b[1] - a[1])[0];
+  const avg = sum / n;
+  const month = round100((sum / days) * 30);
+
+  const facts = [`${n} ${plural(n, ['раз', 'раза', 'раз'])} за ${Math.round(days)} дн. — ${money(sum)}, ${pct(sum / total)}% всех трат`];
+  const hints = []; // [вес, причина]
+  if (topWhy && topWhy[1] >= 2) { facts.push(`Ты сам отмечал: ${WHY[topWhy[0]].short} (${topWhy[1]} из ${n})`); hints.push([3, topWhy[0]]); }
+  if (n < 3) {
+    // одна-две крупные покупки: доли по ним ничего не говорят
+    facts.push(`Крупная разовая трата — ${pct(sum / total)}% всех трат за месяц`);
+    if (items.some((e) => e.why)) hints.push([3, items.find((e) => e.why).why]);
+    return { cat, n, sum, month: round100(sum), facts, guess: hints.length ? hints[0][1] : WHY_BY_CAT[cat] || 'auto' };
+  }
+  if (avg < 3000 && n >= 6) facts.push(`Мелочь по ${money(avg)}, а за месяц набегает ~${money(month)}`);
+  if (noFood >= 0.5) { facts.push(`${pct(noFood)}% — когда дома не было закупки продуктов`); hints.push([noFood * 2, 'hungry']); }
+  if (lowDay >= 0.4) { facts.push(`${pct(lowDay)}% — в дни без сил или со сливами энергии`); hints.push([lowDay * 1.8, 'tired']); }
+  if (evening >= 0.5) { facts.push(`${pct(evening)}% — вечером, после ${minToTime(evStart)}`); hints.push([evening * 1.5, 'tired']); }
+  if (anxious >= 0.3) { facts.push(`${pct(anxious)}% — в те же часы, что и тревожные мысли`); hints.push([anxious * 2, 'stress']); }
+  if (afterIncome >= 0.5) { facts.push(`${pct(afterIncome)}% — в первые 2 дня после поступлений`); hints.push([afterIncome * 1.4, 'reward']); }
+  if (weekend >= 0.6) { facts.push(`${pct(weekend)}% — в выходные`); hints.push([weekend, cat === 'cafe' || cat === 'fun' ? 'social' : 'bored']); }
+  if (impulsive >= 0.6) { facts.push(`${pct(impulsive)}% — импульсивно, без плана`); hints.push([impulsive, 'auto']); }
+  hints.sort((a, b) => b[0] - a[0]);
+  const guess = hints.length ? hints[0][1] : WHY_BY_CAT[cat] || 'auto';
+  return { cat, n, sum, month, facts, guess };
+}
+
+function activeExperiment(cat) {
+  return fin().experiments.find((x) => x.cat === cat && !x.result);
+}
+
+function experimentSpent(x) {
+  const to = Math.min(Date.now() + 1, x.until);
+  return fin().expenses.filter((e) => e.cat === x.cat && !e.fixed && e.at >= x.from && e.at < to).reduce((a, e) => a + e.amount, 0);
+}
+
+function spendHtml() {
+  const f = fin();
+  const active = f.experiments.filter((x) => !x.result);
+  const leaks = spendPatterns().filter((p) => !active.some((x) => x.cat === p.cat)).slice(0, 3);
+  const done = f.experiments.filter((x) => x.result && x.result.ok);
+  const saved = done.reduce((a, x) => a + Math.max(0, x.base - x.result.spent), 0);
+  if (!active.length && !leaks.length && !done.length) {
+    return `<div class="section-h">Разбор трат</div>
+      <div class="panel empty">Пока нечего разбирать. Когда хотелки начнут повторяться, Система найдёт, когда и почему это происходит, и предложит замену.</div>`;
+  }
+  const xpCard = (x) => {
+    const spent = experimentSpent(x);
+    const daysLeft = Math.max(1, Math.ceil((x.until - Date.now()) / 864e5));
+    return `<div class="xp-card${spent > x.cap ? ' over' : ''}">
+        <div class="fin-head"><span>🧪 ${esc(x.swap)}</span><span>${daysLeft} ${plural(daysLeft, ['день', 'дня', 'дней'])}</span></div>
+        <span class="fin-bar"><i data-pct="${Math.min(100, x.cap ? (spent / x.cap) * 100 : 100).toFixed(1)}"></i></span>
+        <small>${FIN_CAT[x.cat].name}: ${money(spent)} из ${money(x.cap)} за неделю (обычно ${money(x.base)}) · причина — ${WHY[x.why].short}</small>
+        <button class="link" type="button" data-xstop="${x.id}">Остановить эксперимент</button>
+      </div>`;
+  };
+  return `<div class="section-h">Разбор трат${saved ? ` <span class="count">сэкономлено ${money(saved)}</span>` : ''}</div>
+    <div class="panel pad">
+      ${active.map(xpCard).join('')}
+      ${leaks.map((p) => `<button class="leak" type="button" data-leak="${p.cat}">
+          <span class="fin-head"><span>${FIN_CAT[p.cat].name}</span><b>~${money(p.month)} / мес</b></span>
+          <small>${esc(p.facts[1] || p.facts[0])}</small>
+          <small class="guess">Похоже на: ${WHY[p.guess].short} → разобрать</small>
+        </button>`).join('')}
+      ${!leaks.length && active.length ? '<p class="hint" style="margin:8px 0 0">Других повторяющихся хотелок не видно.</p>' : ''}
+    </div>`;
+}
+
+/** Разбор одной категории: факты, догадка Системы и вопрос «почему». */
+function openSpendCase(cat) {
+  clearToasts();
+  const p = spendPatterns().find((x) => x.cat === cat);
+  if (!p) return;
+  const root = openSheet('Разбор трат', `
+    <p class="lead">${FIN_CAT[cat].name}: <span class="hl">~${money(p.month)}</span> в месяц</p>
+    <ul class="facts">${p.facts.map((t) => `<li>${esc(t)}</li>`).join('')}</ul>
+    <p class="dim center">Система думает, что дело в причине «${WHY[p.guess].short}». А ты как думаешь — почему так выходит?</p>
+    <div class="rec-chips why-chips">${Object.entries(WHY).map(([id, w]) => `<button type="button" data-why="${id}"${id === p.guess ? ' class="guess"' : ''}>${w.label}</button>`).join('')}</div>
+    <button class="btn ghost" type="button" data-action="close" style="margin-top:16px">Не сейчас</button>`);
+  root.querySelectorAll('[data-why]').forEach((b) => b.addEventListener('click', () => openSwaps(cat, b.dataset.why)));
+}
+
+/** Замены под причину: выбор ставит эксперимент на 7 дней. */
+function openSwaps(cat, why) {
+  clearToasts();
+  const usual = round100(weeklyUsual(cat));
+  const cap = round100(usual * 0.5);
+  const running = activeExperiment(cat);
+  const root = openSheet('Чем заменить', `
+    <p class="lead">${FIN_CAT[cat].name} · ${WHY[why].short}</p>
+    <p class="dim center">Не «не трать», а что сделать вместо. Выбери одно — Система поставит эксперимент на 7 дней${usual ? `: «${FIN_CAT[cat].name}» — не больше ${money(cap)} за неделю (обычно ${money(usual)})` : ''}.</p>
+    ${running ? `<p class="hint">Сейчас идёт «${esc(running.swap)}» — новый эксперимент его заменит.</p>` : ''}
+    ${swapsFor(cat, why).map((x, i) => `<button class="swap" type="button" data-swap="${i}"><b>${esc(x.text)}</b><small>${esc(x.how)}</small></button>`).join('')}
+    <button class="btn ghost" type="button" data-action="close" style="margin-top:16px">Не сейчас</button>`);
+  const list = swapsFor(cat, why);
+  root.querySelectorAll('[data-swap]').forEach((b) => b.addEventListener('click', () => startExperiment(cat, why, list[Number(b.dataset.swap)])));
+}
+
+function startExperiment(cat, why, swap) {
+  const { state } = session;
+  const f = fin();
+  const usual = round100(weeklyUsual(cat));
+  const now = Date.now();
+  f.experiments = f.experiments.filter((x) => !(x.cat === cat && !x.result));
+  f.experiments.push({ id: uid(), cat, why, swap: swap.text, from: now, until: now + 7 * 864e5, cap: round100(usual * 0.5), base: usual, result: null });
+  const extra = [];
+  if (swap.menu && !state.menu.items.some((i) => i.title === swap.menu)) {
+    state.menu.items.push({ id: uid(), ratings: [], title: swap.menu, section: 'main', minutes: 20, evening: true });
+    extra.push('добавлено в дофаминовое меню');
+  }
+  if (swap.quest && !state.quests.some((q) => q.title === swap.quest.title && q.repeat === swap.quest.repeat)) {
+    const discipline = state.stats.find((st) => st.name === 'Дисциплина');
+    state.quests.push({ id: uid(), createdAt: now, title: swap.quest.title, note: `Замена: ${FIN_CAT[cat].name.toLowerCase()}`, type: swap.quest.type || 'normal', stats: discipline ? [discipline.id] : [], repeat: swap.quest.repeat });
+    extra.push('квест поставлен');
+  }
+  save();
+  closeSheet();
+  render();
+  Sound.play('quest');
+  toast({ title: 'Эксперимент на 7 дней', main: swap.text, sub: [`${FIN_CAT[cat].name}: до ${money(round100(usual * 0.5))} за неделю`, ...extra].join(' · '), kind: 'up', ms: 5000 });
+  if (swap.run === 'groceries') setTimeout(() => ensureGroceryQuest(true), 600);
+  if (swap.run === 'anxiety') setTimeout(() => startAnxietyFlow(), 400);
+  if (swap.run === 'need') setTimeout(openNeedSheet, 400);
+  if (swap.run === 'shop') { ui.tab = 'state'; render(); scrollTo(0, 0); }
+}
+
+function stopExperiment(id, btn) {
+  confirmPress(btn, 'Точно остановить? Нажми ещё раз', () => {
+    fin().experiments = fin().experiments.filter((x) => x.id !== id);
+    save();
+    render();
+  });
+}
+
+/** Подводит итог экспериментов, у которых вышла неделя. */
+function checkExperiments() {
+  if (!session) return;
+  const { state } = session;
+  const f = fin();
+  for (const x of f.experiments) {
+    if (x.result || x.until > Date.now()) continue;
+    const spent = experimentSpent(x);
+    const ok = spent <= x.cap;
+    x.result = { spent, ok, at: Date.now() };
+    if (ok) {
+      const before = playerInfo();
+      const discipline = state.stats.find((st) => st.name === 'Дисциплина');
+      const xp = state.settings.xp.goal;
+      state.log.push({ id: uid(), questId: null, title: `Замена: ${x.swap}`, type: 'goal', xp, stats: discipline ? { [discipline.id]: xp } : {}, period: 'x:' + x.id, at: Date.now(), source: 'finance-exp' });
+      const after = playerInfo();
+      const number = state.log.filter((e) => e.type === 'goal' || e.type === 'epic').length;
+      const savedSum = Math.max(0, x.base - spent);
+      queueFx(() => showAchievement({ title: x.swap, type: 'goal', xp, label: 'Замена работает', sub: `${FIN_CAT[x.cat].name}: ${money(spent)} за неделю вместо обычных ${money(x.base)}${savedSum ? ` — сэкономлено ${money(savedSum)}` : ''}`, number }));
+      if (after.rank !== before.rank) queueFx(() => showRankUp({ fromRank: before.rank, toRank: after.rank, level: after.level }));
+      else if (after.level > before.level) queueFx(() => showLevelUp({ from: before.level, to: after.level }));
+    } else {
+      const cat = x.cat;
+      toast({ title: 'Эксперимент', main: `«${x.swap}» не сработал`, sub: `${FIN_CAT[cat].name}: ${money(spent)} из ${money(x.cap)}. Это не провал — значит, причина другая`, action: { label: 'Разобрать заново', run: () => openSpendCase(cat) }, ms: 9000 });
+    }
+  }
+  save();
 }
 
 /* ---------- Сверка баланса ----------
