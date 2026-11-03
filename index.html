@@ -1355,6 +1355,47 @@ html.noscroll, html.noscroll body { overflow: hidden; }
 
 /* ---------- Состояние ---------- */
 
+/* Пилот энергии */
+.pilot { margin-top: 12px; padding: 14px; --pc: var(--accent); border-color: color-mix(in srgb, var(--pc) 45%, transparent); box-shadow: 0 0 18px color-mix(in srgb, var(--pc) 16%, transparent); }
+.pilot.m-wave { --pc: #66d0ff; } .pilot.m-even { --pc: #9fb7ff; } .pilot.m-ebb { --pc: #b99bff; }
+.pilot-head { display: flex; align-items: center; gap: 10px; }
+.pilot-mode { font-size: 18px; font-weight: 700; color: var(--pc); text-shadow: 0 0 10px color-mix(in srgb, var(--pc) 60%, transparent); }
+.pilot-meta { flex: 1; font-size: 12px; color: var(--text-dim); }
+.pilot-head .btn { width: auto; margin: 0; padding: 8px 12px; font-size: 12px; }
+.pilot-line { margin: 8px 0 0; font-size: 14px; line-height: 1.45; color: var(--text-dim); }
+.pilot-lbl { margin: 14px 0 6px; font-size: 10.5px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--text-faint); }
+.pilot-row { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border: 1px solid rgba(120, 205, 255, 0.16); border-radius: 12px; background: rgba(8, 16, 30, 0.55); }
+.pilot-row + .pilot-row { margin-top: 8px; }
+.pilot-row.now { border-color: color-mix(in srgb, var(--pc) 60%, transparent); box-shadow: 0 0 14px color-mix(in srgb, var(--pc) 18%, transparent); }
+.pilot-row .qcheck { flex: none; }
+.pilot-row .t { flex: 1; min-width: 0; font-size: 15px; line-height: 1.3; }
+.pilot-row .t small { display: block; margin-top: 2px; font-size: 12px; color: var(--text-dim); }
+.pilot-row .skip { flex: none; padding: 6px 8px; border: 0; background: none; color: var(--text-faint); font: inherit; font-size: 12px; text-decoration: underline; cursor: pointer; }
+.pilot-break { padding: 12px; border-radius: 12px; border: 1px solid rgba(255, 197, 107, 0.5); background: rgba(255, 197, 107, 0.08); }
+.pilot-break b { color: var(--warn); }
+.pilot-break p { margin: 4px 0 10px; font-size: 13px; color: var(--text-dim); }
+.pilot-break .btn { margin: 0; }
+.pilot-cap { margin-top: 14px; }
+.pilot-cap .fin-bar { --fc: var(--pc); }
+.pilot-done { margin-top: 12px; padding: 12px; border-radius: 12px; background: color-mix(in srgb, var(--pc) 10%, transparent); font-size: 14px; line-height: 1.45; }
+.pilot-done .btn { margin: 10px 0 0; }
+.pilot-wait { margin-top: 12px; font-size: 13px; color: var(--text-dim); }
+.pilot-wait summary { cursor: pointer; color: var(--text-faint); }
+.pilot-wait ul { margin: 6px 0 0; padding-left: 18px; }
+.pilot-ask { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; margin-top: 10px; }
+.pilot-ask button { padding: 10px 0 8px; border: 1px solid rgba(120, 205, 255, 0.25); border-radius: 10px; background: rgba(8, 16, 30, 0.6); color: var(--text); font: inherit; font-family: var(--mono); font-size: 18px; cursor: pointer; }
+.pilot-ask button small { display: block; margin-top: 2px; font-family: inherit; font-size: 10px; color: var(--text-dim); }
+.chip.load { color: var(--text-dim); }
+.quest.later { opacity: 0.55; }
+.quest.focus { border-color: var(--accent); box-shadow: 0 0 18px rgba(102, 208, 255, 0.35); }
+.waves { display: grid; grid-template-columns: repeat(14, 1fr); gap: 3px; margin-top: 10px; }
+.waves i { height: 26px; border-radius: 4px; background: rgba(120, 205, 255, 0.08); }
+.waves i.wave { background: linear-gradient(180deg, #66d0ff, #2f6dff); box-shadow: 0 0 8px rgba(102, 208, 255, 0.4); }
+.waves i.even { background: rgba(159, 183, 255, 0.45); }
+.waves i.ebb { background: linear-gradient(180deg, #b99bff, #5b3bb0); }
+.waves i.today { outline: 1px solid var(--text-dim); outline-offset: 1px; }
+.waves-legend { display: flex; gap: 12px; margin-top: 8px; font-size: 11px; color: var(--text-faint); }
+.orb-mode { font-size: 12px; color: var(--accent-2); }
 /* Сфера состояния */
 .orb-panel { margin-top: 16px; padding: 14px 12px 16px; overflow: hidden; border-color: color-mix(in srgb, var(--c2) 45%, transparent); box-shadow: 0 0 22px color-mix(in srgb, var(--c2) 22%, transparent), inset 0 0 30px color-mix(in srgb, var(--c2) 8%, transparent); }
 .orb-head { display: flex; justify-content: space-between; align-items: baseline; }
@@ -1493,6 +1534,8 @@ html.noscroll, html.noscroll body { overflow: hidden; }
 .fin-row-limit { margin-top: 14px; --fc: var(--accent); }
 .fin-row-limit.near { --fc: var(--warn); }
 .fin-row-limit.over { --fc: var(--danger); }
+.fin-head { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; }
+.pilot-cap .fin-head { font-size: 13px; color: var(--text-dim); margin-bottom: 6px; }
 .fin-row-limit .fin-head { display: flex; justify-content: space-between; gap: 10px; font-size: 13px; color: var(--text-dim); }
 .fin-row-limit .fin-head span:last-child { font-family: var(--mono); color: var(--text); }
 .fin-bar { position: relative; display: block; height: 10px; margin-top: 6px; overflow: hidden; border-radius: 5px; background: rgba(100, 190, 255, 0.08); border: 1px solid rgba(120, 205, 255, 0.18); }
@@ -2096,7 +2139,9 @@ function migrate(state) {
   if (state.finance.joyPct === undefined) state.finance.joyPct = 5;
   state.food = Object.assign({ weight: 70, tripDays: 6, share: 60, prices: {}, off: [], lastTrip: null, list: null }, state.food);
   state.finance.experiments = state.finance.experiments || []; // эксперименты-замены из «Разбора трат»
-  state.schema = 10;
+  state.flow = Object.assign({ checkins: [], lastAsk: 0, lastNudge: 0, breakAt: 0 }, state.flow); // пилот энергии
+  if (state.settings.pilot === undefined) state.settings.pilot = true;
+  state.schema = 11;
   return state;
 }
 
@@ -2901,7 +2946,9 @@ function openFx(className, html, armAfterMs) {
   const btn = fxOverlay.querySelector('[data-action="accept"]');
   btn.disabled = true;
   setTimeout(() => { btn.disabled = false; }, reducedMotion.matches ? 0 : armAfterMs);
+  const own = fxOverlay;
   btn.addEventListener('click', () => {
+    if (fxOverlay !== own) return; // повторное нажатие, пока окно гаснет
     const el = fxOverlay;
     fxOverlay = null;
     FX.stopRise();
@@ -3097,6 +3144,7 @@ function showHome() {
   checkExperiments();
   ensureGroceryQuest();
   render();
+  pilotOnOpen();
 }
 
 function renderTopbar() {
@@ -3131,7 +3179,7 @@ function render() {
 const VIEWS = { status: statusView, quests: questsView, state: stateView, finance: financeView, journal: journalView, settings: settingsView };
 
 function onViewClick(e) {
-  const t = e.target.closest('[data-check], [data-edit], [data-stat], [data-goal], [data-radar], [data-energy], [data-drain], [data-exp], [data-inc], [data-item], [data-buy], [data-take], [data-worry], [data-leak], [data-xstop], [data-action], [data-day]');
+  const t = e.target.closest('[data-check], [data-edit], [data-stat], [data-goal], [data-radar], [data-energy], [data-drain], [data-exp], [data-inc], [data-item], [data-buy], [data-take], [data-worry], [data-leak], [data-xstop], [data-pilot-e], [data-pilot-skip], [data-action], [data-day]');
   if (!t || !session) return;
   if (t.dataset.radar !== undefined) return selectRadarAxis(Number(t.dataset.radar));
   if (t.dataset.energy) return setEnergy(Number(t.dataset.energy));
@@ -3143,6 +3191,16 @@ function onViewClick(e) {
   if (t.dataset.take) return takeItem(menuItem(t.dataset.take));
   if (t.dataset.worry) return resolveWorry(t.dataset.worry, t.dataset.how);
   if (t.dataset.leak) return openSpendCase(t.dataset.leak);
+  if (t.dataset.pilotE) {
+    recordEnergy(Number(t.dataset.pilotE));
+    haptic(10);
+    return render();
+  }
+  if (t.dataset.pilotSkip) {
+    ui.pilotSkip = (ui.pilotSkip || []).concat(t.dataset.pilotSkip);
+    if (ui.pilotFocus === t.dataset.pilotSkip) ui.pilotFocus = null;
+    return render();
+  }
   if (t.dataset.xstop) return stopExperiment(t.dataset.xstop, t);
   if (t.dataset.day !== undefined) {
     // Нажатие на столбик показывает его значение
@@ -3163,6 +3221,14 @@ function onViewClick(e) {
     case 'state-preset': return applyStatePreset();
     case 'edit-drains': return openDrainsEditor();
     case 'go-state': ui.tab = 'state'; render(); return scrollTo(0, 0);
+    case 'go-quests': ui.tab = 'quests'; render(); return scrollTo(0, 0);
+    case 'pilot-checkin': return openCheckin('open');
+    case 'pilot-rest': return openSuggestion(pilotState() && pilotState().mode === 'ebb' ? 'tired' : 'rest');
+    case 'pilot-break':
+      flow().breakAt = Date.now();
+      save();
+      toast({ title: 'Перерыв', main: 'Вода, еда, 10 минут', sub: 'Волна никуда не денется', kind: 'up', ms: 4000 });
+      return render();
     case 'fin-budget': return openBudgetEditor();
     case 'fin-check': return openReconcile();
     case 'grocery-basket': return openBasket();
@@ -3208,7 +3274,7 @@ function questsView() {
     .filter((q) => q.repeat === 'none' && done.has(q.id))
     .sort((a, b) => done.get(b.id).at - done.get(a.id).at);
 
-  let html = '<button class="btn add" type="button" data-action="new-quest">+ Новый квест</button>';
+  let html = pilotHtml(false) + '<button class="btn add" type="button" data-action="new-quest">+ Новый квест</button>';
   if (!quests.length) {
     return html + `<div class="section-h">Квесты</div>
       <div class="panel empty"><b>Активных квестов нет</b>Добавьте первое дело — Система начислит опыт за выполнение.</div>`;
@@ -3235,15 +3301,18 @@ function questsView() {
 
 function questCard(q, entry) {
   const xp = entry ? entry.xp : session.state.settings.xp[q.type];
+  const st = !entry && q.area !== 'state' && session.state.settings.pilot ? pilotState() : null;
+  const later = st && (!MODES[st.mode].fits.includes(questLoad(q)) || (q.wait && st.mode !== 'wave'));
   const names = q.stats.map(statName).filter((n) => n !== '—');
   const repeat = q.repeat === 'daily' ? '↻ день' : q.repeat === 'weekly' ? '↻ неделя' : q.repeat === 'xweek' ? `${weekCount(q)} из ${q.times} за неделю` : '';
-  return `<article class="panel quest${entry ? ' done' : ''}">
+  return `<article class="panel quest${entry ? ' done' : ''}${later ? ' later' : ''}${!entry && ui.pilotFocus === q.id ? ' focus' : ''}">
     <button class="qcheck" type="button" data-check="${q.id}" role="checkbox" aria-checked="${!!entry}" aria-label="${entry ? 'Снять отметку' : 'Выполнено'}: ${esc(q.title)}"><span class="qbox"></span></button>
     <button class="qbody" type="button" data-edit="${q.id}">
       <span class="qtitle">${esc(q.title)}</span>
       ${q.note ? `<span class="qnote">${esc(q.note)}</span>` : ''}
       <span class="chips">
         <span class="chip t-${q.type}">${TYPE_BY_ID[q.type].name}</span>
+        ${q.area !== 'state' ? `<span class="chip load" title="${LOADS[questLoad(q)].name}">${LOADS[questLoad(q)].icon}${later ? ' · ждёт волны' : ''}</span>` : ''}
         ${repeat ? `<span class="chip">${repeat}</span>` : ''}
         ${goalChip(q)}
         ${names.map((n) => `<span class="chip">${esc(n)}</span>`).join('')}
@@ -3264,10 +3333,11 @@ function toggleQuest(id, checkBtn) {
   const y = box.top + box.height / 2;
   const xp = completeQuest(q);
   if (q.system === 'groceries') setTimeout(() => askGrocerySpend(), 900);
+  pilotAfterQuest(q);
   floatXp(x + 40, y - 6, `+${fmt(xp)} XP`);
   FX.burst(x, y, { count: 26, speed: 300, life: 0.8, gravity: 260 });
   // Даём досмотреть вспышку, потом квест переезжает в «Выполнено»
-  const card = checkBtn.closest('.quest');
+  const card = checkBtn.closest('.quest, .pilot-row'); // квест можно закрыть и из плана пилота
   card.classList.add('done', 'flash');
   checkBtn.setAttribute('aria-checked', 'true');
   renderTopbar();
@@ -3413,6 +3483,11 @@ function openQuestEditor(quest, opts = {}) {
             <span>${label}</span></label>`).join('')}
         </div>
       </div>`}
+      ${support ? '' : `<div class="field"><span>Сколько сил нужно</span>
+        <div class="choices">${[1, 2, 3].map((n) => `<label class="choice"><input type="radio" name="load" value="${n}"${questLoad(q) === n ? ' checked' : ''}><span>${LOADS[n].icon} ${LOADS[n].name}</span></label>`).join('')}</div>
+        <label class="choice" style="margin-top:8px"><input type="checkbox" name="wait"${q.wait ? ' checked' : ''}><span>Отложить до волны</span></label>
+        <div class="hint">Пилот энергии ставит тяжёлое на волну, лёгкое — на откат. По умолчанию — по типу квеста.</div>
+      </div>`}
       ${goalChoicesHtml(q.goalId)}
       <p class="error" data-error></p>
       <button class="btn" type="submit">${quest ? 'Сохранить' : 'Принять квест'}</button>
@@ -3448,6 +3523,11 @@ function openQuestEditor(quest, opts = {}) {
     if (!stats.length) return sheetError(root, 'Выберите хотя бы одну характеристику.');
     const data = { title, note: f.note.value.trim(), type: f.type.value, stats, repeat: f.repeat.value, goalId: (f.goal && f.goal.value) || undefined };
     if (support) Object.assign(data, { area: 'state', times: data.repeat === 'xweek' ? Number(f.times.value) || 3 : undefined });
+    else {
+      const load = Number(f.load.value);
+      data.load = load === LOAD_BY_TYPE[data.type] ? undefined : load; // как у типа — не храним, сменится вместе с типом
+      data.wait = f.wait.checked || undefined;
+    }
     if (quest) Object.assign(quest, data);
     else state.quests.push({ id: uid(), createdAt: Date.now(), ...data });
     save();
@@ -4320,6 +4400,359 @@ document.addEventListener('visibilitychange', () => {
   if (!document.hidden && bubble.ok && bubble.canvas.isConnected && !bubble.raf) bubble.raf = requestAnimationFrame(bubbleFrame);
 });
 
+/* ---------- Пилот энергии: волны вместо расписания ----------
+   Под СДВГ силы идут волнами: то гиперфокус, то полный откат. Система спрашивает «как ты сейчас»
+   (при входе раз в 3 часа и после закрытого квеста), учитывает шарик состояния и выбирает режим:
+   Волна, Ровно или Откат. Квесты раскладываются по силам: тяжёлое — на волну, лёгкое и опоры — на откат.
+   Ничего не сгорает: что не по силам сейчас, ждёт следующей волны. На долгой волне — напоминание о перерыве. */
+
+const LOADS = {
+  1: { name: 'Лёгкий', icon: '⚡', hint: 'можно и на откате' },
+  2: { name: 'Средний', icon: '⚡⚡', hint: 'нужна ровная энергия' },
+  3: { name: 'Тяжёлый', icon: '⚡⚡⚡', hint: 'лучше на волне' },
+};
+const LOAD_BY_TYPE = { chore: 1, normal: 2, goal: 3, epic: 3 };
+const MODES = {
+  wave: { name: 'Волна', icon: '🌊', line: 'Силы есть — бери тяжёлое, пока волна несёт.', fits: [3, 2, 1], cap: 6 },
+  even: { name: 'Ровно', icon: '〰️', line: 'Ровный ход: средние задачи, тяжёлое — по одной.', fits: [2, 1, 3], cap: 4 },
+  ebb: { name: 'Откат', icon: '🌙', line: 'Откат — это не лень, а часть цикла. Опоры и одно лёгкое, остальное подождёт волны.', fits: [1], cap: 2 },
+};
+const flow = () => session.state.flow;
+const questLoad = (q) => q.load || LOAD_BY_TYPE[q.type] || 2;
+const isSupportQuest = (id) => { const q = findQuest(id); return !!q && q.area === 'state'; };
+
+/** Оценка сил: запись в истории и энергия дня (её же видит вкладка «Состояние» и шарик). */
+function recordEnergy(n) {
+  const f = flow();
+  f.checkins.push({ at: Date.now(), energy: n });
+  if (f.checkins.length > 500) f.checkins.splice(0, f.checkins.length - 500);
+  setDayData(dayKey(new Date()), { energy: n });
+  save();
+}
+
+/** Оценивал ли силы за последние 3 часа. */
+function currentEnergyFresh() {
+  const last = flow().checkins.at(-1);
+  return !!last && Date.now() - last.at < 3 * 3600000;
+}
+
+/** Силы сейчас: последняя оценка за 4 часа, иначе оценка дня. */
+function currentEnergy() {
+  const last = flow().checkins.at(-1);
+  if (last && Date.now() - last.at < 4 * 3600000 && dayKey(new Date(last.at)) === dayKey(new Date())) return { energy: last.energy, at: last.at };
+  const day = dayData(dayKey(new Date())).energy;
+  return day ? { energy: day, at: null } : null;
+}
+
+/** Закрытые сегодня квесты (без опор) — по времени. */
+function questsDoneToday() {
+  const from = dayStart(new Date());
+  return session.state.log.filter((e) => e.questId && e.at >= from && !isSupportQuest(e.questId)).sort((a, b) => a.at - b.at);
+}
+
+/** Сколько минут длится текущая волна работы: закрытия квестов с разрывами меньше часа, с последнего перерыва. */
+function streakMinutes() {
+  const list = questsDoneToday();
+  if (list.length < 3) return 0;
+  let start = list.at(-1).at;
+  for (let i = list.length - 2; i >= 0 && start - list[i].at < 3600000; i--) start = list[i].at;
+  if (Date.now() - list.at(-1).at > 3600000) return 0;
+  return Math.round((Date.now() - Math.max(start, flow().breakAt || 0)) / 60000);
+}
+
+function pilotState() {
+  const e = currentEnergy();
+  if (!e) return null;
+  const score = supports().length ? dayScore(new Date()).score : 100;
+  let eff = e.energy;
+  if (score < 40) eff -= 1; // шарик проседает — сил на деле меньше, чем кажется
+  const recent = questsDoneToday().filter((x) => Date.now() - x.at < 2 * 3600000).length;
+  const mode = eff >= 4 || (eff >= 3 && recent >= 3) ? 'wave' : eff <= 2 ? 'ebb' : 'even';
+  return { mode, energy: e.energy, at: e.at, score, recent };
+}
+
+function pilotPlan() {
+  const st = pilotState();
+  const done = completionIndex();
+  const open = session.state.quests.filter((q) => q.area !== 'state' && !done.has(q.id));
+  const doneToday = questsDoneToday().length;
+  if (!st) return { st: null, open, doneToday };
+  const m = MODES[st.mode];
+  const skip = ui.pilotSkip || [];
+  const prio = (q) => (q.system === 'groceries' ? 3 : 0) + (q.goalId ? 2 : 0) + (q.repeat === 'daily' ? 1 : 0) - (skip.includes(q.id) ? 20 : 0);
+  const fits = (q) => m.fits.includes(questLoad(q)) && !(q.wait && st.mode !== 'wave') && !(st.mode === 'even' && questLoad(q) === 3 && doneHeavyToday() >= 1);
+  const ready = open.filter(fits).sort((a, b) => m.fits.indexOf(questLoad(a)) - m.fits.indexOf(questLoad(b)) || prio(b) - prio(a) || a.createdAt - b.createdAt);
+  // фокус, который ты взял сам, — всегда первым
+  ready.sort((a, b) => (b.id === ui.pilotFocus) - (a.id === ui.pilotFocus));
+  const waiting = open.filter((q) => !ready.includes(q));
+  const sup = supports().filter((q) => q.repeat === 'daily' && !done.has(q.id));
+  const minutes = streakMinutes();
+  return {
+    st,
+    m,
+    open,
+    ready,
+    waiting,
+    // сон днём не предлагаем — только вечером
+    supportsFirst: st.mode === 'ebb' ? sup.filter((q) => isEvening() || !/сон|спать|sleep/i.test(q.title)).slice(0, 2) : [],
+    doneToday,
+    cap: m.cap,
+    breakDue: st.mode !== 'ebb' && minutes >= 120,
+    minutes,
+  };
+}
+
+function doneHeavyToday() {
+  return questsDoneToday().filter((e) => { const q = findQuest(e.questId); return q && questLoad(q) === 3; }).length;
+}
+
+const hoursText = (min) => (min >= 60 ? `${Math.floor(min / 60)} ч${min % 60 ? ` ${min % 60} мин` : ''}` : `${min} мин`);
+
+function pilotRow(q, now) {
+  const L = LOADS[questLoad(q)];
+  return `<div class="pilot-row${now ? ' now' : ''}">
+      <button class="qcheck" type="button" data-check="${q.id}" role="checkbox" aria-checked="false" aria-label="Выполнено: ${esc(q.title)}"><span class="qbox"></span></button>
+      <span class="t">${esc(q.title)}<small>${q.area === 'state' ? 'опора · держит состояние' : `${L.icon} ${L.name.toLowerCase()} · ${TYPE_BY_ID[q.type].name.toLowerCase()}${q.goalId ? ' · к цели' : ''}`}</small></span>
+      ${now ? `<button class="skip" type="button" data-pilot-skip="${q.id}">другой</button>` : ''}
+    </div>`;
+}
+
+function energyAskHtml() {
+  return `<div class="pilot-ask">${[1, 2, 3, 4, 5].map((n) => `<button type="button" data-pilot-e="${n}">${n}<small>${ENERGY_WORDS[n - 1]}</small></button>`).join('')}</div>`;
+}
+
+/** Карточка пилота: на «Квестах» полная, на «Статусе» — коротко. */
+function pilotHtml(compact) {
+  if (!session.state.settings.pilot) return '';
+  const plan = pilotPlan();
+  if (!plan.st) {
+    return `<section class="panel pilot">
+        <div class="pilot-head"><span class="pilot-mode">Как ты сейчас?</span></div>
+        <p class="pilot-line">Отметь силы — Система разложит квесты под твою волну.</p>
+        ${energyAskHtml()}
+      </section>`;
+  }
+  const { st, m } = plan;
+  const head = `<div class="pilot-head"><span class="pilot-mode">${m.icon} ${m.name}</span>
+      <span class="pilot-meta">энергия ${st.energy}/5${supports().length ? ` · шарик ${st.score}%` : ''}${st.at ? ` · ${new Date(st.at).toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' })}` : ''}</span>
+      <button class="btn ghost" type="button" data-action="pilot-checkin">Как я?</button></div>`;
+  const brk = plan.breakDue
+    ? `<div class="pilot-break" style="margin-top:12px"><b>Ты на волне уже ${hoursText(plan.minutes)}</b><p>Гиперфокус съедает воду, еду и спину. 10 минут перерыва — и волна продолжится.</p>
+        <button class="btn" type="button" data-action="pilot-break">Сделал перерыв</button></div>`
+    : '';
+  const sup = plan.supportsFirst.length
+    ? `<div class="pilot-lbl">Сначала опоры</div>${plan.supportsFirst.map((q) => pilotRow(q, false)).join('')}`
+    : '';
+  const enough = plan.doneToday >= plan.cap && st.mode !== 'wave';
+  const nowQ = plan.ready[0];
+  const body = enough
+    ? `<div class="pilot-done">На сегодня по силам — всё: закрыто ${plan.doneToday}. ${st.mode === 'ebb' ? 'Откат — время восстановиться, а не догонять.' : 'Дальше — только если правда хочется.'}
+        <button class="btn ghost" type="button" data-action="pilot-rest">Подобрать отдых</button></div>
+        ${nowQ ? `<div class="pilot-lbl">Если хочется ещё</div>${pilotRow(nowQ, true)}` : ''}`
+    : nowQ
+      ? `<div class="pilot-lbl">Сейчас</div>${pilotRow(nowQ, true)}${compact ? '' : plan.ready.length > 1 ? `<div class="pilot-lbl">Потом</div>${plan.ready.slice(1, 3).map((q) => pilotRow(q, false)).join('')}` : ''}`
+      : `<div class="pilot-done">${plan.open.length ? 'Под эти силы квестов нет — остальные подождут волны.' : 'Квесты закрыты.'} Можно отдохнуть без вины.
+          <button class="btn ghost" type="button" data-action="pilot-rest">Подобрать отдых</button></div>`;
+  if (compact) {
+    return `<section class="panel pilot m-${st.mode}">${head}${brk}${sup}${body}
+        <button class="btn ghost" type="button" data-action="go-quests" style="margin-top:12px">Весь план</button></section>`;
+  }
+  const capPct = Math.min(100, (plan.doneToday / plan.cap) * 100);
+  return `<section class="panel pilot m-${st.mode}">${head}
+      <p class="pilot-line">${m.line}</p>
+      ${brk}${sup}${body}
+      <div class="pilot-cap"><div class="fin-head"><span>Сегодня по силам ~${plan.cap}${st.mode === 'wave' ? '+' : ''}</span><span>закрыто ${plan.doneToday}</span></div>
+        <span class="fin-bar"><i data-pct="${capPct.toFixed(1)}"></i></span></div>
+      ${plan.waiting.length ? `<details class="pilot-wait"><summary>Ждут волны · ${plan.waiting.length}</summary><ul>${plan.waiting.map((q) => `<li>${LOADS[questLoad(q)].icon} ${esc(q.title)}${q.wait ? ' · отложен' : ''}</li>`).join('')}</ul></details>` : ''}
+    </section>`;
+}
+
+/** Открыть окно, когда закроются ачивки и другие окна. */
+function afterFx(fn, tries = 0) {
+  if (!session || tries > 150) return;
+  if (fxOverlay || fxQueue.length || sheet) return setTimeout(() => afterFx(fn, tries + 1), 400);
+  fn();
+}
+
+/** «Как ты сейчас?» — после ответа сразу подсказка, что дальше. */
+function openCheckin(reason) {
+  if (!session) return;
+  clearToasts();
+  flow().lastAsk = Date.now();
+  save();
+  const root = openSheet('Система', `
+    <p class="lead">${reason === 'quest' ? 'Квест закрыт ✓ Как силы?' : 'Как ты сейчас?'}</p>
+    <p class="dim center">${reason === 'quest' ? 'Подберу следующий шаг под твою волну.' : 'От этого Система разложит квесты: тяжёлое — на волну, лёгкое — на откат.'}</p>
+    ${energyAskHtml()}
+    <button class="btn ghost" type="button" data-action="close" style="margin-top:14px">Не сейчас</button>`);
+  root.querySelectorAll('[data-pilot-e]').forEach((b) => b.addEventListener('click', () => {
+    recordEnergy(Number(b.dataset.pilotE));
+    haptic(10);
+    closeSheet();
+    render();
+    pilotNext(reason);
+  }));
+}
+
+/** Следующий шаг: перерыв, опора, «на сегодня всё» или квест под силы. */
+function pilotNext(reason) {
+  const plan = pilotPlan();
+  if (!plan.st) return openCheckin(reason);
+  const { st, m } = plan;
+  flow().lastNudge = Date.now();
+  save();
+  const head = `<p class="lead">${m.icon} ${m.name} · энергия ${st.energy}/5</p>`;
+  const close = '<button class="btn ghost" type="button" data-action="close">Закрыть</button>';
+  let body;
+  const q = plan.ready[0];
+  if (plan.breakDue) {
+    body = `<p class="dim center">Ты на волне уже ${hoursText(plan.minutes)}. Вода, еда, 10 минут без экрана — и обратно.</p>
+      <button class="btn" type="button" data-go="break">Сделал перерыв</button>
+      <button class="btn ghost" type="button" data-go="more">Ещё чуть-чуть</button>`;
+  } else if (plan.supportsFirst.length) {
+    body = `<p class="dim center">Откат. Сначала опора — она быстрее всего вернёт силы.</p>
+      <div class="slot landed">${esc(plan.supportsFirst[0].title)}</div>
+      <button class="btn" type="button" data-go="support">Сделал ✓</button>
+      <button class="btn ghost" type="button" data-go="rest">Лучше отдых</button>`;
+  } else if (plan.doneToday >= plan.cap && st.mode !== 'wave') {
+    body = `<p class="dim center">Закрыто ${plan.doneToday} — на эти силы достаточно. ${st.mode === 'ebb' ? 'Откат — время восстановиться.' : 'Остальное подождёт волны.'}</p>
+      <button class="btn" type="button" data-go="rest">Подобрать отдых</button>
+      ${q ? '<button class="btn ghost" type="button" data-go="take">Всё-таки ещё одно</button>' : ''}`;
+  } else if (q) {
+    const L = LOADS[questLoad(q)];
+    body = `<p class="dim center">${st.mode === 'wave' ? 'Пока волна — самое тяжёлое.' : st.mode === 'ebb' ? 'Только лёгкое, без подвигов.' : 'Ровный шаг.'}</p>
+      <div class="slot landed">${esc(q.title)}</div>
+      <p class="dim center" style="margin-top:4px">${L.icon} ${L.name.toLowerCase()} · ${L.hint}</p>
+      <button class="btn" type="button" data-go="take">Беру</button>
+      <button class="btn ghost" type="button" data-go="other">Другой</button>
+      <button class="btn ghost" type="button" data-go="rest">Перерыв</button>`;
+  } else {
+    body = `<p class="dim center">Под эти силы квестов нет — остальные подождут волны. Можно отдохнуть без вины.</p>
+      <button class="btn" type="button" data-go="rest">Подобрать отдых</button>`;
+  }
+  const root = openSheet(reason === 'quest' ? 'Дальше' : 'План на сейчас', head + body + close);
+  root.querySelectorAll('[data-go]').forEach((b) => b.addEventListener('click', () => {
+    const go = b.dataset.go;
+    if (go === 'break') {
+      flow().breakAt = Date.now();
+      save();
+      closeSheet();
+      toast({ title: 'Перерыв', main: 'Вода, еда, 10 минут', sub: 'Волна никуда не денется', kind: 'up', ms: 4000 });
+      return render();
+    }
+    if (go === 'more') {
+      flow().breakAt = Date.now() - 90 * 60000; // напомнить ещё раз через полчаса
+      save();
+      closeSheet();
+      return render();
+    }
+    if (go === 'support') {
+      closeSheet();
+      completeQuest(plan.supportsFirst[0]);
+      return render();
+    }
+    if (go === 'rest') {
+      closeSheet();
+      return openSuggestion(st.mode === 'ebb' ? 'tired' : 'rest');
+    }
+    if (go === 'other' && q) {
+      ui.pilotSkip = (ui.pilotSkip || []).concat(q.id);
+      if (ui.pilotFocus === q.id) ui.pilotFocus = null;
+      return pilotNext(reason);
+    }
+    if (go === 'take' && q) {
+      ui.pilotFocus = q.id;
+      closeSheet();
+      ui.tab = 'quests';
+      render();
+      scrollTo(0, 0);
+      toast({ title: 'Фокус', main: q.title, sub: 'Он первым в плане. Закроешь — подскажу дальше', ms: 3500 });
+    }
+  }));
+}
+
+/** После закрытого квеста: спросить силы (если давно не спрашивали) и подсказать следующий шаг. */
+function pilotAfterQuest(q) {
+  if (!session.state.settings.pilot || q.area === 'state' || q.system === 'groceries') return;
+  if (ui.pilotFocus === q.id) ui.pilotFocus = null;
+  setTimeout(() => afterFx(() => {
+    const f = flow();
+    const last = f.checkins.at(-1);
+    // часто закрываешь подряд — не дёргаем окном, хватит подсказки
+    if (Date.now() - (f.lastNudge || 0) < 8 * 60000) {
+      const plan = pilotPlan();
+      const next = plan.st && plan.ready[0];
+      if (plan.breakDue) toast({ title: 'Пилот', main: `На волне уже ${hoursText(plan.minutes)}`, sub: 'Пора на перерыв', action: { label: 'Перерыв', run: () => pilotNext('quest') }, ms: 7000 });
+      else if (next) toast({ title: 'Пилот', main: `Дальше: ${next.title}`, sub: `${LOADS[questLoad(next)].icon} ${plan.m.name.toLowerCase()}`, action: { label: 'Беру', run: () => { ui.pilotFocus = next.id; render(); } }, ms: 6000 });
+      return;
+    }
+    if (!last || Date.now() - last.at > 75 * 60000) openCheckin('quest');
+    else pilotNext('quest');
+  }), 1400);
+}
+
+/** При входе: спросить силы, если не спрашивали 3 часа (с 7 утра до 23). */
+function pilotOnOpen() {
+  if (!session.state.settings.pilot) return;
+  const h = new Date().getHours();
+  if (h < 7 || h >= 23) return;
+  const f = flow();
+  const last = f.checkins.at(-1);
+  if (last && Date.now() - last.at < 3 * 3600000) return;
+  if (Date.now() - (f.lastAsk || 0) < 3 * 3600000) return;
+  setTimeout(() => afterFx(() => session.state.settings.pilot && !currentEnergyFresh() && openCheckin('open')), 1600);
+}
+
+/** Режим дня по средней энергии: для полоски волн. */
+function dayMode(key) {
+  const list = flow().checkins.filter((c) => dayKey(new Date(c.at)) === key).map((c) => c.energy);
+  const e = list.length ? list.reduce((a, b) => a + b, 0) / list.length : dayData(key).energy;
+  if (!e) return null;
+  return e >= 3.7 ? 'wave' : e <= 2.3 ? 'ebb' : 'even';
+}
+
+/** Волны за 14 дней и сколько обычно длятся волна и откат. */
+function wavesHtml() {
+  const now = new Date();
+  const days = [];
+  for (let i = 13; i >= 0; i--) {
+    const d = addDays(now, -i);
+    days.push({ d, mode: dayMode(dayKey(d)), today: i === 0 });
+  }
+  const known = days.filter((x) => x.mode);
+  if (known.length < 2) return '';
+  // длины серий волн и откатов
+  const runs = { wave: [], ebb: [] };
+  let cur = null;
+  let len = 0;
+  for (const x of days) {
+    if (x.mode === cur) len++;
+    else {
+      if (cur && runs[cur]) runs[cur].push(len);
+      cur = x.mode;
+      len = 1;
+    }
+  }
+  const avg = (a) => a.reduce((s, v) => s + v, 0) / a.length;
+  const tail = cur && runs[cur] ? len : 0;
+  let insight = '';
+  if (runs.wave.length >= 2 && runs.ebb.length >= 1) {
+    const w = Math.round(avg(runs.wave));
+    const e = Math.round(avg(runs.ebb));
+    insight = `Волна у тебя обычно ${w} ${plural(w, ['день', 'дня', 'дней'])}, откат — ${e} ${plural(e, ['день', 'дня', 'дней'])}.`;
+    if (cur === 'wave' && tail >= w) insight += ` Волна идёт уже ${tail} ${plural(tail, ['день', 'дня', 'дней'])} — скоро может накатить откат: не набирай лишнего на завтра.`;
+    if (cur === 'ebb' && tail >= e) insight += ' Откат уже обычной длины — волна близко.';
+  } else {
+    insight = 'Отмечай силы пару недель — Система увидит, сколько у тебя длятся волна и откат.';
+  }
+  return `<div class="section-h">Волны</div>
+    <div class="panel pad">
+      <div class="waves">${days.map((x) => `<i class="${x.mode || ''}${x.today ? ' today' : ''}" title="${dayTitle(x.d)}"></i>`).join('')}</div>
+      <div class="waves-legend"><span>🌊 волна</span><span>〰️ ровно</span><span>🌙 откат</span><span style="margin-left:auto">14 дней</span></div>
+      <p class="hint" style="margin:10px 0 0">${insight}</p>
+    </div>`;
+}
+
 /* ---------- Сфера состояния ----------
    Цвет — состояние дня (опоры и сливы), скорость переливов и свечение — энергия.
    Линии слева ведут к тому, что держит, справа — к сливам и несделанным опорам. */
@@ -4370,7 +4803,7 @@ function orbHtml(s, cls, word, energy) {
   const surge = ui.orbScore !== undefined && s.score > ui.orbScore;
   ui.orbScore = s.score;
   return `<section class="panel orb-panel" style="--c1:${c1};--c2:${c2};--c3:${c3};--spin:${spin}s;--glow:${glow}">
-      <div class="orb-head"><small>Состояние сейчас</small></div>
+      <div class="orb-head"><small>Состояние сейчас</small>${(() => { const st = session.state.settings.pilot && pilotState(); return st ? `<span class="orb-mode">${MODES[st.mode].icon} ${MODES[st.mode].name}</span>` : ''; })()}</div>
       <div class="orb-wrap" data-orb>
         <svg class="orb-lines" aria-hidden="true"></svg>
         <div class="orb-side l"><span class="orb-cap">Держит</span>${plus.length ? plus.map(lbl).join('') : lbl({ t: 'Пусто', s: 'отметь опору — сфера засветится', kind: 'empty' })}</div>
@@ -4474,6 +4907,8 @@ function stateView() {
       <div class="energy-scale"><span>${ENERGY_WORDS[0]}</span><span>${today.energy ? `сегодня: ${ENERGY_WORDS[today.energy - 1]}` : 'оцените вечером'}</span><span>${ENERGY_WORDS[4]}</span></div>
     </div>
 
+    ${wavesHtml()}
+
     <div class="section-h">Опоры на каждый день <span class="count">${daily.filter((q) => doneToday.has(q.id)).length}/${daily.length}</span></div>
     ${daily.map((q) => questCard(q, doneToday.get(q.id))).join('') || '<div class="panel empty">Ежедневных опор нет.</div>'}
     ${weekly.length ? `<div class="section-h">Опоры на неделю</div>${weekly.map((q) => questCard(q, doneToday.get(q.id))).join('')}` : ''}
@@ -4520,7 +4955,8 @@ function applyStatePreset() {
 
 function setEnergy(n) {
   const key = dayKey(new Date());
-  setDayData(key, { energy: dayData(key).energy === n ? null : n });
+  if (dayData(key).energy === n) setDayData(key, { energy: null });
+  else recordEnergy(n);
   save();
   haptic(10);
   render();
@@ -6663,7 +7099,7 @@ function statusView() {
     ? `<div class="panel backup-banner"><p><b>Напоминание</b>Бэкап ${backupAge() === null ? 'ещё не делали' : `делали ${backupAgeText()}`}. Сохраните файл на случай потери телефона.</p>
         <button class="btn" type="button" data-action="export">Бэкап</button></div>`
     : '');
-  return `${eveningCardHtml()}${worriesDueHtml()}${banner}<section class="panel status r-${p.rank}">
+  return `${pilotHtml(true)}${eveningCardHtml()}${worriesDueHtml()}${banner}<section class="panel status r-${p.rank}">
       <header class="status-head"><span class="sys-icon">!</span><span>Статус</span></header>
       <div class="status-main">
         <div class="rank-badge"><small>Ранг</small><b>${p.rank}</b></div>
@@ -6768,6 +7204,8 @@ function settingsView() {
     <div class="panel pad">
       <label class="set-row"><span><b>Звук</b><small>Сигналы Системы. На iPhone молчат в беззвучном режиме</small></span>
         <input class="toggle" type="checkbox" data-toggle="sound"${state.settings.sound ? ' checked' : ''}></label>
+      <label class="set-row"><span><b>Пилот энергии</b><small>Спрашивать о силах при входе и после квестов, раскладывать квесты по волне</small></span>
+        <input class="toggle" type="checkbox" data-toggle="pilot"${state.settings.pilot ? ' checked' : ''}></label>
       <label class="set-row"><span><b>Вибрация</b><small>Android — вибрация, iPhone (iOS 18+) — тактильный щелчок</small></span>
         <input class="toggle" type="checkbox" data-toggle="haptics"${state.settings.haptics ? ' checked' : ''}></label>
       <div class="btn-pair">
