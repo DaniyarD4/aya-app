@@ -1396,6 +1396,41 @@ html.noscroll, html.noscroll body { overflow: hidden; }
 .waves i.today { outline: 1px solid var(--text-dim); outline-offset: 1px; }
 .waves-legend { display: flex; gap: 12px; margin-top: 8px; font-size: 11px; color: var(--text-faint); }
 .orb-mode { font-size: 12px; color: var(--accent-2); }
+/* Личности вокруг шарика */
+.orb-tabs { display: flex; gap: 4px; padding: 3px; border: 1px solid rgba(120, 205, 255, 0.18); border-radius: 999px; }
+.orb-tabs button { padding: 4px 10px; border: 0; border-radius: 999px; background: none; color: var(--text-dim); font: inherit; font-size: 11.5px; cursor: pointer; }
+.orb-tabs button[aria-pressed="true"] { background: rgba(102, 208, 255, 0.16); color: var(--accent-2); }
+.orb-head { align-items: center; }
+.orb-head .orb-mode { margin-left: auto; margin-right: 8px; }
+.parts-wrap { --orb: 112px; position: relative; height: 318px; margin-top: 6px; }
+@media (max-width: 359px) { .parts-wrap { --orb: 92px; height: 280px; } }
+.parts-wrap .orb-core { position: absolute; left: 50%; top: 50%; margin: calc(var(--orb) / -2) 0 0 calc(var(--orb) / -2); }
+.parts-wrap .orb-txt b { font-size: 26px; }
+.part { position: absolute; z-index: 2; width: 64px; margin-left: -32px; margin-top: -19px; padding: 0; border: 0; background: none; color: var(--text); font: inherit; text-align: center; cursor: pointer; -webkit-tap-highlight-color: transparent; animation: orb-fade 0.5s ease-out both; }
+.part .dot { position: relative; display: block; width: 38px; height: 38px; margin: 0 auto; border-radius: 50%; background: conic-gradient(var(--pc) calc(var(--ch) * 1%), rgba(120, 205, 255, 0.12) 0); box-shadow: 0 0 calc(4px + var(--ch) * 0.16px) color-mix(in srgb, var(--pc) 70%, transparent); }
+.part .dot::before { content: ''; position: absolute; inset: 4px; border-radius: 50%; background: radial-gradient(circle at 35% 30%, color-mix(in srgb, var(--pc) 85%, #fff), var(--pc) 45%, color-mix(in srgb, var(--pc) 30%, #070a16) 100%); opacity: calc(0.25 + var(--ch) * 0.0075); }
+.part .dot span { position: relative; display: block; line-height: 38px; font-family: var(--mono); font-size: 10.5px; font-weight: 700; color: #fff; text-shadow: 0 1px 4px rgba(0, 0, 0, 0.8); }
+.part small { display: block; margin-top: 3px; font-size: 10px; line-height: 1.15; color: var(--text-dim); }
+.part.low .dot { animation: part-blink 2.4s ease-in-out infinite; }
+.part.lead .dot { outline: 2px solid var(--pc); outline-offset: 3px; }
+.part.lead small { color: var(--pc); font-weight: 600; }
+.part.want small::after { content: ' ·'; color: var(--warn); }
+@keyframes part-blink { 50% { box-shadow: 0 0 14px var(--warn); } }
+.orb-lines .beam { stroke: var(--bc); stroke-width: 2; opacity: 0.9; stroke-dasharray: 4 5; animation: beam-flow 1.2s linear infinite; }
+@keyframes beam-flow { to { stroke-dashoffset: -18; } }
+.parts-note { margin: 4px 0 0; font-size: 13.5px; line-height: 1.45; color: var(--text-dim); text-align: center; }
+.parts-note b { color: var(--text); }
+.parts-note .btn { margin-top: 10px; }
+.part-sheet .ch { display: flex; align-items: center; gap: 12px; margin: 10px 0 4px; }
+.part-sheet .ch .fin-bar { flex: 1; --fc: var(--pc); }
+.part-sheet .ch b { font-family: var(--mono); color: var(--pc); }
+.feed-list { display: grid; gap: 8px; margin-top: 10px; }
+.feed-list button { padding: 12px 14px; border: 1px solid color-mix(in srgb, var(--pc) 35%, transparent); border-radius: 12px; background: rgba(8, 16, 30, 0.6); color: var(--text); font: inherit; text-align: left; cursor: pointer; }
+.feed-list button small { color: var(--text-dim); }
+.lead-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; justify-content: center; }
+.lead-chips button { padding: 8px 12px; border: 1px solid color-mix(in srgb, var(--pc) 45%, transparent); border-radius: 999px; background: rgba(8, 16, 30, 0.6); color: var(--text); font: inherit; font-size: 13.5px; cursor: pointer; }
+.pilot-lead { margin-top: 12px; padding: 12px; border-radius: 12px; border: 1px solid rgba(185, 155, 255, 0.45); background: rgba(185, 155, 255, 0.08); font-size: 13.5px; line-height: 1.45; }
+.pilot-lead .btn { margin: 10px 0 0; }
 /* Сфера состояния */
 .orb-panel { margin-top: 16px; padding: 14px 12px 16px; overflow: hidden; border-color: color-mix(in srgb, var(--c2) 45%, transparent); box-shadow: 0 0 22px color-mix(in srgb, var(--c2) 22%, transparent), inset 0 0 30px color-mix(in srgb, var(--c2) 8%, transparent); }
 .orb-head { display: flex; justify-content: space-between; align-items: baseline; }
@@ -2141,7 +2176,8 @@ function migrate(state) {
   state.finance.experiments = state.finance.experiments || []; // эксперименты-замены из «Разбора трат»
   state.flow = Object.assign({ checkins: [], lastAsk: 0, lastNudge: 0, breakAt: 0 }, state.flow); // пилот энергии
   if (state.settings.pilot === undefined) state.settings.pilot = true;
-  state.schema = 11;
+  state.parts = Object.assign({ lead: null, feeds: [], notes: {}, view: 'parts' }, state.parts); // личности вокруг шарика
+  state.schema = 12;
   return state;
 }
 
@@ -3179,7 +3215,7 @@ function render() {
 const VIEWS = { status: statusView, quests: questsView, state: stateView, finance: financeView, journal: journalView, settings: settingsView };
 
 function onViewClick(e) {
-  const t = e.target.closest('[data-check], [data-edit], [data-stat], [data-goal], [data-radar], [data-energy], [data-drain], [data-exp], [data-inc], [data-item], [data-buy], [data-take], [data-worry], [data-leak], [data-xstop], [data-pilot-e], [data-pilot-skip], [data-action], [data-day]');
+  const t = e.target.closest('[data-check], [data-edit], [data-stat], [data-goal], [data-radar], [data-energy], [data-drain], [data-exp], [data-inc], [data-item], [data-buy], [data-take], [data-worry], [data-leak], [data-xstop], [data-pilot-e], [data-pilot-skip], [data-part], [data-orb-view], [data-lead-to], [data-action], [data-day]');
   if (!t || !session) return;
   if (t.dataset.radar !== undefined) return selectRadarAxis(Number(t.dataset.radar));
   if (t.dataset.energy) return setEnergy(Number(t.dataset.energy));
@@ -3195,6 +3231,16 @@ function onViewClick(e) {
     recordEnergy(Number(t.dataset.pilotE));
     haptic(10);
     return render();
+  }
+  if (t.dataset.part) return openPart(t.dataset.part);
+  if (t.dataset.orbView) {
+    partsState().view = t.dataset.orbView;
+    save();
+    return render();
+  }
+  if (t.dataset.leadTo) {
+    const to = PART[t.dataset.leadTo];
+    return leadSwitchSheet({ want: to.id, text: `Передаём руль: «${to.name}». Что из этого сейчас ближе?` }, () => render());
   }
   if (t.dataset.pilotSkip) {
     ui.pilotSkip = (ui.pilotSkip || []).concat(t.dataset.pilotSkip);
@@ -3488,6 +3534,10 @@ function openQuestEditor(quest, opts = {}) {
         <label class="choice" style="margin-top:8px"><input type="checkbox" name="wait"${q.wait ? ' checked' : ''}><span>Отложить до волны</span></label>
         <div class="hint">Пилот энергии ставит тяжёлое на волну, лёгкое — на откат. По умолчанию — по типу квеста.</div>
       </div>`}
+      <div class="field"><span>Кого из личностей питает</span>
+        <div class="choices">${PARTS.map((x) => `<label class="choice"><input type="checkbox" name="parts" value="${x.id}"${questParts(q).includes(x.id) ? ' checked' : ''}><span>${esc(x.short)}</span></label>`).join('')}</div>
+        <div class="hint">Отмечено то, что Система угадала по названию. Закрытый квест заряжает выбранных.</div>
+      </div>
       ${goalChoicesHtml(q.goalId)}
       <p class="error" data-error></p>
       <button class="btn" type="submit">${quest ? 'Сохранить' : 'Принять квест'}</button>
@@ -3522,6 +3572,9 @@ function openQuestEditor(quest, opts = {}) {
     if (!title) return sheetError(root, 'Введите название квеста.');
     if (!stats.length) return sheetError(root, 'Выберите хотя бы одну характеристику.');
     const data = { title, note: f.note.value.trim(), type: f.type.value, stats, repeat: f.repeat.value, goalId: (f.goal && f.goal.value) || undefined };
+    const parts = [...form.querySelectorAll('input[name="parts"]:checked')].map((i) => i.value);
+    const guess = questParts({ ...data, load: Number(f.load && f.load.value) || undefined });
+    data.parts = parts.length === guess.length && parts.every((id) => guess.includes(id)) ? undefined : parts; // совпало с догадкой — не храним
     if (support) Object.assign(data, { area: 'state', times: data.repeat === 'xweek' ? Number(f.times.value) || 3 : undefined });
     else {
       const load = Number(f.load.value);
@@ -4540,9 +4593,11 @@ function pilotHtml(compact) {
     ? `<div class="pilot-break" style="margin-top:12px"><b>Ты на волне уже ${hoursText(plan.minutes)}</b><p>Гиперфокус съедает воду, еду и спину. 10 минут перерыва — и волна продолжится.</p>
         <button class="btn" type="button" data-action="pilot-break">Сделал перерыв</button></div>`
     : '';
-  const sup = plan.supportsFirst.length
+  const adv = leadAdvice(partCharges());
+  const leadCard = adv ? `<div class="pilot-lead">${esc(adv.text)}<button class="btn" type="button" data-lead-to="${adv.want}">Передать руль: ${esc(PART[adv.want].short)}</button></div>` : '';
+  const sup = leadCard + (plan.supportsFirst.length
     ? `<div class="pilot-lbl">Сначала опоры</div>${plan.supportsFirst.map((q) => pilotRow(q, false)).join('')}`
-    : '';
+    : '');
   const enough = plan.doneToday >= plan.cap && st.mode !== 'wave';
   const nowQ = plan.ready[0];
   const body = enough
@@ -4590,7 +4645,8 @@ function openCheckin(reason) {
     haptic(10);
     closeSheet();
     render();
-    pilotNext(reason);
+    if (reason === 'open') askLead(() => pilotNext(reason));
+    else pilotNext(reason);
   }));
 }
 
@@ -4753,6 +4809,267 @@ function wavesHtml() {
     </div>`;
 }
 
+/* ---------- Личности: стороны одного «Я» вокруг шарика ----------
+   Шарик — это «Я», вокруг — личности. У каждой свой заряд: его дают дела, которые её питают
+   (квесты, опоры, блюда дофаминового меню, выгрузка тревоги, вечерний ритуал), и он тает
+   (половина за полтора дня). Уставшего разряжает работа без отдыха. Кто «у руля» — отмечаешь сам;
+   Система подсказывает, когда руль пора передать: отдыхать Воином не выйдет, отдыху нужен Мечтатель или Уставший.
+   Описания здесь нейтральные, свои слова для каждой личности можно вписать — они хранятся зашифрованно. */
+
+const PARTS = [
+  { id: 'smm', name: 'SMM-стратег', short: 'Стратег', color: '#66d0ff', about: 'Видит идеи как систему: смысл, аудитория, подача, результат.', feeds: ['Придумать идеи для контента', 'Разобрать, что сработало в постах', 'Снять ролик для блога'], kw: /блог|ролик|reels|рилс|контент|smm|пост|клиент|сайт|кейс|монтаж|сценар|аудитор|таргет/i },
+  { id: 'dreamer', name: 'Мечтатель', short: 'Мечтатель', color: '#b99bff', about: 'Смотрит дальше сегодняшнего дня: свобода, самореализация, своя жизнь.', feeds: ['Прогулка без цели', 'Помечтать и записать, какой будет жизнь через год', 'Время наедине без телефона'], kw: /мечт|прогул|наедине|будущ|визуализ|видени|план на год|цели на|вдохнов|маршрут/i },
+  { id: 'image', name: 'Внешний образ', short: 'Образ', color: '#ff9bd2', about: 'Как ты выглядишь и как тебя видят: стиль и уверенная подача.', feeds: ['Перебрать гардероб и собрать образы', 'Уход за собой', 'Фото в новом образе'], kw: /гардероб|образ|стиль|одежд|стрижк|барбер|уход|внешн|фотосесс|шопинг/i },
+  { id: 'love', name: 'Тот, кто любит', short: 'Любящий', color: '#ff6f91', about: 'Близость, искренность, взаимность, в которой можно быть собой.', feeds: ['Голосовое близкому человеку', 'Встреча с тем, с кем можно быть собой', 'Написать кому-то тёплое'], kw: /близк|голосов|свидан|друг|встреч|любим|родн|созвон|обнять|тёпл/i },
+  { id: 'body', name: 'Заботящийся о теле', short: 'Тело', color: '#6dffc0', about: 'Движение, сон, еда и восстановление — энергия и уверенность.', feeds: ['Тренировка', 'Нормальная еда', 'Растяжка лёжа', 'Лечь спать вовремя'], kw: /трен|зал|спорт|бег|растяж|питани|еда|продукт|сон|спать|вода|танц|йог|массаж/i },
+  { id: 'deep', name: 'Глубокий', short: 'Глубокий', color: '#4f7dff', about: 'Ищет смысл за очевидным, задаёт честные вопросы себе и миру.', feeds: ['Написать в дневник честно', 'Почитать книгу', 'Подкаст, который заставляет думать'], kw: /майндсет|дневник|рефлекс|книг|читать|подкаст|смысл|психолог|терап|медитац|анализ/i },
+  { id: 'anxious', name: 'Тревожный', short: 'Тревожный', color: '#ffc56b', about: 'Охраняет от рисков. Его кормит не борьба, а ощущение безопасности.', feeds: ['Выгрузить тревогу', 'Сверить баланс', 'Составить план Б'], kw: /тревог|выгруз|сверк|накоплен|бюджет|подушк|страхов|план б|документ|безопасн/i },
+  { id: 'fun', name: 'Весельчак', short: 'Весельчак', color: '#ffe66b', about: 'Лёгкость, юмор, радость момента — жизнь не только из целей.', feeds: ['Три трека и подвигаться', 'Посмотреть что-то смешное', 'Поиграть'], kw: /игр|кино|фильм|смешн|весел|лего|трек|музык|караоке|прикол|шут/i },
+  { id: 'tired', name: 'Уставший', short: 'Уставший', color: '#9fb0d6', about: 'Хочет тишины, отдыха и права ничего не решать.', feeds: ['Ванна с подкастом или музыкой', 'Полежать без телефона 20 минут', 'Лечь пораньше'], kw: /ванн|отдых|полежать|тишин|ничего не|выспат|сон|спать|расслаб|вечерн/i },
+  { id: 'warrior', name: 'Воин', short: 'Воин', color: '#ff7a45', about: 'Собирается, берёт ответственность, держит границы — и умеет вовремя остановиться.', feeds: ['Закрыть тяжёлый квест', 'Сказать «нет» тому, что не твоё', 'Сделать то, что страшно'], kw: /границ|сказать нет|отказать|страшн|сложн|дедлайн|договор|переговор|оплат|документ/i },
+];
+const PART = Object.fromEntries(PARTS.map((x) => [x.id, x]));
+const PART_PTS = { chore: 20, normal: 30, goal: 40, epic: 60 };
+const PART_WANT = { wave: ['warrior', 'smm'], even: ['smm', 'deep', 'body', 'image'], ebb: ['tired', 'dreamer', 'fun', 'body', 'love'] };
+const PART_HALF = 36 * 3600000; // заряд тает вдвое за полтора дня
+const partsState = () => session.state.parts;
+
+/** Кого питает квест: выбранные вручную или угаданные по словам. Тяжёлые квесты — ещё и Воин. */
+function questParts(q) {
+  if (q.parts) return q.parts;
+  const text = `${q.title} ${q.note || ''}`;
+  const ids = PARTS.filter((x) => x.kw.test(text)).map((x) => x.id);
+  if ((q.type === 'goal' || q.type === 'epic' || q.load === 3) && !ids.includes('warrior')) ids.push('warrior');
+  return ids;
+}
+
+function feedPart(part, pts, src) {
+  const list = partsState().feeds;
+  list.push({ at: Date.now(), part, pts, src });
+  if (list.length > 800) list.splice(0, list.length - 800);
+}
+
+/** Блюдо меню и другие дела без квеста кормят тех, кого угадали по названию. */
+function feedByText(text, pts, src) {
+  const ids = PARTS.filter((x) => x.kw.test(text)).map((x) => x.id);
+  ids.forEach((id) => feedPart(id, pts, src));
+  return ids;
+}
+
+function partCharges(now = Date.now()) {
+  const S = Object.fromEntries(PARTS.map((x) => [x.id, 0]));
+  const last = {};
+  const decay = (at) => 0.5 ** ((now - at) / PART_HALF);
+  let work = 0;
+  for (const e of session.state.log) {
+    if (!e.questId || now - e.at > 7 * 864e5) continue;
+    const q = findQuest(e.questId);
+    if (!q) continue;
+    const pts = PART_PTS[e.type] || 25;
+    for (const id of questParts(q)) {
+      S[id] += pts * decay(e.at);
+      if (!last[id] || e.at > last[id].at) last[id] = { at: e.at, what: q.title };
+    }
+    if (q.area !== 'state' && !questParts(q).includes('tired')) work += pts * decay(e.at);
+  }
+  for (const f of partsState().feeds) {
+    if (now - f.at > 7 * 864e5 || !(f.part in S)) continue;
+    S[f.part] += f.pts * decay(f.at);
+    if (!last[f.part] || f.at > last[f.part].at) last[f.part] = { at: f.at, what: f.src };
+  }
+  S.tired = Math.max(0, S.tired - work * 0.35); // работа без отдыха разряжает Уставшего
+  const out = {};
+  for (const x of PARTS) out[x.id] = { charge: Math.round(100 * (1 - Math.exp(-S[x.id] / 55))), last: last[x.id] || null };
+  return out;
+}
+
+/** Кому сейчас нужен заряд: самая разряженная из тех, кто нужен в этом режиме. */
+function partWanted(ch) {
+  const st = session.state.settings.pilot ? pilotState() : null;
+  const pool = st ? PART_WANT[st.mode] : PARTS.map((x) => x.id).filter((id) => id !== 'warrior');
+  return pool.slice().sort((a, b) => ch[a].charge - ch[b].charge)[0];
+}
+
+function leadNow() {
+  const l = partsState().lead;
+  return l && Date.now() - l.at < 12 * 3600000 ? l : null;
+}
+
+/** Совет про руль: отдыхать Воином или Стратегом на откате — главный источник усталости. */
+function leadAdvice(ch) {
+  const lead = leadNow();
+  const st = session.state.settings.pilot ? pilotState() : null;
+  const want = partWanted(ch);
+  if (!lead || !st) return null;
+  const pool = PART_WANT[st.mode];
+  if (pool.includes(lead.id)) return null;
+  if (st.mode === 'ebb' && (lead.id === 'warrior' || lead.id === 'smm')) {
+    return { want, text: `Сейчас откат, а у руля «${PART[lead.id].name}» — так отдых не заряжает. Отдыху нужен «${PART[want].name}».` };
+  }
+  if (st.mode === 'wave' && (lead.id === 'tired' || lead.id === 'anxious')) {
+    return { want, text: `Сейчас волна, а у руля «${PART[lead.id].name}». Силы есть — можно передать руль: «${PART[want].name}».` };
+  }
+  return null;
+}
+
+function orbTabsHtml() {
+  const v = partsState().view;
+  return `<span class="orb-tabs"><button type="button" data-orb-view="parts" aria-pressed="${v === 'parts'}">Личности</button><button type="button" data-orb-view="supports" aria-pressed="${v !== 'parts'}">Опоры</button></span>`;
+}
+
+/** Шарик-«Я» и личности на орбите. */
+function partsOrbHtml(s, cls, word, energy, core) {
+  const ch = partCharges();
+  const lead = leadNow();
+  const want = partWanted(ch);
+  const avg = Math.round(PARTS.reduce((a, x) => a + ch[x.id].charge, 0) / PARTS.length);
+  const advice = leadAdvice(ch);
+  const dots = PARTS.map((x, i) => {
+    const c = ch[x.id].charge;
+    const cls2 = [lead && lead.id === x.id ? 'lead' : '', c < 25 ? 'low' : '', x.id === want ? 'want' : ''].filter(Boolean).join(' ');
+    return `<button class="part ${cls2}" type="button" data-part="${x.id}" data-i="${i}" style="--pc:${x.color};--ch:${c}" aria-label="${esc(x.name)}: заряд ${c}%${lead && lead.id === x.id ? ', у руля' : ''}">
+        <span class="dot"><span>${c}</span></span><small>${esc(x.short)}</small></button>`;
+  }).join('');
+  const leadLine = lead
+    ? `У руля: <b>${esc(PART[lead.id].name)}</b> · ${hoursText(Math.max(1, Math.round((Date.now() - lead.at) / 60000)))}.`
+    : 'Кто сейчас у руля? Нажми на личность.';
+  return `<div class="parts-wrap" data-orb data-parts>
+        <svg class="orb-lines" aria-hidden="true"></svg>
+        ${core(`<b>Я</b><small>баланс ${avg}%</small><em>${s.score}% · ${word}</em>`)}
+        ${dots}
+      </div>
+      <div class="parts-note">${leadLine} ${advice ? '' : `Заряд нужен: <b>${esc(PART[want].name)}</b> (${ch[want].charge}%).`}
+        ${advice ? `<div class="pilot-lead" style="text-align:left">${esc(advice.text)}<button class="btn" type="button" data-lead-to="${advice.want}">Передать руль: ${esc(PART[advice.want].short)}</button></div>` : ''}
+      </div>`;
+}
+
+/** Расставляет личности по кругу и рисует луч от того, кто у руля, к «Я». */
+function layoutParts(wrap) {
+  const W = wrap.clientWidth;
+  const H = wrap.clientHeight;
+  const cx = W / 2;
+  const cy = H / 2;
+  const R = Math.min(W / 2 - 34, H / 2 - 30);
+  const svg = wrap.querySelector('.orb-lines');
+  svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+  let out = '';
+  wrap.querySelectorAll('[data-part]').forEach((el) => {
+    const i = Number(el.dataset.i);
+    const a = -Math.PI / 2 + (i / PARTS.length) * Math.PI * 2;
+    const x = cx + Math.cos(a) * R;
+    const y = cy + Math.sin(a) * R;
+    el.style.left = x.toFixed(1) + 'px';
+    el.style.top = y.toFixed(1) + 'px';
+    el.style.animationDelay = i * 40 + 'ms';
+    if (el.classList.contains('lead')) {
+      const r0 = wrap.querySelector('.orb-core').offsetWidth / 2 + 4;
+      const px = cx + Math.cos(a) * r0;
+      const py = cy + Math.sin(a) * r0;
+      const ex = cx + Math.cos(a) * (R - 22);
+      const ey = cy + Math.sin(a) * (R - 22);
+      out += `<line class="beam" style="--bc:${PART[el.dataset.part].color}" x1="${px.toFixed(1)}" y1="${py.toFixed(1)}" x2="${ex.toFixed(1)}" y2="${ey.toFixed(1)}"/>`;
+    }
+  });
+  svg.innerHTML = out;
+}
+
+function setLead(id) {
+  partsState().lead = { id, at: Date.now() };
+  save();
+}
+
+/** Карточка личности: заряд, что её питает, руль и свои слова. */
+function openPart(id) {
+  const x = PART[id];
+  const ch = partCharges()[id];
+  const lead = leadNow();
+  const isLead = lead && lead.id === id;
+  const note = partsState().notes[id] || '';
+  const root = openSheet(x.name, `
+    <div class="part-sheet" style="--pc:${x.color}">
+      <p class="dim center">${esc(note || x.about)}</p>
+      <div class="ch"><span class="fin-bar"><i data-pct="${ch.charge}" style="width:${ch.charge}%"></i></span><b>${ch.charge}%</b></div>
+      <p class="hint" style="margin:0">${ch.last ? `Последний раз заряжался: ${esc(ch.last.what)} · ${daysAgoText(ch.last.at)}` : 'Давно не заряжался.'}</p>
+      <div class="pilot-lbl">Что его заряжает — нажми, если сделал или начинаешь</div>
+      <div class="feed-list">${x.feeds.map((f, i) => `<button type="button" data-feed="${i}">${esc(f)}${menu().items.some((m) => m.title === f) ? ' <small>· с таймером из меню</small>' : ''}</button>`).join('')}</div>
+      <button class="btn${isLead ? ' ghost' : ''}" type="button" data-lead style="margin-top:14px">${isLead ? 'Сейчас у руля ✓' : 'Передать ему руль'}</button>
+      <details style="margin-top:10px"><summary class="hint" style="cursor:pointer">Свои слова об этой личности</summary>
+        <label class="field"><span>Описание (хранится зашифрованно)</span><textarea name="note" rows="4" maxlength="1500" placeholder="${esc(x.about)}">${esc(note)}</textarea></label>
+        <button class="btn ghost" type="button" data-save-note>Сохранить</button>
+      </details>
+      <button class="btn ghost" type="button" data-action="close">Закрыть</button>
+    </div>`);
+  root.querySelectorAll('[data-feed]').forEach((b) => b.addEventListener('click', () => {
+    const title = x.feeds[Number(b.dataset.feed)];
+    const item = menu().items.find((m) => m.title === title);
+    feedPart(id, 30, title);
+    save();
+    closeSheet();
+    if (item) return takeItem(item); // знакомое блюдо — с таймером и «помогло?»
+    render();
+    Sound.play('quest');
+    toast({ title: x.name, main: `+ заряд: ${title}`, sub: 'Личность получила то, что ей нужно', kind: 'up', ms: 3500 });
+  }));
+  root.querySelector('[data-lead]').addEventListener('click', () => {
+    setLead(id);
+    closeSheet();
+    render();
+    haptic(15);
+    toast({ title: 'Руль', main: `У руля: ${x.name}`, sub: x.feeds[0], kind: 'up', ms: 3500 });
+  });
+  root.querySelector('[data-save-note]').addEventListener('click', () => {
+    const v = root.querySelector('textarea').value.trim();
+    if (v) partsState().notes[id] = v;
+    else delete partsState().notes[id];
+    save();
+    toast({ title: x.name, main: 'Сохранено', ms: 2000 });
+  });
+}
+
+/** После вопроса о силах: «кто сейчас у руля?» и совет, если руль не у того. */
+function askLead(then) {
+  const root = openSheet('Система', `
+    <p class="lead">Кто сейчас у руля?</p>
+    <p class="dim center">Какая из твоих сторон сейчас ведёт — та, что работает, отдыхает или переживает.</p>
+    <div class="lead-chips">${PARTS.map((x) => `<button type="button" data-l="${x.id}" style="--pc:${x.color}">${esc(x.short)}</button>`).join('')}</div>
+    <button class="btn ghost" type="button" data-skip style="margin-top:14px">Пропустить</button>`);
+  root.querySelectorAll('[data-l]').forEach((b) => b.addEventListener('click', () => {
+    setLead(b.dataset.l);
+    closeSheet();
+    render();
+    const advice = leadAdvice(partCharges());
+    if (advice) return leadSwitchSheet(advice, then);
+    then();
+  }));
+  root.querySelector('[data-skip]').addEventListener('click', () => {
+    closeSheet();
+    then();
+  });
+}
+
+function leadSwitchSheet(advice, then) {
+  const to = PART[advice.want];
+  const root = openSheet('Передать руль', `
+    <p class="dim center">${esc(advice.text)}</p>
+    <div class="feed-list" style="--pc:${to.color}">${to.feeds.map((f, i) => `<button type="button" data-f="${i}">${esc(f)}</button>`).join('')}</div>
+    <button class="btn ghost" type="button" data-keep style="margin-top:14px">Оставить как есть</button>`);
+  root.querySelectorAll('[data-f]').forEach((b) => b.addEventListener('click', () => {
+    const title = to.feeds[Number(b.dataset.f)];
+    setLead(to.id);
+    feedPart(to.id, 30, title);
+    save();
+    closeSheet();
+    const item = menu().items.find((m) => m.title === title);
+    if (item) return takeItem(item);
+    render();
+    toast({ title: 'Руль', main: `У руля: ${to.name}`, sub: title, kind: 'up', ms: 4000 });
+  }));
+  root.querySelector('[data-keep]').addEventListener('click', () => {
+    closeSheet();
+    then();
+  });
+}
+
 /* ---------- Сфера состояния ----------
    Цвет — состояние дня (опоры и сливы), скорость переливов и свечение — энергия.
    Линии слева ведут к тому, что держит, справа — к сливам и несделанным опорам. */
@@ -4802,20 +5119,21 @@ function orbHtml(s, cls, word, energy) {
   const glow = energy ? (0.35 + energy * 0.13).toFixed(2) : 0.6;
   const surge = ui.orbScore !== undefined && s.score > ui.orbScore;
   ui.orbScore = s.score;
-  return `<section class="panel orb-panel" style="--c1:${c1};--c2:${c2};--c3:${c3};--spin:${spin}s;--glow:${glow}">
-      <div class="orb-head"><small>Состояние сейчас</small>${(() => { const st = session.state.settings.pilot && pilotState(); return st ? `<span class="orb-mode">${MODES[st.mode].icon} ${MODES[st.mode].name}</span>` : ''; })()}</div>
-      <div class="orb-wrap" data-orb>
-        <svg class="orb-lines" aria-hidden="true"></svg>
-        <div class="orb-side l"><span class="orb-cap">Держит</span>${plus.length ? plus.map(lbl).join('') : lbl({ t: 'Пусто', s: 'отметь опору — сфера засветится', kind: 'empty' })}</div>
-        <div class="orb-core${surge ? ' surge' : ''}" data-orb-energy="${energy || 3}" data-orb-tint="${c1}" data-orb-pal="${c1},${c2},${c3}" data-orb-score="${s.score}">
+  const coreHtml = (txt) => `<div class="orb-core${surge ? ' surge' : ''}" data-orb-energy="${energy || 3}" data-orb-tint="${c1}" data-orb-pal="${c1},${c2},${c3}" data-orb-score="${s.score}">
           <span class="orb-halo"></span><span class="orb-ring"></span><span class="orb-ring r2"></span>
           <div class="orb" role="img" aria-label="Состояние ${s.score}%, ${word}${energy ? `, энергия ${energy} из 5` : ''}">
             <i class="blob b1"></i><i class="blob b2"></i><i class="blob b3"></i>
-            <span class="orb-txt"><b>${s.score}%</b><small>${word}</small>${energy ? `<em>⚡ ${energy}/5</em>` : ''}</span>
+            <span class="orb-txt">${txt || `<b>${s.score}%</b><small>${word}</small>${energy ? `<em>⚡ ${energy}/5</em>` : ''}`}</span>
           </div>
-        </div>
+        </div>`;
+  return `<section class="panel orb-panel" style="--c1:${c1};--c2:${c2};--c3:${c3};--spin:${spin}s;--glow:${glow}">
+      <div class="orb-head"><small>${partsState().view === 'parts' ? 'Стороны' : 'Состояние'}</small>${(() => { const st = session.state.settings.pilot && pilotState(); return st ? `<span class="orb-mode">${MODES[st.mode].icon} ${MODES[st.mode].name}</span>` : ''; })()}${orbTabsHtml()}</div>
+      ${partsState().view === 'parts' ? partsOrbHtml(s, cls, word, energy, coreHtml) : `<div class="orb-wrap" data-orb>
+        <svg class="orb-lines" aria-hidden="true"></svg>
+        <div class="orb-side l"><span class="orb-cap">Держит</span>${plus.length ? plus.map(lbl).join('') : lbl({ t: 'Пусто', s: 'отметь опору — сфера засветится', kind: 'empty' })}</div>
+        ${coreHtml()}
         <div class="orb-side r"><span class="orb-cap">Тянет вниз</span>${minus.length ? minus.map(lbl).join('') : lbl({ t: 'Ничего', s: 'всё по плану ✓', kind: 'calm' })}</div>
-      </div>
+      </div>`}
       <span class="goal-sub"><span>Опоры: ${s.dailyDone} из ${s.daily}${s.weeklyDone ? ` · недельных +${s.weeklyDone}` : ''}</span><span>${s.drains ? `сливы: ${s.drains} · −${s.drains * DRAIN_PENALTY}%` : ''}</span></span>
       ${energy ? '' : '<p class="hint">Оцени энергию ниже — от неё зависит, как ярко и быстро переливается сфера.</p>'}
     </section>`;
@@ -4826,6 +5144,7 @@ function layoutOrb(root) {
   const wrap = root.querySelector('[data-orb]');
   if (!wrap) return;
   mountBubble(wrap);
+  if (wrap.hasAttribute('data-parts')) return layoutParts(wrap);
   const svg = wrap.querySelector('.orb-lines');
   const core = wrap.querySelector('.orb-core');
   const cx = core.offsetLeft + core.offsetWidth / 2;
@@ -5864,6 +6183,8 @@ function takeItem(item) {
     state.purchases.push({ id: uid(), at: Date.now(), itemId: item.id, title: item.title, gold: price, kzt: 0, kind: 'dessert' });
   }
   const now = Date.now();
+  feedByText(item.title, 30, item.title);
+  if (item.section === 'dessert' || item.section === 'main') feedPart('tired', item.section === 'main' ? 20 : 10, item.title); // отдых кормит Уставшего
   state.menu.active = { itemId: item.id, title: item.title, section: item.section, startedAt: now, until: item.minutes ? now + item.minutes * 60000 : null };
   item.lastAt = now;
   save();
@@ -5976,6 +6297,7 @@ function startAnxietyFlow(then) {
     if (text) {
       const reviewAt = nextReview();
       session.state.worries.push({ id: uid(), at: Date.now(), text, reviewAt, status: null });
+      feedPart('anxious', 30, 'Выгрузка тревоги');
       save();
       toast({ title: 'Выгрузка', main: 'Принято. Оно подождёт', sub: `Вернёмся ${whenText(reviewAt)}`, ms: 4000 });
     }
@@ -6108,6 +6430,8 @@ function completeEvening() {
   const xp = state.settings.xp.normal;
   const entry = { id: uid(), questId: null, title: 'Вечерний ритуал', type: 'normal', xp, stats: discipline ? { [discipline.id]: xp } : {}, period: 'e:' + key, at: Date.now(), source: 'evening' };
   state.log.push(entry);
+  feedPart('tired', 35, 'Вечерний ритуал');
+  feedPart('deep', 15, 'Вечерний ритуал');
   save();
   closeSheet();
   render();
@@ -6762,6 +7086,7 @@ function reconcileExtra(extra, actual) {
 
 function finishReconcile(actual, message) {
   const { state } = session;
+  feedPart('anxious', 20, 'Сверка баланса');
   const f = fin();
   f.anchor = { at: Date.now(), amount: actual };
   const key = 'c:' + dayKey(new Date());
