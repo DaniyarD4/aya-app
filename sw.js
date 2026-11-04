@@ -4,12 +4,13 @@
  * Выпуская новую версию, поменяйте VERSION: браузер увидит изменённый sw.js,
  * скачает файлы заново, а при следующем запуске откроется новая версия.
  */
-const VERSION = 'sistema-1.17.0';
+const VERSION = 'sistema-1.18.0';
 
 const FILES = [
   './',
   './index.html',
   './board.js',
+  './life.js',
   './manifest.webmanifest',
   './icons/icon-192.png',
   './icons/icon-512.png',
