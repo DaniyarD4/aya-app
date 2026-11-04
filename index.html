@@ -1414,6 +1414,8 @@ html.noscroll, html.noscroll body { overflow: hidden; }
 .daybar small { display: block; margin-top: 6px; font-size: 12px; color: var(--text-dim); }
 .leave-item.warm { border-color: rgba(255, 197, 107, 0.6); }
 .leave-item.hot { border-color: rgba(255, 95, 122, 0.8); box-shadow: 0 0 18px rgba(255, 95, 122, 0.35); }
+.find { margin: 8px 0 0; font-size: 14.5px; line-height: 1.45; }
+.review .stat-row { margin-top: 6px; }
 .guide b { display: block; margin-top: 14px; color: var(--accent-2); }
 .guide p { margin: 4px 0 0; font-size: 14px; line-height: 1.45; color: var(--text-dim); }
 /* Вброс, шаги, «5 минут», складки */
@@ -3499,6 +3501,9 @@ function onViewClick(e) {
     case 'focus-done': return focusDone();
     case 'leave-stop': session.state.life.leave = null; save(); return render();
     case 'reminders': return openReminderGuide();
+    case 'review': return openReview();
+    case 'ease-tomorrow': return easeTomorrow();
+    case 'review-exp': return toast({ title: 'Эксперимент недели', main: session.state.life.reviews.at(-1).exp.text, sub: 'Итог — в следующем разборе', ms: 4000 });
     case 'focus-stop': session.state.life.focus = null; save(); return render();
     case 'pilot-checkin': return openCheckin('open');
     case 'pilot-rest': return openSuggestion(pilotState() && pilotState().mode === 'ebb' ? 'tired' : 'rest');
@@ -4903,7 +4908,9 @@ function openCheckin(reason) {
     picked = picked === b.dataset.l ? null : b.dataset.l;
     root.querySelectorAll('[data-l]').forEach((x) => x.setAttribute('aria-pressed', String(x.dataset.l === picked)));
   }));
+  if (typeof noteAsk === 'function') noteAsk(false);
   root.querySelectorAll('[data-pilot-e]').forEach((b) => b.addEventListener('click', () => {
+    if (typeof noteAsk === 'function') noteAsk(true);
     if (picked) setLead(picked);
     recordEnergy(Number(b.dataset.pilotE));
     haptic(10);
@@ -5035,6 +5042,7 @@ function pilotOnOpen() {
   const last = f.checkins.at(-1);
   if (last && Date.now() - last.at < 3 * 3600000) return;
   if (Date.now() - (f.lastAsk || 0) < 3 * 3600000) return;
+  if (typeof goodAskHour === 'function' && !goodAskHour()) return; // в это время ты обычно отмахиваешься
   ui.askedThisOpen = true; // за один вход — не больше одного окна с вопросом
   setTimeout(() => afterFx(() => session.state.settings.pilot && !currentEnergyFresh() && openCheckin('open')), 1600);
 }
@@ -5503,7 +5511,8 @@ function stateView() {
 
     ${dopamineHtml()}
 
-    ${ins.items.length ? fold('insights', 'Что влияет на энергию', `<div class="panel pad">${insights}</div>`) : ''}`;
+    ${ins.items.length ? fold('insights', 'Что влияет на энергию', `<div class="panel pad">${insights}</div>`) : ''}
+    ${typeof insightsHtml === 'function' ? insightsHtml() : ''}`;
 }
 
 function applyStatePreset() {
@@ -6334,6 +6343,8 @@ function itemMeta(it) {
   if (it.minutes) parts.push(`${it.minutes} мин`);
   if (it.evening) parts.push('🌙 вечер');
   if (it.ratings.length) parts.push(`помогло ${it.ratings.filter((r) => r.v > 0).length} из ${it.ratings.length}`);
+  const real = typeof realEffect === 'function' ? realEffect(it) : null;
+  if (real !== null) parts.push(`энергия ${real >= 0 ? '+' : '−'}${Math.abs(real).toFixed(1).replace('.', ',')}`);
   return parts.join(' · ');
 }
 
@@ -6360,7 +6371,8 @@ function candidates(need) {
 function pickWeighted(list, excludeId) {
   const pool = list.length > 1 ? list.filter((i) => i.id !== excludeId) : list;
   const now = Date.now();
-  const weights = pool.map((i) => 1 + Math.max(0, itemEffect(i)) * 2 + (!i.lastAt || now - i.lastAt > 3 * 864e5 ? 0.5 : 0));
+  const score = typeof itemScore === 'function' ? itemScore : itemEffect; // оценки «помогло?» + замеренная энергия
+  const weights = pool.map((i) => 1 + Math.max(0, score(i)) * 2 + (!i.lastAt || now - i.lastAt > 3 * 864e5 ? 0.5 : 0));
   let r = Math.random() * weights.reduce((a, w) => a + w, 0);
   for (let k = 0; k < pool.length; k++) if ((r -= weights[k]) <= 0) return pool[k];
   return pool[pool.length - 1];
@@ -6441,6 +6453,7 @@ function takeItem(item) {
   const now = Date.now();
   feedByText(item.title, 30, item.title);
   if (item.section === 'dessert' || item.section === 'main') feedPart('tired', item.section === 'main' ? 20 : 10, item.title); // отдых кормит Уставшего
+  if (typeof recordTake === 'function') recordTake(item);
   state.menu.active = { itemId: item.id, title: item.title, section: item.section, startedAt: now, until: item.minutes ? now + item.minutes * 60000 : null };
   item.lastAt = now;
   save();
@@ -7670,6 +7683,7 @@ function statusView() {
     warn.length ? line('⚠️', `Опоры проседают: ${esc(warn[0].split(' — ')[0])}${warn.length > 1 ? ` и ещё ${warn.length - 1}` : ''}`, 'go-state', ' warn') : '',
     due ? line('🧠', `${due} ${plural(due, ['мысль ждёт', 'мысли ждут', 'мыслей ждут'])} разбора`, 'worries') : '',
     backupDue() ? line('💾', 'Пора сохранить бэкап', 'export') : '',
+    ...(typeof lifeLines === 'function' ? lifeLines(line) : []),
   ].filter(Boolean).join('');
   const word = s ? scoreClass(s.score)[1] : null;
   return `${dayBarHtml()}${captureHtml()}${pilotHtml(true)}

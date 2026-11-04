@@ -465,3 +465,300 @@ function openReminderGuide() {
     <p class="hint">Нажатие на уведомление откроет «Команды», а не Систему, — открой её с главного экрана. Само напоминание и есть смысл: вспомнить вовремя.</p>
     <button class="btn" type="button" data-action="close">Понятно</button>`);
 }
+
+/* =====================================================================
+   УМНЕЕ ЗА СЧЁТ ТВОИХ ДАННЫХ — всё считается на телефоне
+   ===================================================================== */
+
+const DAY = 864e5;
+
+/** Сводка дня: энергия, опоры, сливы, траты, работа — основа для находок, прогноза и разбора недели. */
+function dayFacts(d, doneByDay = supportDoneByDay()) {
+  const key = dayKey(d);
+  const from = dayStart(d);
+  const to = from + DAY;
+  const checks = flow().checkins.filter((c) => c.at >= from && c.at < to).map((c) => c.energy);
+  const energy = checks.length ? checks.reduce((a, b) => a + b, 0) / checks.length : dayData(key).energy || null;
+  const exp = fin().expenses.filter((e) => e.at >= from && e.at < to && !e.fixed);
+  const work = session.state.log.filter((e) => e.questId && e.at >= from && e.at < to && !isSupportQuest(e.questId));
+  const heavy = work.filter((e) => { const q = findQuest(e.questId); return q && questLoad(q) === 3; }).length;
+  const score = supports().length ? dayScore(d, doneByDay) : null;
+  return {
+    key, d, energy,
+    sup: doneByDay.get(key) || new Set(),
+    drains: dayData(key).drains,
+    cafe: exp.filter((e) => e.cat === 'cafe').length,
+    impulse: exp.filter((e) => e.cls === 'want' && e.planned === false).reduce((a, e) => a + e.amount, 0),
+    want: exp.filter((e) => e.cls === 'want').reduce((a, e) => a + e.amount, 0),
+    work: work.length,
+    heavy,
+    score: score ? score.score : null,
+    logged: checks.length > 0 || work.length > 0 || exp.length > 0 || !!dayData(key).energy,
+  };
+}
+
+function lastDays(n, offset = 0) {
+  const doneByDay = supportDoneByDay();
+  const out = [];
+  for (let i = n - 1 + offset; i >= offset; i--) out.push(dayFacts(addDays(new Date(), -i), doneByDay));
+  return out;
+}
+
+const avg = (a) => (a.length ? a.reduce((x, y) => x + y, 0) / a.length : null);
+const num1 = (x) => x.toFixed(1).replace('.', ',');
+
+/** Находки: что делает тебя бодрее на следующий день и что толкает к тратам. Только подтверждённое днями. */
+function findInsights() {
+  const days = lastDays(60).filter((x) => x.logged);
+  if (days.length < 10) return [];
+  const out = [];
+  const next = new Map(days.map((x) => [x.key, x]));
+  const tomorrow = (x) => next.get(dayKey(addDays(x.d, 1)));
+  const compare = (has, label, kind) => {
+    const yes = [];
+    const no = [];
+    for (const x of days) {
+      const t = tomorrow(x);
+      if (!t || !t.energy) continue;
+      (has(x) ? yes : no).push(t.energy);
+    }
+    if (yes.length < 3 || no.length < 3) return;
+    const diff = avg(yes) - avg(no);
+    if (Math.abs(diff) < 0.5) return;
+    out.push({ s: Math.abs(diff), text: kind === 'drain'
+      ? `После «${label}» энергия на следующий день ${diff < 0 ? 'ниже' : 'выше'} на ${num1(Math.abs(diff))}`
+      : `В дни с «${label}» назавтра энергия ${diff > 0 ? 'выше' : 'ниже'} на ${num1(Math.abs(diff))}` });
+  };
+  for (const q of supports()) compare((x) => x.sup.has(q.id), q.title.split(':')[0], 'sup');
+  for (const dr of session.state.drains) compare((x) => x.drains.includes(dr.id), dr.title, 'drain');
+  // опора ↔ доставка
+  for (const q of supports()) {
+    const yes = days.filter((x) => x.sup.has(q.id));
+    const no = days.filter((x) => !x.sup.has(q.id));
+    if (yes.length < 4 || no.length < 4) continue;
+    const py = yes.filter((x) => x.cafe).length / yes.length;
+    const pn = no.filter((x) => x.cafe).length / no.length;
+    if (pn - py >= 0.2 && pn > 0) out.push({ s: (pn - py) * 3, text: `Без «${q.title.split(':')[0]}» кафе и доставка случаются в ${Math.round(pn * 100)}% дней, с ней — в ${Math.round(py * 100)}%` });
+  }
+  // нагрузка → откат
+  const heavyDays = days.filter((x) => x.heavy >= 2 && tomorrow(x) && tomorrow(x).energy);
+  if (heavyDays.length >= 3) {
+    const after = avg(heavyDays.map((x) => tomorrow(x).energy));
+    const base = avg(days.filter((x) => x.energy).map((x) => x.energy));
+    if (base - after >= 0.6) out.push({ s: base - after, text: `После дня с 2+ тяжёлыми квестами энергия назавтра в среднем ${num1(after)} — ниже обычной (${num1(base)})` });
+  }
+  return out.sort((a, b) => b.s - a.s).slice(0, 5);
+}
+
+function insightsHtml() {
+  const list = findInsights();
+  if (!list.length) return '';
+  return fold('finds', `Находки <span class="count">${list.length}</span>`, `<div class="panel pad">${list.map((x) => `<p class="find">🔎 ${esc(x.text)}</p>`).join('')}
+    <p class="hint" style="margin:8px 0 0">Это связи из твоих же дней, не правила. Проверяй экспериментами в разборе недели.</p></div>`);
+}
+
+/** Прогноз отката на завтра: признаки за последние два дня. */
+function predictEbb() {
+  if (!session.state.settings.pilot) return null;
+  const [y, t] = lastDays(2);
+  const reasons = [];
+  if (y.heavy + t.heavy >= 3) reasons.push('много тяжёлого два дня подряд');
+  const sleep = supports().find((q) => /сон|спать|sleep/i.test(q.title));
+  if (sleep && !t.sup.has(sleep.id) && !y.sup.has(sleep.id)) reasons.push('сон без отметки два дня');
+  if (y.drains.length + t.drains.length >= 3) reasons.push('сливы энергии');
+  if (t.score !== null && t.score < 40) reasons.push('шарик проседает');
+  const recent = lastDays(10).map((x) => (x.energy ? (x.energy >= 3.7 ? 'w' : x.energy <= 2.3 ? 'e' : 'n') : '-'));
+  let run = 0;
+  for (let i = recent.length - 1; i >= 0 && recent[i] === 'w'; i--) run++;
+  if (run >= 3) reasons.push(`волна уже ${run} ${plural(run, ['день', 'дня', 'дней'])}`);
+  return reasons.length >= 2 ? reasons : null;
+}
+
+/** Облегчить завтра: тяжёлое, которое не начато, — «подождёт волны». */
+function easeTomorrow() {
+  const done = completionIndex();
+  const heavy = session.state.quests.filter((q) => q.area !== 'state' && !done.has(q.id) && questLoad(q) === 3 && !q.wait && !q.startedAt);
+  heavy.forEach((q) => { q.wait = true; });
+  life().eased = dayKey(new Date());
+  save();
+  render();
+  toast({ title: 'Завтра полегче', main: heavy.length ? `${heavy.length} ${plural(heavy.length, ['тяжёлый квест подождёт', 'тяжёлых квеста подождут', 'тяжёлых квестов подождут'])} волны` : 'Тяжёлого в плане и так нет', sub: 'Вернутся сами, когда придёт волна', kind: 'up', ms: 5000 });
+}
+
+/* ---------- Реальный эффект блюд меню ----------
+   Не только твоё «помогло?», но и энергия: оценка в течение 4 часов после блюда против оценки до него. */
+
+function recordTake(item) {
+  life().takes = life().takes || [];
+  life().takes.push({ at: Date.now(), id: item.id });
+  if (life().takes.length > 400) life().takes.shift();
+}
+
+function realEffect(it) {
+  const takes = (life().takes || []).filter((x) => x.id === it.id);
+  const deltas = [];
+  for (const t of takes) {
+    const before = flow().checkins.filter((c) => c.at < t.at && t.at - c.at < 4 * 3600000).at(-1);
+    const after = flow().checkins.find((c) => c.at > t.at && c.at - t.at < 4 * 3600000);
+    if (before && after) deltas.push(after.energy - before.energy);
+  }
+  return deltas.length >= 2 ? avg(deltas) : null;
+}
+
+/** Итог для подбора: оценки «помогло?» плюс замеренная энергия. */
+function itemScore(it) {
+  const real = realEffect(it);
+  return itemEffect(it) + (real === null ? 0 : real * 0.6);
+}
+
+/* ---------- Твоё время для вопросов ---------- */
+
+function askHourStat(hour) {
+  const s = (life().ask || {})[hour] || [0, 0];
+  return { shown: s[0], answered: s[1] };
+}
+
+function noteAsk(answered) {
+  life().ask = life().ask || {};
+  const h = new Date().getHours();
+  const s = life().ask[h] || [0, 0];
+  if (answered) s[1]++;
+  else s[0]++;
+  life().ask[h] = s;
+}
+
+/** Спрашивать ли сейчас: в часы, когда ты обычно отмахиваешься, Система молчит. */
+function goodAskHour() {
+  const { shown, answered } = askHourStat(new Date().getHours());
+  return shown < 3 || answered / shown >= 0.34;
+}
+
+/* ---------- Разбор недели ---------- */
+
+const weekId = (d = new Date()) => weekKey(d);
+
+function reviewDue() {
+  const d = new Date();
+  const last = (life().reviews || []).at(-1);
+  if (last && last.week === weekId(addDays(d, d.getDay() === 0 ? 0 : -1))) return false;
+  if (last && Date.now() - last.at < 5 * DAY) return false;
+  const sunday = d.getDay() === 0 && d.getHours() >= 15;
+  const monday = d.getDay() === 1;
+  return (sunday || monday) && lastDays(7).filter((x) => x.logged).length >= 3;
+}
+
+function weekSummary() {
+  const days = lastDays(7);
+  const logged = days.filter((x) => x.logged);
+  const withE = days.filter((x) => x.energy);
+  const best = withE.slice().sort((a, b) => b.energy - a.energy)[0];
+  const worst = withE.slice().sort((a, b) => a.energy - b.energy)[0];
+  const drainCount = new Map();
+  for (const x of days) for (const id of x.drains) drainCount.set(id, (drainCount.get(id) || 0) + 1);
+  const topDrain = [...drainCount.entries()].sort((a, b) => b[1] - a[1])[0];
+  const supCount = new Map();
+  for (const x of days) for (const id of x.sup) supCount.set(id, (supCount.get(id) || 0) + 1);
+  const daily = supports().filter((q) => q.repeat === 'daily');
+  const weakest = daily.slice().sort((a, b) => (supCount.get(a.id) || 0) - (supCount.get(b.id) || 0))[0];
+  const why = (x) => {
+    const parts = [];
+    const n = x.sup.size;
+    if (n) parts.push(`опор ${n}`);
+    if (x.drains.length) parts.push(`сливов ${x.drains.length}`);
+    if (x.work) parts.push(`квестов ${x.work}`);
+    return parts.join(', ') || 'мало записей';
+  };
+  return {
+    days, logged,
+    modes: days.map((x) => (x.energy ? (x.energy >= 3.7 ? 'wave' : x.energy <= 2.3 ? 'ebb' : 'even') : '')),
+    quests: days.reduce((a, x) => a + x.work, 0),
+    impulse: days.reduce((a, x) => a + x.impulse, 0),
+    best, worst,
+    bestWhy: best ? why(best) : '', worstWhy: worst ? why(worst) : '',
+    topDrain: topDrain ? { title: (session.state.drains.find((d) => d.id === topDrain[0]) || { title: 'слив' }).title, n: topDrain[1] } : null,
+    weakest: weakest ? { q: weakest, n: supCount.get(weakest.id) || 0 } : null,
+  };
+}
+
+/** Эксперименты недели: что попробовать — из самых слабых мест. */
+function reviewExperiments(sum) {
+  const list = [];
+  if (sum.weakest && sum.weakest.n < 5) list.push({ id: 'sup', text: `«${sum.weakest.q.title.split(':')[0]}» каждый день`, target: sum.weakest.q.id });
+  if (sum.topDrain && sum.topDrain.n >= 2) list.push({ id: 'drain', text: `Без «${sum.topDrain.title}» хотя бы 4 дня из 7`, target: sum.topDrain.title });
+  list.push({ id: 'five', text: 'Каждое утро 5 минут на самое тяжёлое' });
+  if (sum.impulse > 0) list.push({ id: 'pause', text: 'Пауза 10 минут перед каждой импульсной покупкой' });
+  return list.slice(0, 3);
+}
+
+/** Как прошёл прошлый эксперимент — по данным недели. */
+function experimentResult(exp, sum) {
+  if (!exp) return null;
+  if (exp.id === 'sup') {
+    const n = sum.days.filter((x) => x.sup.has(exp.target)).length;
+    return { ok: n >= 6, text: `${exp.text}: ${n} из 7 дней` };
+  }
+  if (exp.id === 'drain') {
+    const dr = session.state.drains.find((d) => d.title === exp.target);
+    const n = dr ? sum.days.filter((x) => !x.drains.includes(dr.id)).length : 0;
+    return { ok: n >= 4, text: `${exp.text}: чистых дней ${n}` };
+  }
+  return { ok: null, text: `${exp.text} — как ощущается? Отметь честно` };
+}
+
+function openReview() {
+  const sum = weekSummary();
+  const prev = (life().reviews || []).at(-1);
+  const res = prev && experimentResult(prev.exp, sum);
+  const finds = findInsights();
+  const lesson = finds[0] ? finds[0].text
+    : sum.topDrain ? `Главный слив недели — «${sum.topDrain.title}» (${sum.topDrain.n} ${plural(sum.topDrain.n, ['раз', 'раза', 'раз'])})`
+      : sum.best ? `Лучший день — ${dayTitle(sum.best.d)}: ${sum.bestWhy}` : 'Неделя без больших перекосов';
+  const exps = reviewExperiments(sum);
+  const label = { wave: '🌊', even: '〰️', ebb: '🌙', '': '·' };
+  const root = openSheet('Разбор недели', `
+    <div class="review">
+      <div class="waves" style="grid-template-columns:repeat(7,1fr)">${sum.days.map((x, i) => `<i class="${sum.modes[i]}" title="${dayTitle(x.d)}"></i>`).join('')}</div>
+      <p class="dim center" style="margin-top:6px">${sum.modes.map((m) => label[m]).join(' ')}</p>
+      <div class="stat-row"><span>Закрыто квестов</span><span class="mono">${sum.quests}</span></div>
+      ${sum.best ? `<div class="stat-row"><span>Лучший день</span><span>${dayTitle(sum.best.d)} · ⚡${num1(sum.best.energy)}</span></div><p class="hint" style="margin:0">${esc(sum.bestWhy)}</p>` : ''}
+      ${sum.worst && sum.worst !== sum.best ? `<div class="stat-row"><span>Тяжёлый день</span><span>${dayTitle(sum.worst.d)} · ⚡${num1(sum.worst.energy)}</span></div><p class="hint" style="margin:0">${esc(sum.worstWhy)}</p>` : ''}
+      ${sum.topDrain ? `<div class="stat-row"><span>Главный слив</span><span>${esc(sum.topDrain.title)} · ${sum.topDrain.n}×</span></div>` : ''}
+      ${sum.impulse ? `<div class="stat-row"><span>Импульсные траты</span><span class="mono">${money(sum.impulse)}</span></div>` : ''}
+      ${res ? `<div class="pilot-lead" style="margin-top:12px">${res.ok === true ? '✅' : res.ok === false ? '↻' : '🧪'} Прошлый эксперимент: ${esc(res.text)}</div>` : ''}
+      <div class="pilot-lbl">Вывод</div>
+      <p class="find">🔎 ${esc(lesson)}</p>
+      <div class="pilot-lbl">Эксперимент на неделю — выбери один</div>
+      <div class="feed-list" style="--pc:var(--accent)">${exps.map((x, i) => `<button type="button" data-exp="${i}">${esc(x.text)}</button>`).join('')}</div>
+    </div>
+    <button class="btn ghost" type="button" data-skipexp style="margin-top:12px">Без эксперимента</button>`);
+  const finish = (exp) => {
+    life().reviews = life().reviews || [];
+    life().reviews.push({ at: Date.now(), week: weekId(addDays(new Date(), new Date().getDay() === 0 ? 0 : -1)), exp, lesson });
+    const { state } = session;
+    const xp = state.settings.xp.normal;
+    const discipline = state.stats.find((st) => st.name === 'Дисциплина');
+    state.log.push({ id: uid(), questId: null, title: 'Разбор недели', type: 'normal', xp, stats: discipline ? { [discipline.id]: xp } : {}, period: 'r:' + weekId(), at: Date.now(), source: 'review' });
+    feedPart('deep', 35, 'Разбор недели');
+    save();
+    closeSheet();
+    render();
+    Sound.play('quest');
+    toast({ title: 'Разбор недели', main: `+${xp} XP`, sub: exp ? `Эксперимент: ${exp.text}` : 'Увидимся через неделю', kind: 'up', ms: 5000 });
+  };
+  root.querySelectorAll('[data-exp]').forEach((b) => b.addEventListener('click', () => finish(exps[Number(b.dataset.exp)])));
+  root.querySelector('[data-skipexp]').addEventListener('click', () => finish(null));
+}
+
+/** Строки для «Сейчас»: разбор недели, прогноз отката, эксперимент недели. */
+function lifeLines(line) {
+  const out = [];
+  if (reviewDue()) out.push(line('📊', 'Разбор недели — 5 минут', 'review'));
+  const h = new Date().getHours();
+  if (h >= 15 && life().eased !== dayKey(new Date())) {
+    const ebb = predictEbb();
+    if (ebb) out.push(line('🔮', `Завтра, похоже, откат: ${esc(ebb.slice(0, 2).join(', '))}. Облегчить?`, 'ease-tomorrow', ' warn'));
+  }
+  const last = (life().reviews || []).at(-1);
+  if (last && last.exp && Date.now() - last.at < 7 * DAY) out.push(line('🧪', `Эксперимент недели: ${esc(last.exp.text)}`, 'review-exp'));
+  return out;
+}
