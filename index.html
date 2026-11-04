@@ -1414,6 +1414,8 @@ html.noscroll, html.noscroll body { overflow: hidden; }
 .daybar small { display: block; margin-top: 6px; font-size: 12px; color: var(--text-dim); }
 .leave-item.warm { border-color: rgba(255, 197, 107, 0.6); }
 .leave-item.hot { border-color: rgba(255, 95, 122, 0.8); box-shadow: 0 0 18px rgba(255, 95, 122, 0.35); }
+.pilot-voice { margin: 10px 0 0; padding-left: 10px; border-left: 2px solid var(--pc); font-size: 14px; font-style: italic; line-height: 1.4; color: var(--text); }
+.pilot-voice small { font-style: normal; color: var(--pc); }
 .find { margin: 8px 0 0; font-size: 14.5px; line-height: 1.45; }
 .review .stat-row { margin-top: 6px; }
 .guide b { display: block; margin-top: 14px; color: var(--accent-2); }
@@ -4868,12 +4870,13 @@ function pilotHtml(compact) {
       : `<div class="pilot-done">${plan.open.length ? 'Под эти силы квестов нет — остальные подождут волны.' : 'Квесты закрыты.'} Можно отдохнуть без вины.
           <button class="btn ghost" type="button" data-action="pilot-rest">Подобрать отдых</button></div>`;
   if (compact) {
-    return `<section class="panel pilot m-${st.mode}">${head}${brk}${sup}${body}
+    return `<section class="panel pilot m-${st.mode}">${head}${typeof voiceHtml === 'function' ? voiceHtml() : ''}${brk}${sup}${body}
         <button class="btn ghost" type="button" data-action="go-quests" style="margin-top:12px">Весь план</button></section>`;
   }
   const capPct = Math.min(100, (plan.doneToday / plan.cap) * 100);
   return `<section class="panel pilot m-${st.mode}">${head}
       <p class="pilot-line">${m.line}</p>
+      ${typeof voiceHtml === 'function' ? voiceHtml() : ''}
       ${brk}${sup}${body}
       <div class="pilot-cap"><div class="fin-head"><span>Сегодня по силам ~${plan.cap}${st.mode === 'wave' ? '+' : ''}</span><span>закрыто ${plan.doneToday}</span></div>
         <span class="fin-bar"><i data-pct="${capPct.toFixed(1)}"></i></span></div>
@@ -5144,6 +5147,18 @@ function feedByText(text, pts, src) {
   return ids;
 }
 
+/** Мягкие стороны: делают и «воинские» задачи — но без напряга. */
+const SOFT_PARTS = ['dreamer', 'fun', 'tired', 'love', 'deep'];
+const HARD_PARTS = ['warrior', 'smm'];
+
+/** Кто был у руля в момент t: история руля плюс текущий. */
+function leadAt(t) {
+  const ps = partsState();
+  const seg = (ps.leads || []).find((x) => x.from <= t && t < x.to);
+  if (seg) return seg.id;
+  return ps.lead && ps.lead.at <= t && t - ps.lead.at < 12 * 3600000 ? ps.lead.id : null;
+}
+
 function partCharges(now = Date.now()) {
   const S = Object.fromEntries(PARTS.map((x) => [x.id, 0]));
   const last = {};
@@ -5154,11 +5169,29 @@ function partCharges(now = Date.now()) {
     const q = findQuest(e.questId);
     if (!q) continue;
     const pts = PART_PTS[e.type] || 25;
-    for (const id of questParts(q)) {
-      S[id] += pts * decay(e.at);
+    const lead = leadAt(e.at);
+    const soft = lead && SOFT_PARTS.includes(lead);
+    const ids = questParts(q);
+    for (const id of ids) {
+      // задачу Воина сделал Мечтатель: Воин качается вполсилы
+      S[id] += pts * decay(e.at) * (soft && HARD_PARTS.includes(id) && id !== lead ? 0.5 : 1);
       if (!last[id] || e.at > last[id].at) last[id] = { at: e.at, what: q.title };
     }
-    if (q.area !== 'state' && !questParts(q).includes('tired')) work += pts * decay(e.at);
+    if (soft && !ids.includes(lead)) {
+      S[lead] += pts * 0.6 * decay(e.at); // ведущий заряжается — сделал по-своему
+      if (!last[lead] || e.at > last[lead].at) last[lead] = { at: e.at, what: `${q.title} (по-своему)` };
+    }
+    // мягкой стороной без напряга — Уставший не разряжается
+    if (q.area !== 'state' && !ids.includes('tired') && !soft) work += pts * decay(e.at);
+  }
+  // руль тратит заряд: 8 очков в час, пока сторона ведёт (до 12 часов подряд)
+  const ps = partsState();
+  const segs = (ps.leads || []).concat(ps.lead ? [{ id: ps.lead.id, from: ps.lead.at, to: Math.min(now, ps.lead.at + 12 * 3600000) }] : []);
+  const spent = {};
+  for (const x of segs) {
+    if (now - x.to > 7 * 864e5 || !(x.id in S)) continue;
+    const hours = Math.max(0, (Math.min(x.to, now) - x.from) / 3600000);
+    spent[x.id] = (spent[x.id] || 0) + hours * 8 * decay(x.to);
   }
   for (const f of partsState().feeds) {
     if (now - f.at > 7 * 864e5 || !(f.part in S)) continue;
@@ -5166,6 +5199,7 @@ function partCharges(now = Date.now()) {
     if (!last[f.part] || f.at > last[f.part].at) last[f.part] = { at: f.at, what: f.src };
   }
   S.tired = Math.max(0, S.tired - work * 0.35); // работа без отдыха разряжает Уставшего
+  for (const [id, v] of Object.entries(spent)) S[id] = Math.max(0, S[id] - v);
   const out = {};
   for (const x of PARTS) out[x.id] = { charge: Math.round(100 * (1 - Math.exp(-S[x.id] / 55))), last: last[x.id] || null };
   return out;
@@ -5186,6 +5220,8 @@ function leadNow() {
 /** Совет про руль: отдыхать Воином или Стратегом на откате — главный источник усталости. */
 function leadAdvice(ch) {
   if (!mod('parts')) return null;
+  const empty = leadEmpty(ch);
+  if (empty) return empty;
   const lead = leadNow();
   const st = session.state.settings.pilot ? pilotState() : null;
   const want = partWanted(ch);
@@ -5264,8 +5300,25 @@ function layoutParts(wrap) {
 }
 
 function setLead(id) {
-  partsState().lead = { id, at: Date.now() };
+  const ps = partsState();
+  const now = Date.now();
+  // прошлый руль уходит в историю — по ней считается, сколько руль потратил
+  if (ps.lead && ps.lead.id !== id) {
+    ps.leads = (ps.leads || []).filter((x) => now - x.to < 8 * 864e5);
+    ps.leads.push({ id: ps.lead.id, from: ps.lead.at, to: Math.min(now, ps.lead.at + 12 * 3600000) });
+  }
+  if (!ps.lead || ps.lead.id !== id) ps.lead = { id, at: now };
   save();
+}
+
+/** У руля почти пусто — кому передать: самому заряженному из тех, кто нужен сейчас. */
+function leadEmpty(ch) {
+  const lead = leadNow();
+  if (!lead || ch[lead.id].charge >= 15) return null;
+  const st = session.state.settings.pilot ? pilotState() : null;
+  const pool = (st ? PART_WANT[st.mode] : PARTS.map((x) => x.id)).filter((id) => id !== lead.id);
+  const best = pool.slice().sort((a, b) => ch[b].charge - ch[a].charge)[0];
+  return best && ch[best].charge > ch[lead.id].charge + 20 ? { from: lead.id, want: best, text: `У «${PART[lead.id].name}» почти не осталось заряда (${ch[lead.id].charge}%). Передай руль: «${PART[best].name}» — ${ch[best].charge}%.` } : null;
 }
 
 /** Карточка личности: заряд, что её питает, руль и свои слова. */
@@ -5283,6 +5336,10 @@ function openPart(id) {
       <div class="pilot-lbl">Что его заряжает — нажми, если сделал или начинаешь</div>
       <div class="feed-list">${x.feeds.map((f, i) => `<button type="button" data-feed="${i}">${esc(f)}${menu().items.some((m) => m.title === f) ? ' <small>· с таймером из меню</small>' : ''}</button>`).join('')}</div>
       <button class="btn${isLead ? ' ghost' : ''}" type="button" data-lead style="margin-top:14px">${isLead ? 'Сейчас у руля ✓' : 'Передать ему руль'}</button>
+      <details style="margin-top:10px"><summary class="hint" style="cursor:pointer">Голос — что она говорит в плане</summary>
+        <label class="field"><span>Фразы, по одной в строке</span><textarea name="voice" rows="3" maxlength="600" placeholder="${esc((typeof PART_VOICES !== 'undefined' && PART_VOICES[id] || []).join('\n'))}">${esc(((partsState().voices || {})[id] || []).join('\n'))}</textarea></label>
+        <button class="btn ghost" type="button" data-save-voice>Сохранить голос</button>
+      </details>
       <details style="margin-top:10px"><summary class="hint" style="cursor:pointer">Свои слова об этой личности</summary>
         <label class="field"><span>Описание (хранится зашифрованно)</span><textarea name="note" rows="4" maxlength="1500" placeholder="${esc(x.about)}">${esc(note)}</textarea></label>
         <button class="btn ghost" type="button" data-save-note>Сохранить</button>
@@ -5307,8 +5364,16 @@ function openPart(id) {
     haptic(15);
     toast({ title: 'Руль', main: `У руля: ${x.name}`, sub: x.feeds[0], kind: 'up', ms: 3500 });
   });
+  root.querySelector('[data-save-voice]').addEventListener('click', () => {
+    const lines = root.querySelector('textarea[name="voice"]').value.split('\n').map((x) => x.trim()).filter(Boolean);
+    partsState().voices = partsState().voices || {};
+    if (lines.length) partsState().voices[id] = lines;
+    else delete partsState().voices[id];
+    save();
+    toast({ title: x.name, main: 'Голос сохранён', ms: 2000 });
+  });
   root.querySelector('[data-save-note]').addEventListener('click', () => {
-    const v = root.querySelector('textarea').value.trim();
+    const v = root.querySelector('textarea[name="note"]').value.trim();
     if (v) partsState().notes[id] = v;
     else delete partsState().notes[id];
     save();
