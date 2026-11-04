@@ -1379,6 +1379,9 @@ html.noscroll, html.noscroll body { overflow: hidden; }
 .pilot-row .qcheck { flex: none; }
 .pilot-row .t { flex: 1; min-width: 0; font-size: 15px; line-height: 1.3; }
 .pilot-row .t small { display: block; margin-top: 2px; font-size: 12px; color: var(--text-dim); }
+.pilot-row .acts { display: flex; gap: 14px; margin-top: 6px; }
+.pilot-row .acts .skip { padding: 2px 0; }
+.pilot-row .acts [data-focus5] { color: var(--ok); text-decoration: none; font-weight: 600; }
 .pilot-row .skip { flex: none; padding: 6px 8px; border: 0; background: none; color: var(--text-faint); font: inherit; font-size: 12px; text-decoration: underline; cursor: pointer; }
 .pilot-break { padding: 12px; border-radius: 12px; border: 1px solid rgba(255, 197, 107, 0.5); background: rgba(255, 197, 107, 0.08); }
 .pilot-break b { color: var(--warn); }
@@ -1416,6 +1419,12 @@ html.noscroll, html.noscroll body { overflow: hidden; }
 .leave-item.hot { border-color: rgba(255, 95, 122, 0.8); box-shadow: 0 0 18px rgba(255, 95, 122, 0.35); }
 .pilot-voice { margin: 10px 0 0; padding-left: 10px; border-left: 2px solid var(--pc); font-size: 14px; font-style: italic; line-height: 1.4; color: var(--text); }
 .pilot-voice small { font-style: normal; color: var(--pc); }
+.forecast { margin: 12px 0 0; font-size: 13.5px; line-height: 1.45; color: var(--text-dim); }
+.forecast.bad { color: var(--warn); }
+.routine-row { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+.routine-row input[type="checkbox"] { flex: none; width: 22px; height: 22px; accent-color: var(--accent); }
+.routine-row input[type="text"] { flex: 1; min-width: 0; height: 38px; padding: 0 10px; border: 1px solid rgba(120, 205, 255, 0.2); border-radius: 10px; background: rgba(5, 12, 24, 0.7); color: var(--text); font: inherit; }
+.routine-row .xp-input input { width: 54px; }
 .find { margin: 8px 0 0; font-size: 14.5px; line-height: 1.45; }
 .review .stat-row { margin-top: 6px; }
 .guide b { display: block; margin-top: 14px; color: var(--accent-2); }
@@ -3387,6 +3396,7 @@ function showHome() {
   checkFinanceRewards();
   checkExperiments();
   ensureGroceryQuest();
+  if (typeof ensureRoutines === 'function') ensureRoutines();
   render();
   pilotOnOpen();
 }
@@ -3423,7 +3433,7 @@ function render() {
 }
 
 /** Модуль включён? Выключенный исчезает целиком вместе со своими вопросами. */
-const MODULES = { groceries: 'Продукты', reconcile: 'Сверка баланса', evening: 'Вечер', parts: 'Личности', spend: 'Разбор трат', waves: 'Волны', boards: 'Доски' };
+const MODULES = { groceries: 'Продукты', routines: 'Быт по ритму', reconcile: 'Сверка баланса', evening: 'Вечер', parts: 'Личности', spend: 'Разбор трат', waves: 'Волны', boards: 'Доски' };
 const mod = (k) => !session || !session.state.life || session.state.life.mods[k] !== false;
 
 /** Редкое — в свёрнутую строку; что раскрыто, помнится до блокировки. */
@@ -3650,6 +3660,7 @@ function completeQuest(q) {
     at: Date.now(),
   };
   state.log.push(entry);
+  if (q.routineId && typeof routineDone === 'function') routineDone(q);
   save();
 
   const after = statXp();
@@ -4819,14 +4830,14 @@ function pilotRow(q, now) {
     const c = stepCount(q);
     return `<div class="pilot-row${now ? ' now' : ''}">
       <button class="qcheck" type="button" data-step="${q.id}" role="checkbox" aria-checked="false" aria-label="Шаг сделан: ${esc(next.t)}"><span class="qbox"></span></button>
-      <span class="t">${esc(next.t)}<small>шаг ${c.done + 1}/${c.all} · ${esc(q.title)}</small></span>
-      ${now ? `<button class="skip" type="button" data-focus5="${q.id}">5 мин</button><button class="skip" type="button" data-pilot-skip="${q.id}">другой</button>` : ''}
+      <span class="t">${esc(next.t)}<small>шаг ${c.done + 1}/${c.all} · ${esc(q.title)}</small>
+        ${now ? `<span class="acts"><button class="skip" type="button" data-focus5="${q.id}">▶ 5 мин</button><button class="skip" type="button" data-pilot-skip="${q.id}">другой</button></span>` : ''}</span>
     </div>`;
   }
   return `<div class="pilot-row${now ? ' now' : ''}">
       <button class="qcheck" type="button" data-check="${q.id}" role="checkbox" aria-checked="false" aria-label="Выполнено: ${esc(q.title)}"><span class="qbox"></span></button>
-      <span class="t">${esc(q.title)}<small>${q.area === 'state' ? 'опора · держит состояние' : `${L.icon} ${L.name.toLowerCase()} · ${TYPE_BY_ID[q.type].name.toLowerCase()}${q.goalId ? ' · к цели' : ''}${q.est ? ` · ${estText(q)}` : ''}`}</small></span>
-      ${now ? `${q.area === 'state' ? '' : `<button class="skip" type="button" data-focus5="${q.id}">5 мин</button>`}<button class="skip" type="button" data-pilot-skip="${q.id}">другой</button>` : ''}
+      <span class="t">${esc(q.title)}<small>${q.area === 'state' ? 'опора · держит состояние' : `${L.icon} ${L.name.toLowerCase()} · ${TYPE_BY_ID[q.type].name.toLowerCase()}${q.goalId ? ' · к цели' : ''}${q.est ? ` · ${estText(q)}` : ''}`}</small>
+        ${now ? `<span class="acts">${q.area === 'state' ? '' : `<button class="skip" type="button" data-focus5="${q.id}">▶ 5 мин</button>`}<button class="skip" type="button" data-pilot-skip="${q.id}">другой</button></span>` : ''}</span>
     </div>`;
 }
 
@@ -6137,6 +6148,7 @@ function financeView() {
         ${limitRow('Неделя', lim.week)}
         ${limitRow(monthName[0].toUpperCase() + monthName.slice(1), lim.month)}
         ${streak ? `<p class="fin-streak"><b>${streak}</b> ${plural(streak, ['день', 'дня', 'дней'])} подряд в лимите</p>` : ''}
+        ${typeof forecastHtml === 'function' ? forecastHtml() : ''}
       </section>`;
   }
 
@@ -7900,6 +7912,8 @@ function settingsView() {
       </div>
     </div>
 
+    ${mod('routines') && typeof routinesSettingsHtml === 'function' ? routinesSettingsHtml() : ''}
+
     <div class="section-h">Вечер</div>
     <div class="panel pad">
       <label class="set-row"><span><b>Вечер начинается</b><small>С этого времени — карточка «Вечер» и лёгкие блюда в меню</small></span>
@@ -7963,6 +7977,7 @@ function wireSettings(view) {
   view.querySelectorAll('[data-rank]').forEach((input) => {
     input.addEventListener('change', () => onRankInput(input));
   });
+  if (typeof wireRoutines === 'function') wireRoutines(view);
   view.querySelectorAll('[data-life-time]').forEach((input) => {
     input.addEventListener('change', () => {
       const [h, m] = input.value.split(':').map(Number);

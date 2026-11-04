@@ -792,3 +792,105 @@ function voiceHtml() {
   const text = partVoice(id);
   return text ? `<p class="pilot-voice" style="--pc:${PART[id].color}">«${esc(text)}» <small>— ${esc(PART[id].short)}</small></p>` : '';
 }
+
+/* ---------- Прогноз до конца месяца ----------
+   Темп трат за последние две недели против свободных денег: хватит ли до конца месяца. */
+
+function monthForecast() {
+  const lim = limitsNow();
+  if (!lim) return null;
+  const f = fin();
+  const now = new Date();
+  const firstAt = Math.min(f.since || Date.now(), ...f.expenses.map((e) => e.at));
+  const days = Math.min(14, Math.floor((dayStart(now) - dayStart(new Date(firstAt))) / DAY) + 1);
+  if (days < 5) return null;
+  const pace = spentBetween(dayStart(addDays(now, -(days - 1))), Date.now() + 1) / days;
+  if (pace <= 0) return null;
+  const left = daysInMonth(now) - now.getDate(); // дней после сегодняшнего
+  const remain = lim.free - pace * left;
+  if (remain >= 0) return { ok: true, pace, text: `При таком темпе (~${money(pace)} в день) к концу месяца останется ~${money(Math.round(remain / 100) * 100)}` };
+  const lastDay = now.getDate() + Math.max(0, Math.floor(lim.free / pace));
+  return { ok: false, pace, text: `При таком темпе (~${money(pace)} в день) денег хватит примерно до ${lastDay}-го. Чтобы дотянуть, нужно ~${money(Math.max(0, lim.free) / Math.max(1, left))} в день` };
+}
+
+function forecastHtml() {
+  const fc = monthForecast();
+  return fc ? `<p class="forecast${fc.ok ? '' : ' bad'}">${fc.ok ? '📈' : '⚠️'} ${fc.text}</p>` : '';
+}
+
+/* ---------- Быт по ритму ----------
+   Стирка, уборка, мусор, связь, стрижка: квест появляется сам, когда подходит срок.
+   Ритм подстраивается: если делаешь чаще или реже, интервал сдвигается к твоему настоящему. */
+
+const ROUTINE_PRESET = [
+  { title: 'Стирка', every: 4 },
+  { title: 'Уборка', every: 7 },
+  { title: 'Вынести мусор', every: 2 },
+  { title: 'Сменить постельное', every: 14 },
+  { title: 'Оплатить связь', every: 30 },
+  { title: 'Стрижка', every: 28 },
+];
+
+function routines() {
+  if (!life().routines) life().routines = ROUTINE_PRESET.map((r) => ({ id: uid(), ...r, on: true, last: Date.now() }));
+  return life().routines;
+}
+
+/** Ставит бытовые квесты, срок которых подошёл. */
+function ensureRoutines() {
+  if (!mod('routines')) return;
+  const { state } = session;
+  const done = completionIndex();
+  let added = 0;
+  for (const r of routines()) {
+    if (!r.on || Date.now() - r.last < r.every * DAY - 6 * 3600000) continue;
+    if (state.quests.some((q) => q.routineId === r.id && !done.has(q.id))) continue;
+    state.quests.push({ id: uid(), createdAt: Date.now(), title: r.title, note: `Быт · раз в ${r.every} ${plural(r.every, ['день', 'дня', 'дней'])}`, type: 'chore', stats: state.stats.length ? [state.stats[0].id] : [], repeat: 'none', routineId: r.id, parts: ['body'] });
+    added++;
+  }
+  if (added) {
+    save();
+    toast({ title: 'Быт', main: added === 1 ? 'Подошёл срок бытового дела' : `Подошли сроки: ${added}`, sub: 'Они в квестах — лёгкие, на откат', ms: 4000 });
+  }
+}
+
+/** Бытовой квест закрыт: запоминаем дату и подстраиваем ритм к настоящему. */
+function routineDone(q) {
+  const r = routines().find((x) => x.id === q.routineId);
+  if (!r) return;
+  const real = (Date.now() - r.last) / DAY;
+  if (real >= 1 && real < r.every * 3) r.every = Math.max(1, Math.round(r.every * 0.75 + real * 0.25));
+  r.last = Date.now();
+}
+
+function routinesSettingsHtml() {
+  return `<div class="section-h">Быт по ритму</div>
+    <div class="panel pad" data-routines>
+      ${routines().map((r) => `<div class="routine-row" data-r="${r.id}">
+          <input type="checkbox" data-ron${r.on ? ' checked' : ''} aria-label="Включено">
+          <input type="text" data-rtitle maxlength="40" value="${esc(r.title)}">
+          <span class="xp-input">раз в <input type="number" data-revery min="1" max="365" value="${r.every}"> дн.</span>
+        </div>`).join('')}
+      <button class="btn ghost" type="button" data-radd>+ Своё дело</button>
+      <p class="hint" style="margin:8px 0 0">Квест появится сам, когда подойдёт срок. Если делаешь чаще или реже — ритм подстроится.</p>
+    </div>`;
+}
+
+function wireRoutines(view) {
+  const box = view.querySelector('[data-routines]');
+  if (!box) return;
+  box.addEventListener('change', (e) => {
+    const row = e.target.closest('[data-r]');
+    if (!row) return;
+    const r = routines().find((x) => x.id === row.dataset.r);
+    r.on = row.querySelector('[data-ron]').checked;
+    r.title = row.querySelector('[data-rtitle]').value.trim() || r.title;
+    r.every = Math.max(1, Math.min(365, Number(row.querySelector('[data-revery]').value) || r.every));
+    save();
+  });
+  box.querySelector('[data-radd]').addEventListener('click', () => {
+    routines().push({ id: uid(), title: 'Новое дело', every: 7, on: true, last: Date.now() });
+    save();
+    render();
+  });
+}
