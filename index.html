@@ -1379,6 +1379,9 @@ html.noscroll, html.noscroll body { overflow: hidden; }
 .pilot-row .qcheck { flex: none; }
 .pilot-row .t { flex: 1; min-width: 0; font-size: 15px; line-height: 1.3; }
 .pilot-row .t small { display: block; margin-top: 2px; font-size: 12px; color: var(--text-dim); }
+.pilot-row .acts { display: flex; gap: 14px; margin-top: 6px; }
+.pilot-row .acts .skip { padding: 2px 0; }
+.pilot-row .acts [data-focus5] { color: var(--ok); text-decoration: none; font-weight: 600; }
 .pilot-row .skip { flex: none; padding: 6px 8px; border: 0; background: none; color: var(--text-faint); font: inherit; font-size: 12px; text-decoration: underline; cursor: pointer; }
 .pilot-break { padding: 12px; border-radius: 12px; border: 1px solid rgba(255, 197, 107, 0.5); background: rgba(255, 197, 107, 0.08); }
 .pilot-break b { color: var(--warn); }
@@ -1405,6 +1408,47 @@ html.noscroll, html.noscroll body { overflow: hidden; }
 .waves i.today { outline: 1px solid var(--text-dim); outline-offset: 1px; }
 .waves-legend { display: flex; gap: 12px; margin-top: 8px; font-size: 11px; color: var(--text-faint); }
 .orb-mode { font-size: 12px; color: var(--accent-2); }
+.daybar { margin-top: 10px; }
+.daybar-track { position: relative; display: block; height: 6px; border-radius: 999px; background: rgba(120, 205, 255, 0.1); overflow: visible; }
+.daybar-track i { position: absolute; top: 0; height: 100%; border-radius: 999px; }
+.daybar-track .day { left: 0; background: linear-gradient(90deg, rgba(102, 208, 255, 0.25), rgba(102, 208, 255, 0.55)); }
+.daybar-track .eve { background: linear-gradient(90deg, rgba(185, 155, 255, 0.45), rgba(185, 155, 255, 0.2)); }
+.daybar-track b { position: absolute; top: -4px; width: 3px; height: 14px; margin-left: -1.5px; border-radius: 2px; background: #fff; box-shadow: 0 0 8px #fff; }
+.daybar small { display: block; margin-top: 6px; font-size: 12px; color: var(--text-dim); }
+.leave-item.warm { border-color: rgba(255, 197, 107, 0.6); }
+.leave-item.hot { border-color: rgba(255, 95, 122, 0.8); box-shadow: 0 0 18px rgba(255, 95, 122, 0.35); }
+.pilot-voice { margin: 10px 0 0; padding-left: 10px; border-left: 2px solid var(--pc); font-size: 14px; font-style: italic; line-height: 1.4; color: var(--text); }
+.pilot-voice small { font-style: normal; color: var(--pc); }
+.forecast { margin: 12px 0 0; font-size: 13.5px; line-height: 1.45; color: var(--text-dim); }
+.forecast.bad { color: var(--warn); }
+.routine-row { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+.routine-row input[type="checkbox"] { flex: none; width: 22px; height: 22px; accent-color: var(--accent); }
+.routine-row input[type="text"] { flex: 1; min-width: 0; height: 38px; padding: 0 10px; border: 1px solid rgba(120, 205, 255, 0.2); border-radius: 10px; background: rgba(5, 12, 24, 0.7); color: var(--text); font: inherit; }
+.routine-row .xp-input input { width: 54px; }
+.find { margin: 8px 0 0; font-size: 14.5px; line-height: 1.45; }
+.review .stat-row { margin-top: 6px; }
+.guide b { display: block; margin-top: 14px; color: var(--accent-2); }
+.guide p { margin: 4px 0 0; font-size: 14px; line-height: 1.45; color: var(--text-dim); }
+/* Вброс, шаги, «5 минут», складки */
+.capture { display: flex; gap: 8px; margin-top: 12px; padding: 8px; }
+.capture input { flex: 1; min-width: 0; height: 46px; padding: 0 14px; border: 1px solid rgba(120, 205, 255, 0.22); border-radius: 12px; background: rgba(5, 12, 24, 0.7); color: var(--text); font: inherit; font-size: 16px; }
+.capture .btn { flex: none; width: 50px; margin: 0; padding: 0; font-size: 22px; }
+.qstep { color: var(--accent-2); }
+.steps { margin-top: 12px; }
+.step-row { display: flex; align-items: center; gap: 8px; margin-top: 8px; }
+.step-row input[type="checkbox"] { flex: none; width: 22px; height: 22px; accent-color: var(--accent); }
+.step-row input[type="text"] { flex: 1; min-width: 0; height: 40px; padding: 0 10px; border: 1px solid rgba(120, 205, 255, 0.2); border-radius: 10px; background: rgba(5, 12, 24, 0.7); color: var(--text); font: inherit; font-size: 15px; }
+.step-row.done input[type="text"] { color: var(--text-faint); text-decoration: line-through; }
+.step-row button { flex: none; width: 36px; height: 36px; border: 0; background: none; color: var(--text-faint); font-size: 22px; cursor: pointer; }
+.step-row.hide-ebb { display: none; }
+.focus-item { border-color: rgba(109, 255, 192, 0.5); }
+.focus-item small { color: var(--ok); }
+.fold > summary { list-style: none; cursor: pointer; }
+.fold > summary::-webkit-details-marker { display: none; }
+.fold > summary::after { order: 1; }
+.fold > summary::before { content: '›'; order: 2; font-size: 18px; letter-spacing: 0; transition: transform 0.2s; }
+.fold[open] > summary::before { transform: rotate(90deg); }
+.no-boards .topbar [data-action="open-boards"] { display: none; }
 /* «Сейчас»: строки вместо баннеров */
 .now-list { margin-top: 12px; padding: 4px 14px; }
 .now-line { display: flex; align-items: center; gap: 12px; width: 100%; min-height: 52px; padding: 8px 0; border: 0; border-bottom: 1px solid rgba(120, 205, 255, 0.1); background: none; color: var(--text); font: inherit; font-size: 15px; text-align: left; cursor: pointer; }
@@ -2305,7 +2349,8 @@ function migrate(state) {
   if (state.settings.pilot === undefined) state.settings.pilot = true;
   state.parts = Object.assign({ lead: null, feeds: [], notes: {}, view: 'parts' }, state.parts); // личности вокруг шарика
   state.boards = state.boards || []; // доски: см. board.js
-  state.schema = 13;
+  state.life = Object.assign({ mods: {}, learned: {}, capture: {}, focus: null, est: [], leave: null, reviews: [], routines: null }, state.life); // см. life.js
+  state.schema = 14;
   return state;
 }
 
@@ -3351,6 +3396,7 @@ function showHome() {
   checkFinanceRewards();
   checkExperiments();
   ensureGroceryQuest();
+  if (typeof ensureRoutines === 'function') ensureRoutines();
   render();
   pilotOnOpen();
 }
@@ -3372,7 +3418,9 @@ function render() {
     else b.removeAttribute('aria-current');
   });
   const view = app.querySelector('[data-view]');
-  view.innerHTML = activeHtml() + VIEWS[ui.tab]();
+  app.classList.toggle('no-boards', !mod('boards'));
+  view.innerHTML = (typeof focusHtml === 'function' ? leaveHtml() + focusHtml() : '') + activeHtml() + VIEWS[ui.tab]();
+  if (ui.tab === 'status' && typeof wireCapture === 'function') wireCapture(view);
   tickActive();
   if (ui.tab === 'settings') wireSettings(view);
   if (ui.tab === 'finance') wireFinance(view);
@@ -3384,10 +3432,27 @@ function render() {
   }));
 }
 
+/** Модуль включён? Выключенный исчезает целиком вместе со своими вопросами. */
+const MODULES = { groceries: 'Продукты', routines: 'Быт по ритму', reconcile: 'Сверка баланса', evening: 'Вечер', parts: 'Личности', spend: 'Разбор трат', waves: 'Волны', boards: 'Доски' };
+const mod = (k) => !session || !session.state.life || session.state.life.mods[k] !== false;
+
+/** Редкое — в свёрнутую строку; что раскрыто, помнится до блокировки. */
+function fold(key, head, body) {
+  const open = ui.folds && ui.folds.has(key);
+  return `<details class="fold" data-fold="${key}"${open ? ' open' : ''}><summary class="section-h">${head}</summary>${body}</details>`;
+}
+document.addEventListener('toggle', (e) => {
+  const d = e.target;
+  if (!d.matches || !d.matches('details.fold')) return;
+  ui.folds = ui.folds || new Set();
+  if (d.open) ui.folds.add(d.dataset.fold);
+  else ui.folds.delete(d.dataset.fold);
+}, true);
+
 const VIEWS = { status: statusView, profile: profileView, quests: questsView, state: stateView, finance: financeView, journal: journalView, settings: settingsView };
 
 function onViewClick(e) {
-  const t = e.target.closest('[data-check], [data-edit], [data-stat], [data-goal], [data-radar], [data-energy], [data-drain], [data-exp], [data-inc], [data-item], [data-buy], [data-take], [data-worry], [data-leak], [data-xstop], [data-pilot-e], [data-pilot-skip], [data-part], [data-orb-view], [data-lead-to], [data-board], [data-action], [data-day]');
+  const t = e.target.closest('[data-check], [data-edit], [data-stat], [data-goal], [data-radar], [data-energy], [data-drain], [data-exp], [data-inc], [data-item], [data-buy], [data-take], [data-worry], [data-leak], [data-xstop], [data-pilot-e], [data-pilot-skip], [data-part], [data-orb-view], [data-lead-to], [data-board], [data-step], [data-focus5], [data-action], [data-day]');
   if (!t || !session) return;
   if (t.dataset.radar !== undefined) return selectRadarAxis(Number(t.dataset.radar));
   if (t.dataset.energy) return setEnergy(Number(t.dataset.energy));
@@ -3406,6 +3471,8 @@ function onViewClick(e) {
   }
   if (t.dataset.part) return openPart(t.dataset.part);
   if (t.dataset.board) return openBoard(t.dataset.board);
+  if (t.dataset.step) return doStep(findQuest(t.dataset.step));
+  if (t.dataset.focus5) return startFocus(findQuest(t.dataset.focus5));
   if (t.dataset.orbView) {
     partsState().view = t.dataset.orbView;
     save();
@@ -3443,6 +3510,13 @@ function onViewClick(e) {
     case 'go-quests': ui.tab = 'quests'; render(); return scrollTo(0, 0);
     case 'go-profile': ui.tab = 'profile'; render(); return scrollTo(0, 0);
     case 'board-new': return newBoardSheet();
+    case 'focus-done': return focusDone();
+    case 'leave-stop': session.state.life.leave = null; save(); return render();
+    case 'reminders': return openReminderGuide();
+    case 'review': return openReview();
+    case 'ease-tomorrow': return easeTomorrow();
+    case 'review-exp': return toast({ title: 'Эксперимент недели', main: session.state.life.reviews.at(-1).exp.text, sub: 'Итог — в следующем разборе', ms: 4000 });
+    case 'focus-stop': session.state.life.focus = null; save(); return render();
     case 'pilot-checkin': return openCheckin('open');
     case 'pilot-rest': return openSuggestion(pilotState() && pilotState().mode === 'ebb' ? 'tired' : 'rest');
     case 'pilot-break':
@@ -3531,6 +3605,7 @@ function questCard(q, entry) {
     <button class="qbody" type="button" data-edit="${q.id}">
       <span class="qtitle">${esc(q.title)}</span>
       ${q.note ? `<span class="qnote">${esc(q.note)}</span>` : ''}
+      ${!entry && q.steps && stepNext(q) ? `<span class="qnote qstep">→ ${esc(stepNext(q).t)} · шаг ${stepCount(q).done + 1}/${stepCount(q).all}</span>` : ''}
       <span class="chips">
         <span class="chip t-${q.type}">${TYPE_BY_ID[q.type].name}</span>
         ${q.area !== 'state' ? `<span class="chip load" title="${LOADS[questLoad(q)].name}">${LOADS[questLoad(q)].icon}${later ? ' · ждёт волны' : ''}</span>` : ''}
@@ -3552,6 +3627,7 @@ function toggleQuest(id, checkBtn) {
   const box = checkBtn.querySelector('.qbox').getBoundingClientRect();
   const x = box.left + box.width / 2;
   const y = box.top + box.height / 2;
+  if (q.steps) q.steps.forEach((st) => { st.done = true; });
   const xp = completeQuest(q);
   if (q.system === 'groceries') setTimeout(() => askGrocerySpend(), 900);
   pilotAfterQuest(q);
@@ -3584,6 +3660,7 @@ function completeQuest(q) {
     at: Date.now(),
   };
   state.log.push(entry);
+  if (q.routineId && typeof routineDone === 'function') routineDone(q);
   save();
 
   const after = statXp();
@@ -3708,7 +3785,9 @@ function openQuestEditor(quest, opts = {}) {
         <div class="choices">${[1, 2, 3].map((n) => `<label class="choice"><input type="radio" name="load" value="${n}"${questLoad(q) === n ? ' checked' : ''}><span>${LOADS[n].icon} ${LOADS[n].name}</span></label>`).join('')}</div>
         <label class="choice" style="margin-top:8px"><input type="checkbox" name="wait"${q.wait ? ' checked' : ''}><span>Отложить до волны</span></label>
         <div class="hint">Пилот энергии ставит тяжёлое на волну, лёгкое — на откат. По умолчанию — по типу квеста.</div>
-      </div>`}
+      </div>
+      <label class="field"><span>Сколько займёт, мин — по желанию</span><input name="est" type="number" inputmode="numeric" min="1" max="600" step="5" value="${q.est || ''}" placeholder="например, 30"></label>
+      ${estFactor() ? `<div class="hint">Твоя поправка: обычно выходит в ${estFactor().toFixed(1).replace('.', ',')} раза ${estFactor() >= 1 ? 'дольше' : 'быстрее'}, чем пишешь.</div>` : ''}`}
       <div class="field"><span>Кого из личностей питает</span>
         <div class="choices">${PARTS.map((x) => `<label class="choice"><input type="checkbox" name="parts" value="${x.id}"${questParts(q).includes(x.id) ? ' checked' : ''}><span>${esc(x.short)}</span></label>`).join('')}</div>
         <div class="hint">Отмечено то, что Система угадала по названию. Закрытый квест заряжает выбранных.</div>
@@ -3716,6 +3795,7 @@ function openQuestEditor(quest, opts = {}) {
       ${goalChoicesHtml(q.goalId)}
       <p class="error" data-error></p>
       <button class="btn" type="submit">${quest ? 'Сохранить' : 'Принять квест'}</button>
+      ${quest && !support ? `<button class="btn ghost" type="button" data-steps-btn>${quest.steps ? 'Шаги' : 'Разбить на шаги'}</button>` : ''}
       ${quest ? '<button class="btn ghost danger-text" type="button" data-action="delete">Удалить квест</button>' : ''}
       <button class="btn ghost" type="button" data-action="close">Отмена</button>
     </form>`);
@@ -3755,6 +3835,7 @@ function openQuestEditor(quest, opts = {}) {
       const load = Number(f.load.value);
       data.load = load === LOAD_BY_TYPE[data.type] ? undefined : load; // как у типа — не храним, сменится вместе с типом
       data.wait = f.wait.checked || undefined;
+      data.est = Number(f.est.value) > 0 ? Math.round(Number(f.est.value)) : undefined;
     }
     if (quest) Object.assign(quest, data);
     else state.quests.push({ id: uid(), createdAt: Date.now(), ...data });
@@ -3763,6 +3844,11 @@ function openQuestEditor(quest, opts = {}) {
     render();
   });
 
+  const stepsBtn = root.querySelector('[data-steps-btn]');
+  if (stepsBtn) stepsBtn.addEventListener('click', () => {
+    if (!quest.steps) breakQuest(quest, true);
+    openSteps(quest);
+  });
   const del = root.querySelector('[data-action="delete"]');
   if (del) {
     del.addEventListener('click', () => confirmPress(del, 'Точно удалить? Нажмите ещё раз', () => {
@@ -4738,10 +4824,20 @@ const hoursText = (min) => (min >= 60 ? `${Math.floor(min / 60)} ч${min % 60 ? 
 
 function pilotRow(q, now) {
   const L = LOADS[questLoad(q)];
+  const next = q.steps && stepNext(q);
+  if (next) {
+    // квест с шагами: в плане — ближайший шаг, галочка закрывает шаг
+    const c = stepCount(q);
+    return `<div class="pilot-row${now ? ' now' : ''}">
+      <button class="qcheck" type="button" data-step="${q.id}" role="checkbox" aria-checked="false" aria-label="Шаг сделан: ${esc(next.t)}"><span class="qbox"></span></button>
+      <span class="t">${esc(next.t)}<small>шаг ${c.done + 1}/${c.all} · ${esc(q.title)}</small>
+        ${now ? `<span class="acts"><button class="skip" type="button" data-focus5="${q.id}">▶ 5 мин</button><button class="skip" type="button" data-pilot-skip="${q.id}">другой</button></span>` : ''}</span>
+    </div>`;
+  }
   return `<div class="pilot-row${now ? ' now' : ''}">
       <button class="qcheck" type="button" data-check="${q.id}" role="checkbox" aria-checked="false" aria-label="Выполнено: ${esc(q.title)}"><span class="qbox"></span></button>
-      <span class="t">${esc(q.title)}<small>${q.area === 'state' ? 'опора · держит состояние' : `${L.icon} ${L.name.toLowerCase()} · ${TYPE_BY_ID[q.type].name.toLowerCase()}${q.goalId ? ' · к цели' : ''}`}</small></span>
-      ${now ? `<button class="skip" type="button" data-pilot-skip="${q.id}">другой</button>` : ''}
+      <span class="t">${esc(q.title)}<small>${q.area === 'state' ? 'опора · держит состояние' : `${L.icon} ${L.name.toLowerCase()} · ${TYPE_BY_ID[q.type].name.toLowerCase()}${q.goalId ? ' · к цели' : ''}${q.est ? ` · ${estText(q)}` : ''}`}</small>
+        ${now ? `<span class="acts">${q.area === 'state' ? '' : `<button class="skip" type="button" data-focus5="${q.id}">▶ 5 мин</button>`}<button class="skip" type="button" data-pilot-skip="${q.id}">другой</button></span>` : ''}</span>
     </div>`;
 }
 
@@ -4775,6 +4871,7 @@ function pilotHtml(compact) {
     : '');
   const enough = plan.doneToday >= plan.cap && st.mode !== 'wave';
   const nowQ = plan.ready[0];
+  if (nowQ && typeof autoBreak === 'function') autoBreak(nowQ); // тяжёлое Система разбивает сама
   const body = enough
     ? `<div class="pilot-done">На сегодня по силам — всё: закрыто ${plan.doneToday}. ${st.mode === 'ebb' ? 'Откат — время восстановиться, а не догонять.' : 'Дальше — только если правда хочется.'}
         <button class="btn ghost" type="button" data-action="pilot-rest">Подобрать отдых</button></div>
@@ -4784,12 +4881,13 @@ function pilotHtml(compact) {
       : `<div class="pilot-done">${plan.open.length ? 'Под эти силы квестов нет — остальные подождут волны.' : 'Квесты закрыты.'} Можно отдохнуть без вины.
           <button class="btn ghost" type="button" data-action="pilot-rest">Подобрать отдых</button></div>`;
   if (compact) {
-    return `<section class="panel pilot m-${st.mode}">${head}${brk}${sup}${body}
+    return `<section class="panel pilot m-${st.mode}">${head}${typeof voiceHtml === 'function' ? voiceHtml() : ''}${brk}${sup}${body}
         <button class="btn ghost" type="button" data-action="go-quests" style="margin-top:12px">Весь план</button></section>`;
   }
   const capPct = Math.min(100, (plan.doneToday / plan.cap) * 100);
   return `<section class="panel pilot m-${st.mode}">${head}
       <p class="pilot-line">${m.line}</p>
+      ${typeof voiceHtml === 'function' ? voiceHtml() : ''}
       ${brk}${sup}${body}
       <div class="pilot-cap"><div class="fin-head"><span>Сегодня по силам ~${plan.cap}${st.mode === 'wave' ? '+' : ''}</span><span>закрыто ${plan.doneToday}</span></div>
         <span class="fin-bar"><i data-pct="${capPct.toFixed(1)}"></i></span></div>
@@ -4814,7 +4912,7 @@ function openCheckin(reason) {
   const lead = leadNow();
   const root = openSheet('Система', `
     <p class="lead">${reason === 'quest' ? 'Квест закрыт ✓ Как силы?' : 'Как ты сейчас?'}</p>
-    ${reason === 'open' ? `<div class="pilot-lbl" style="margin-top:12px">Кто у руля — по желанию</div>
+    ${reason === 'open' && mod('parts') ? `<div class="pilot-lbl" style="margin-top:12px">Кто у руля — по желанию</div>
       <div class="lead-chips" style="margin-top:6px">${PARTS.map((x) => `<button type="button" data-l="${x.id}" style="--pc:${x.color}" aria-pressed="${!!lead && lead.id === x.id}">${esc(x.short)}</button>`).join('')}</div>` : ''}
     <div class="pilot-lbl" style="margin-top:14px">Силы — нажми цифру, и готово</div>
     ${energyAskHtml()}
@@ -4824,7 +4922,9 @@ function openCheckin(reason) {
     picked = picked === b.dataset.l ? null : b.dataset.l;
     root.querySelectorAll('[data-l]').forEach((x) => x.setAttribute('aria-pressed', String(x.dataset.l === picked)));
   }));
+  if (typeof noteAsk === 'function') noteAsk(false);
   root.querySelectorAll('[data-pilot-e]').forEach((b) => b.addEventListener('click', () => {
+    if (typeof noteAsk === 'function') noteAsk(true);
     if (picked) setLead(picked);
     recordEnergy(Number(b.dataset.pilotE));
     haptic(10);
@@ -4927,12 +5027,13 @@ function pilotNudge() {
     return toast({ title: `${m.icon} ${m.name}`, main: 'На сегодня по силам — всё', sub: 'Дальше — отдых без вины', action: { label: 'Отдых', run: () => openSuggestion(st.mode === 'ebb' ? 'tired' : 'rest') }, ms: 7000 });
   }
   if (next) {
-    toast({ title: changed ? `${m.icon} Теперь ${m.name.toLowerCase()}` : 'Пилот', main: `Дальше: ${next.title}`, sub: `${LOADS[questLoad(next)].icon} ${LOADS[questLoad(next)].hint}`, action: { label: 'Беру', run: () => { ui.pilotFocus = next.id; render(); } }, ms: 6000 });
+    toast({ title: changed ? `${m.icon} Теперь ${m.name.toLowerCase()}` : 'Пилот', main: `Дальше: ${next.title}`, sub: `${LOADS[questLoad(next)].icon} ${LOADS[questLoad(next)].hint}`, action: { label: 'Беру', run: () => { ui.pilotFocus = next.id; markStarted(next); render(); } }, ms: 6000 });
   }
 }
 
 /** После закрытого квеста: подсказка, а окно с вопросом о силах — только если не спрашивали больше 2,5 часа и за этот вход ещё не спрашивали. */
 function pilotAfterQuest(q) {
+  if (typeof recordEstimate === 'function') recordEstimate(q);
   if (!session.state.settings.pilot || q.area === 'state' || q.system === 'groceries') return;
   if (ui.pilotFocus === q.id) ui.pilotFocus = null;
   setTimeout(() => afterFx(() => {
@@ -4955,6 +5056,7 @@ function pilotOnOpen() {
   const last = f.checkins.at(-1);
   if (last && Date.now() - last.at < 3 * 3600000) return;
   if (Date.now() - (f.lastAsk || 0) < 3 * 3600000) return;
+  if (typeof goodAskHour === 'function' && !goodAskHour()) return; // в это время ты обычно отмахиваешься
   ui.askedThisOpen = true; // за один вход — не больше одного окна с вопросом
   setTimeout(() => afterFx(() => session.state.settings.pilot && !currentEnergyFresh() && openCheckin('open')), 1600);
 }
@@ -5001,12 +5103,12 @@ function wavesHtml() {
   } else {
     insight = 'Отмечай силы пару недель — Система увидит, сколько у тебя длятся волна и откат.';
   }
-  return `<div class="section-h">Волны</div>
-    <div class="panel pad">
+  if (!mod('waves')) return '';
+  return fold('waves', 'Волны', `<div class="panel pad">
       <div class="waves">${days.map((x) => `<i class="${x.mode || ''}${x.today ? ' today' : ''}" title="${dayTitle(x.d)}"></i>`).join('')}</div>
       <div class="waves-legend"><span>🌊 волна</span><span>〰️ ровно</span><span>🌙 откат</span><span style="margin-left:auto">14 дней</span></div>
       <p class="hint" style="margin:10px 0 0">${insight}</p>
-    </div>`;
+    </div>`);
 }
 
 /* ---------- Личности: стороны одного «Я» вокруг шарика ----------
@@ -5056,6 +5158,18 @@ function feedByText(text, pts, src) {
   return ids;
 }
 
+/** Мягкие стороны: делают и «воинские» задачи — но без напряга. */
+const SOFT_PARTS = ['dreamer', 'fun', 'tired', 'love', 'deep'];
+const HARD_PARTS = ['warrior', 'smm'];
+
+/** Кто был у руля в момент t: история руля плюс текущий. */
+function leadAt(t) {
+  const ps = partsState();
+  const seg = (ps.leads || []).find((x) => x.from <= t && t < x.to);
+  if (seg) return seg.id;
+  return ps.lead && ps.lead.at <= t && t - ps.lead.at < 12 * 3600000 ? ps.lead.id : null;
+}
+
 function partCharges(now = Date.now()) {
   const S = Object.fromEntries(PARTS.map((x) => [x.id, 0]));
   const last = {};
@@ -5066,11 +5180,29 @@ function partCharges(now = Date.now()) {
     const q = findQuest(e.questId);
     if (!q) continue;
     const pts = PART_PTS[e.type] || 25;
-    for (const id of questParts(q)) {
-      S[id] += pts * decay(e.at);
+    const lead = leadAt(e.at);
+    const soft = lead && SOFT_PARTS.includes(lead);
+    const ids = questParts(q);
+    for (const id of ids) {
+      // задачу Воина сделал Мечтатель: Воин качается вполсилы
+      S[id] += pts * decay(e.at) * (soft && HARD_PARTS.includes(id) && id !== lead ? 0.5 : 1);
       if (!last[id] || e.at > last[id].at) last[id] = { at: e.at, what: q.title };
     }
-    if (q.area !== 'state' && !questParts(q).includes('tired')) work += pts * decay(e.at);
+    if (soft && !ids.includes(lead)) {
+      S[lead] += pts * 0.6 * decay(e.at); // ведущий заряжается — сделал по-своему
+      if (!last[lead] || e.at > last[lead].at) last[lead] = { at: e.at, what: `${q.title} (по-своему)` };
+    }
+    // мягкой стороной без напряга — Уставший не разряжается
+    if (q.area !== 'state' && !ids.includes('tired') && !soft) work += pts * decay(e.at);
+  }
+  // руль тратит заряд: 8 очков в час, пока сторона ведёт (до 12 часов подряд)
+  const ps = partsState();
+  const segs = (ps.leads || []).concat(ps.lead ? [{ id: ps.lead.id, from: ps.lead.at, to: Math.min(now, ps.lead.at + 12 * 3600000) }] : []);
+  const spent = {};
+  for (const x of segs) {
+    if (now - x.to > 7 * 864e5 || !(x.id in S)) continue;
+    const hours = Math.max(0, (Math.min(x.to, now) - x.from) / 3600000);
+    spent[x.id] = (spent[x.id] || 0) + hours * 8 * decay(x.to);
   }
   for (const f of partsState().feeds) {
     if (now - f.at > 7 * 864e5 || !(f.part in S)) continue;
@@ -5078,6 +5210,7 @@ function partCharges(now = Date.now()) {
     if (!last[f.part] || f.at > last[f.part].at) last[f.part] = { at: f.at, what: f.src };
   }
   S.tired = Math.max(0, S.tired - work * 0.35); // работа без отдыха разряжает Уставшего
+  for (const [id, v] of Object.entries(spent)) S[id] = Math.max(0, S[id] - v);
   const out = {};
   for (const x of PARTS) out[x.id] = { charge: Math.round(100 * (1 - Math.exp(-S[x.id] / 55))), last: last[x.id] || null };
   return out;
@@ -5097,6 +5230,9 @@ function leadNow() {
 
 /** Совет про руль: отдыхать Воином или Стратегом на откате — главный источник усталости. */
 function leadAdvice(ch) {
+  if (!mod('parts')) return null;
+  const empty = leadEmpty(ch);
+  if (empty) return empty;
   const lead = leadNow();
   const st = session.state.settings.pilot ? pilotState() : null;
   const want = partWanted(ch);
@@ -5113,6 +5249,7 @@ function leadAdvice(ch) {
 }
 
 function orbTabsHtml() {
+  if (!mod('parts')) return '';
   const v = partsState().view;
   return `<span class="orb-tabs"><button type="button" data-orb-view="parts" aria-pressed="${v === 'parts'}">Личности</button><button type="button" data-orb-view="supports" aria-pressed="${v !== 'parts'}">Опоры</button></span>`;
 }
@@ -5174,8 +5311,25 @@ function layoutParts(wrap) {
 }
 
 function setLead(id) {
-  partsState().lead = { id, at: Date.now() };
+  const ps = partsState();
+  const now = Date.now();
+  // прошлый руль уходит в историю — по ней считается, сколько руль потратил
+  if (ps.lead && ps.lead.id !== id) {
+    ps.leads = (ps.leads || []).filter((x) => now - x.to < 8 * 864e5);
+    ps.leads.push({ id: ps.lead.id, from: ps.lead.at, to: Math.min(now, ps.lead.at + 12 * 3600000) });
+  }
+  if (!ps.lead || ps.lead.id !== id) ps.lead = { id, at: now };
   save();
+}
+
+/** У руля почти пусто — кому передать: самому заряженному из тех, кто нужен сейчас. */
+function leadEmpty(ch) {
+  const lead = leadNow();
+  if (!lead || ch[lead.id].charge >= 15) return null;
+  const st = session.state.settings.pilot ? pilotState() : null;
+  const pool = (st ? PART_WANT[st.mode] : PARTS.map((x) => x.id)).filter((id) => id !== lead.id);
+  const best = pool.slice().sort((a, b) => ch[b].charge - ch[a].charge)[0];
+  return best && ch[best].charge > ch[lead.id].charge + 20 ? { from: lead.id, want: best, text: `У «${PART[lead.id].name}» почти не осталось заряда (${ch[lead.id].charge}%). Передай руль: «${PART[best].name}» — ${ch[best].charge}%.` } : null;
 }
 
 /** Карточка личности: заряд, что её питает, руль и свои слова. */
@@ -5193,6 +5347,10 @@ function openPart(id) {
       <div class="pilot-lbl">Что его заряжает — нажми, если сделал или начинаешь</div>
       <div class="feed-list">${x.feeds.map((f, i) => `<button type="button" data-feed="${i}">${esc(f)}${menu().items.some((m) => m.title === f) ? ' <small>· с таймером из меню</small>' : ''}</button>`).join('')}</div>
       <button class="btn${isLead ? ' ghost' : ''}" type="button" data-lead style="margin-top:14px">${isLead ? 'Сейчас у руля ✓' : 'Передать ему руль'}</button>
+      <details style="margin-top:10px"><summary class="hint" style="cursor:pointer">Голос — что она говорит в плане</summary>
+        <label class="field"><span>Фразы, по одной в строке</span><textarea name="voice" rows="3" maxlength="600" placeholder="${esc((typeof PART_VOICES !== 'undefined' && PART_VOICES[id] || []).join('\n'))}">${esc(((partsState().voices || {})[id] || []).join('\n'))}</textarea></label>
+        <button class="btn ghost" type="button" data-save-voice>Сохранить голос</button>
+      </details>
       <details style="margin-top:10px"><summary class="hint" style="cursor:pointer">Свои слова об этой личности</summary>
         <label class="field"><span>Описание (хранится зашифрованно)</span><textarea name="note" rows="4" maxlength="1500" placeholder="${esc(x.about)}">${esc(note)}</textarea></label>
         <button class="btn ghost" type="button" data-save-note>Сохранить</button>
@@ -5217,8 +5375,16 @@ function openPart(id) {
     haptic(15);
     toast({ title: 'Руль', main: `У руля: ${x.name}`, sub: x.feeds[0], kind: 'up', ms: 3500 });
   });
+  root.querySelector('[data-save-voice]').addEventListener('click', () => {
+    const lines = root.querySelector('textarea[name="voice"]').value.split('\n').map((x) => x.trim()).filter(Boolean);
+    partsState().voices = partsState().voices || {};
+    if (lines.length) partsState().voices[id] = lines;
+    else delete partsState().voices[id];
+    save();
+    toast({ title: x.name, main: 'Голос сохранён', ms: 2000 });
+  });
   root.querySelector('[data-save-note]').addEventListener('click', () => {
-    const v = root.querySelector('textarea').value.trim();
+    const v = root.querySelector('textarea[name="note"]').value.trim();
     if (v) partsState().notes[id] = v;
     else delete partsState().notes[id];
     save();
@@ -5306,8 +5472,8 @@ function orbHtml(s, cls, word, energy) {
           </div>
         </div>`;
   return `<section class="panel orb-panel" style="--c1:${c1};--c2:${c2};--c3:${c3};--spin:${spin}s;--glow:${glow}">
-      <div class="orb-head"><small>${partsState().view === 'parts' ? 'Стороны' : 'Состояние'}</small>${(() => { const st = session.state.settings.pilot && pilotState(); return st ? `<span class="orb-mode">${MODES[st.mode].icon} ${MODES[st.mode].name}</span>` : ''; })()}${orbTabsHtml()}</div>
-      ${partsState().view === 'parts' ? partsOrbHtml(s, cls, word, energy, coreHtml) : `<div class="orb-wrap" data-orb>
+      <div class="orb-head"><small>${partsState().view === 'parts' && mod('parts') ? 'Стороны' : 'Состояние'}</small>${(() => { const st = session.state.settings.pilot && pilotState(); return st ? `<span class="orb-mode">${MODES[st.mode].icon} ${MODES[st.mode].name}</span>` : ''; })()}${orbTabsHtml()}</div>
+      ${partsState().view === 'parts' && mod('parts') ? partsOrbHtml(s, cls, word, energy, coreHtml) : `<div class="orb-wrap" data-orb>
         <svg class="orb-lines" aria-hidden="true"></svg>
         <div class="orb-side l"><span class="orb-cap">Держит</span>${plus.length ? plus.map(lbl).join('') : lbl({ t: 'Пусто', s: 'отметь опору — сфера засветится', kind: 'empty' })}</div>
         ${coreHtml()}
@@ -5417,13 +5583,12 @@ function stateView() {
     <p class="hint">Отметьте, если было сегодня. Слив снижает состояние, но опыт не отнимает: задача — замечать, а не наказывать себя.</p>
     <button class="btn ghost" type="button" data-action="edit-drains">Изменить список сливов</button>
 
-    <div class="section-h">Неделя</div>
-    ${chart}
+    ${fold('week', 'Неделя', chart)}
 
     ${dopamineHtml()}
 
-    <div class="section-h">Что влияет на энергию</div>
-    <div class="panel pad">${insights}</div>`;
+    ${ins.items.length ? fold('insights', 'Что влияет на энергию', `<div class="panel pad">${insights}</div>`) : ''}
+    ${typeof insightsHtml === 'function' ? insightsHtml() : ''}`;
 }
 
 function applyStatePreset() {
@@ -5821,7 +5986,7 @@ function askNext(e) {
     e.asked.planned = true;
     return ask('Это было запланировано?', [{ label: 'Да, запланировано', value: true }, { label: 'Нет, импульсивно', value: false }], (v) => { e.planned = v; });
   }
-  if (e.cls === 'want' && !e.fixed && e.overLimit && !e.asked.why) { // спрашиваем только про траты сверх лимита
+  if (mod('spend') && e.cls === 'want' && !e.fixed && e.overLimit && !e.asked.why) { // спрашиваем только про траты сверх лимита
     e.asked.why = true;
     return ask('Что подтолкнуло? Честно — Система подберёт замену, а не запрет.', Object.entries(WHY).map(([id, w]) => ({ label: w.label, value: id })), (v) => { e.why = v; }, true);
   }
@@ -5983,6 +6148,7 @@ function financeView() {
         ${limitRow('Неделя', lim.week)}
         ${limitRow(monthName[0].toUpperCase() + monthName.slice(1), lim.month)}
         ${streak ? `<p class="fin-streak"><b>${streak}</b> ${plural(streak, ['день', 'дня', 'дней'])} подряд в лимите</p>` : ''}
+        ${typeof forecastHtml === 'function' ? forecastHtml() : ''}
       </section>`;
   }
 
@@ -6009,32 +6175,29 @@ function financeView() {
       : `<div class="panel empty">Трат сегодня нет.</div>
          <button class="btn${f.noSpend[todayKey] ? ' gold' : ''}" type="button" data-action="fin-nospend">${f.noSpend[todayKey] ? '✓ Сегодня без трат' : 'Сегодня без трат'}</button>`}
 
-    <div class="section-h">Поступления <span class="count">${money(incomesThisMonth())}</span></div>
-    <div class="panel pad">
+    ${fold('incomes', `Поступления <span class="count">${money(incomesThisMonth())}</span>`, `<div class="panel pad">
       ${b.expected ? `<div class="cat-row"><div class="fin-head"><span>Пришло в этом месяце</span><span>${money(incomesThisMonth())} / ${money(b.expected)}</span></div>
         <span class="fin-bar" style="--fc:var(--ok)"><i data-pct="${Math.min(100, (incomesThisMonth() / b.expected) * 100).toFixed(1)}"></i></span></div>` : ''}
       ${incomes.length ? `<div class="log-list" style="padding:0">${incomes.map(incomeRow).join('')}</div>` : '<p class="hint" style="margin:12px 0 0">В этом месяце поступлений пока нет. Впиши «+сумма» в строку сверху.</p>'}
-    </div>
+    </div>`)}
 
-    <div class="section-h">${monthName[0].toUpperCase() + monthName.slice(1)} <span class="count">${money(total(month))}</span></div>
-    <div class="panel pad">
+    ${fold('month', `${monthName[0].toUpperCase() + monthName.slice(1)} <span class="count">${money(total(month))}</span>`, `<div class="panel pad">
       ${month.length ? `<div class="fin-sum"><span>✅ <b>${money(byGrade.ok)}</b></span><span>⚠️ <b>${money(byGrade.meh)}</b></span><span>❌ <b>${money(byGrade.bad)}</b></span></div>
         ${cats.map(([id, sum]) => `<div class="cat-row"><div class="fin-head"><span>${FIN_CAT[id].name} <small style="color:var(--text-faint)">· ${FIN_CLASS[FIN_CAT[id].cls]}</small></span><span>${money(sum)}</span></div>
           <span class="fin-bar"><i data-pct="${((sum / maxCat) * 100).toFixed(1)}"></i></span></div>`).join('')}`
         : '<p class="hint" style="margin:12px 0 0">Трат в этом месяце пока нет.</p>'}
-    </div>
+    </div>`)}
 
     ${spendHtml()}
 
-    <div class="section-h">Бюджет</div>
-    <div class="panel pad">
+    ${fold('budget', 'Бюджет', `<div class="panel pad">
       <div class="stat-row"><span>Свободно сейчас</span><span class="mono ${lim && lim.free < 0 ? 'warn-text' : 'ok'}">${money(lim ? lim.free : 0)}</span></div>
       <div class="stat-row"><span>Обязательные платежи в месяц</span><span class="mono">${money(b.fixed)}</span></div>
       <div class="stat-row"><span>Откладывается с поступлений</span><span class="mono">${f.savePct}% · всего ${money(incomesBetween(0, Date.now() + 1, false) - incomesBetween(0, Date.now() + 1, true))}</span></div>
       <div class="stat-row"><span>Фонд радостей</span><span class="mono">${f.joyPct || 0}% · в фонде ${money(joyFund())}</span></div>
       <div class="stat-row"><span>Ожидаемый доход в месяц</span><span class="mono">${b.expected ? money(b.expected) : '—'}</span></div>
       <button class="btn ghost" type="button" data-action="fin-budget">Изменить бюджет</button>
-    </div>`;
+    </div>`)}`;
 }
 
 function wireFinance(view) {
@@ -6257,6 +6420,8 @@ function itemMeta(it) {
   if (it.minutes) parts.push(`${it.minutes} мин`);
   if (it.evening) parts.push('🌙 вечер');
   if (it.ratings.length) parts.push(`помогло ${it.ratings.filter((r) => r.v > 0).length} из ${it.ratings.length}`);
+  const real = typeof realEffect === 'function' ? realEffect(it) : null;
+  if (real !== null) parts.push(`энергия ${real >= 0 ? '+' : '−'}${Math.abs(real).toFixed(1).replace('.', ',')}`);
   return parts.join(' · ');
 }
 
@@ -6283,7 +6448,8 @@ function candidates(need) {
 function pickWeighted(list, excludeId) {
   const pool = list.length > 1 ? list.filter((i) => i.id !== excludeId) : list;
   const now = Date.now();
-  const weights = pool.map((i) => 1 + Math.max(0, itemEffect(i)) * 2 + (!i.lastAt || now - i.lastAt > 3 * 864e5 ? 0.5 : 0));
+  const score = typeof itemScore === 'function' ? itemScore : itemEffect; // оценки «помогло?» + замеренная энергия
+  const weights = pool.map((i) => 1 + Math.max(0, score(i)) * 2 + (!i.lastAt || now - i.lastAt > 3 * 864e5 ? 0.5 : 0));
   let r = Math.random() * weights.reduce((a, w) => a + w, 0);
   for (let k = 0; k < pool.length; k++) if ((r -= weights[k]) <= 0) return pool[k];
   return pool[pool.length - 1];
@@ -6364,6 +6530,7 @@ function takeItem(item) {
   const now = Date.now();
   feedByText(item.title, 30, item.title);
   if (item.section === 'dessert' || item.section === 'main') feedPart('tired', item.section === 'main' ? 20 : 10, item.title); // отдых кормит Уставшего
+  if (typeof recordTake === 'function') recordTake(item);
   state.menu.active = { itemId: item.id, title: item.title, section: item.section, startedAt: now, until: item.minutes ? now + item.minutes * 60000 : null };
   item.lastAt = now;
   save();
@@ -6391,6 +6558,7 @@ function activeHtml() {
 /** Раз в секунду обновляет таймер активного блюда и сообщает, когда время вышло. */
 function tickActive() {
   if (!session) return;
+  if (typeof tickFocus === 'function') tickFocus();
   const a = session.state.menu.active;
   const box = app.querySelector('[data-active]');
   if (!a || !box) return;
@@ -6560,7 +6728,7 @@ function eveningProgress() {
 }
 
 function eveningCardHtml() {
-  if (!isEvening()) return '';
+  if (!mod('evening') || !isEvening()) return '';
   const p = eveningProgress();
   return `<section class="panel evening-card">
       <small>Вечер · с ${minToTime(session.state.evening.start)}</small>
@@ -6934,6 +7102,7 @@ function experimentSpent(x) {
 }
 
 function spendHtml() {
+  if (!mod('spend')) return '';
   const f = fin();
   const active = f.experiments.filter((x) => !x.result);
   const leaks = spendPatterns().filter((p) => !active.some((x) => x.cat === p.cat)).slice(0, 3);
@@ -7082,6 +7251,7 @@ function expectedBalance(t = Date.now() + 1) {
 }
 
 function balanceHtml() {
+  if (!mod('reconcile')) return '';
   const f = fin();
   if (!f.incomes.length) return '';
   const last = f.anchor && f.anchor.at;
@@ -7345,6 +7515,7 @@ function activeGroceryQuest() {
 
 /** Ставит квест «Купить продукты», когда пора (или сразу — по кнопке «Холодильник пустой»). */
 function ensureGroceryQuest(force) {
+  if (!mod('groceries')) return;
   if (!session) return;
   const { state } = session;
   if (activeGroceryQuest()) {
@@ -7462,6 +7633,7 @@ function basketCost(lines, onlyGot) {
 }
 
 function groceryHtml() {
+  if (!mod('groceries')) return '';
   const f = food();
   const last = lastGroceryTrip();
   const b = groceryBudget();
@@ -7588,9 +7760,10 @@ function statusView() {
     warn.length ? line('⚠️', `Опоры проседают: ${esc(warn[0].split(' — ')[0])}${warn.length > 1 ? ` и ещё ${warn.length - 1}` : ''}`, 'go-state', ' warn') : '',
     due ? line('🧠', `${due} ${plural(due, ['мысль ждёт', 'мысли ждут', 'мыслей ждут'])} разбора`, 'worries') : '',
     backupDue() ? line('💾', 'Пора сохранить бэкап', 'export') : '',
+    ...(typeof lifeLines === 'function' ? lifeLines(line) : []),
   ].filter(Boolean).join('');
   const word = s ? scoreClass(s.score)[1] : null;
-  return `${pilotHtml(true)}
+  return `${dayBarHtml()}${captureHtml()}${pilotHtml(true)}
     <div class="panel now-list">
       ${alerts}
       ${s ? line('◉', `Состояние ${s.score}% · ${word}${energy ? ` · ⚡ ${energy}/5` : ''}`, 'go-state') : line('◉', 'Состояние: настроить опоры', 'go-state')}
@@ -7725,6 +7898,8 @@ function settingsView() {
     <div class="panel pad">
       <label class="set-row"><span><b>Звук</b><small>Сигналы Системы. На iPhone молчат в беззвучном режиме</small></span>
         <input class="toggle" type="checkbox" data-toggle="sound"${state.settings.sound ? ' checked' : ''}></label>
+      ${Object.entries(MODULES).map(([k, name]) => `<label class="set-row"><span><b>${name}</b><small>Модуль: выключи, если не пользуешься — исчезнет вместе с вопросами</small></span>
+        <input class="toggle" type="checkbox" data-mod="${k}"${mod(k) ? ' checked' : ''}></label>`).join('')}
       <label class="set-row"><span><b>Пилот энергии</b><small>Спрашивать о силах при входе и после квестов, раскладывать квесты по волне</small></span>
         <input class="toggle" type="checkbox" data-toggle="pilot"${state.settings.pilot ? ' checked' : ''}></label>
       <label class="set-row"><span><b>Вибрация</b><small>Android — вибрация, iPhone (iOS 18+) — тактильный щелчок</small></span>
@@ -7737,12 +7912,19 @@ function settingsView() {
       </div>
     </div>
 
+    ${mod('routines') && typeof routinesSettingsHtml === 'function' ? routinesSettingsHtml() : ''}
+
     <div class="section-h">Вечер</div>
     <div class="panel pad">
       <label class="set-row"><span><b>Вечер начинается</b><small>С этого времени — карточка «Вечер» и лёгкие блюда в меню</small></span>
         <span class="xp-input"><input type="time" data-time="start" value="${minToTime(state.evening.start)}" style="width:110px"></span></label>
       <label class="set-row"><span><b>Разбор мыслей</b><small>Когда возвращаться к выгруженному</small></span>
         <span class="xp-input"><input type="time" data-time="review" value="${minToTime(state.evening.review)}" style="width:110px"></span></label>
+      <label class="set-row"><span><b>Подъём</b><small>Начало полоски дня</small></span>
+        <span class="xp-input"><input type="time" data-life-time="wake" value="${minToTime(dayTimes().wake)}" style="width:110px"></span></label>
+      <label class="set-row"><span><b>Сон</b><small>Конец полоски дня</small></span>
+        <span class="xp-input"><input type="time" data-life-time="sleep" value="${minToTime(dayTimes().sleep)}" style="width:110px"></span></label>
+      <button class="btn ghost" type="button" data-action="reminders">Напоминания через «Команды»</button>
     </div>
 
     <div class="section-h">Данные</div>
@@ -7794,6 +7976,21 @@ function wireSettings(view) {
   });
   view.querySelectorAll('[data-rank]').forEach((input) => {
     input.addEventListener('change', () => onRankInput(input));
+  });
+  if (typeof wireRoutines === 'function') wireRoutines(view);
+  view.querySelectorAll('[data-life-time]').forEach((input) => {
+    input.addEventListener('change', () => {
+      const [h, m] = input.value.split(':').map(Number);
+      if (Number.isNaN(h)) return;
+      session.state.life[input.dataset.lifeTime] = h * 60 + (m || 0);
+      save();
+    });
+  });
+  view.querySelectorAll('[data-mod]').forEach((input) => {
+    input.addEventListener('change', () => {
+      session.state.life.mods[input.dataset.mod] = input.checked;
+      save();
+    });
   });
   view.querySelectorAll('[data-toggle]').forEach((input) => {
     input.addEventListener('change', () => {
@@ -8176,5 +8373,6 @@ registerServiceWorker();
 boot();
 </script>
 <script src="board.js"></script>
+<script src="life.js"></script>
 </body>
 </html>
