@@ -155,6 +155,7 @@ function openSteps(q) {
 /* ---------- «Просто начни»: 5 минут ---------- */
 
 function startFocus(q, minutes = 5) {
+  markStarted(q);
   const step = stepNext(q);
   life().focus = { qid: q.id, step: step ? step.id : null, title: step ? step.t : q.title, startedAt: Date.now(), until: Date.now() + minutes * 60000, asked: false };
   save();
@@ -176,6 +177,7 @@ function focusHtml() {
 /** Раз в секунду: таймер и вопрос, когда время вышло. */
 function tickFocus() {
   if (!session) return;
+  tickLeave();
   const f = life().focus;
   const el = app.querySelector('[data-ftimer]');
   if (!f) return;
@@ -210,7 +212,6 @@ function focusDone() {
   life().focus = null;
   const q = f && findQuest(f.qid);
   if (!q) return render();
-  if (typeof recordEstimate === 'function') recordEstimate(q, f);
   if (f.step && q.steps) return doStep(q, f.step);
   if (!completionIndex().has(q.id)) {
     completeQuest(q);
@@ -304,6 +305,14 @@ function captureAs(kind, text) {
 }
 
 function capture(text, forced) {
+  const leave = !forced && parseLeave(text);
+  if (leave) {
+    life().leave = leave;
+    save();
+    render();
+    Sound.play('quest');
+    return toast({ title: 'Отсчёт', main: `Выйти в ${new Date(leave.at).toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' })}`, sub: 'Напомню за 20 и за 5 минут', kind: 'up', ms: 4000 });
+  }
   const kind = forced || captureKind(text);
   const undo = captureAs(kind, text);
   save();
@@ -330,4 +339,129 @@ function recapture(text, was, undo) {
     closeSheet();
     capture(text, b.dataset.k);
   }));
+}
+
+/* ---------- Полоска дня: время тает видимо ----------
+   От подъёма до вечера и от вечера до сна — без цифр на часах, просто видно, сколько осталось. */
+
+const dayTimes = () => ({ wake: life().wake ?? 8 * 60, evening: session.state.evening.start, sleep: life().sleep ?? 23 * 60 + 30 });
+
+function dayBarHtml() {
+  const { wake, evening, sleep } = dayTimes();
+  const d = new Date();
+  const now = d.getHours() * 60 + d.getMinutes();
+  if (now < wake - 60 || now > sleep + 60) return '';
+  const span = sleep - wake;
+  const pct = (m) => Math.max(0, Math.min(100, ((m - wake) / span) * 100));
+  const left = (m) => hoursText(Math.max(0, m - now));
+  const text = now < evening ? `до вечера ${left(evening)} · до сна ${left(sleep)}` : now < sleep ? `вечер · до сна ${left(sleep)}` : 'пора спать';
+  return `<div class="daybar" aria-label="${text}">
+      <span class="daybar-track"><i class="day" style="width:${pct(evening)}%"></i><i class="eve" style="left:${pct(evening)}%;width:${pct(sleep) - pct(evening)}%"></i><b style="left:${pct(now)}%"></b></span>
+      <small>${text}</small>
+    </div>`;
+}
+
+/* ---------- «Через N минут выходить» ----------
+   Пишешь во вброс «выйти в 18:30» — Система ведёт отсчёт: за 20 минут «собирайся», за 5 — «выходи». */
+
+const LEAVE_RE = /^\s*(выйти|выхожу|выход|выезд|выехать|выезжаю|выходить)\s*(в|к)?\s*(\d{1,2})[:.](\d{2})\s*(.*)$/i;
+
+function parseLeave(text) {
+  const m = text.match(LEAVE_RE);
+  if (!m) return null;
+  const d = new Date();
+  d.setHours(Number(m[3]), Number(m[4]), 0, 0);
+  if (d.getTime() < Date.now() - 5 * 60000) d.setDate(d.getDate() + 1);
+  return { at: d.getTime(), what: m[5].trim(), warned: {} };
+}
+
+function leaveHtml() {
+  const l = life().leave;
+  if (!l) return '';
+  const min = Math.round((l.at - Date.now()) / 60000);
+  const time = new Date(l.at).toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
+  return `<div class="panel active-item leave-item${min <= 5 ? ' hot' : min <= 20 ? ' warm' : ''}" data-leave>
+      <div><small>Выйти в ${time}${l.what ? ` · ${esc(l.what)}` : ''}</small><b data-ltimer>${min > 0 ? `через ${hoursText(min)}` : 'пора выходить!'}</b></div>
+      <button class="btn ghost" type="button" data-action="leave-stop" aria-label="Убрать">×</button>
+    </div>`;
+}
+
+function tickLeave() {
+  const l = life().leave;
+  if (!l) return;
+  const min = Math.round((l.at - Date.now()) / 60000);
+  const el = app.querySelector('[data-ltimer]');
+  if (el) {
+    el.textContent = min > 0 ? `через ${hoursText(min)}` : 'пора выходить!';
+    const box = el.closest('[data-leave]');
+    box.classList.toggle('warm', min <= 20 && min > 5);
+    box.classList.toggle('hot', min <= 5);
+  }
+  const warn = (key, title, main) => {
+    if (l.warned[key]) return;
+    l.warned[key] = true;
+    save();
+    Sound.play('quest');
+    haptic([30, 60, 30]);
+    toast({ title, main, sub: l.what || '', kind: 'up', ms: 9000 });
+  };
+  if (min <= 20 && min > 5) warn('20', 'Через 20 минут выходить', 'Начинай собираться: телефон, ключи, кошелёк');
+  if (min <= 5 && min > -10) warn('5', 'Выходи', 'Через 5 минут — пора');
+  if (min < -15) {
+    life().leave = null;
+    save();
+    render();
+  }
+}
+
+/* ---------- Оценка времени ----------
+   В квесте можно указать «сколько займёт». Когда начинаешь (5 мин или «Беру») и закрываешь —
+   Система сравнивает с фактом и узнаёт твою поправку: «ты обычно ошибаешься в 1,8 раза». */
+
+function estFactor() {
+  const list = life().est.slice(-20).map((x) => x.actual / x.est).filter((r) => r > 0.1 && r < 10).sort((a, b) => a - b);
+  if (list.length < 3) return null;
+  return list[Math.floor(list.length / 2)]; // медиана: одна странная задача не ломает поправку
+}
+
+function estText(q) {
+  if (!q.est) return '';
+  const k = estFactor();
+  return k && Math.abs(k - 1) > 0.15 ? `≈${Math.round(q.est * k)} мин (ты пишешь ${q.est})` : `≈${q.est} мин`;
+}
+
+function markStarted(q) {
+  if (q && !q.startedAt) {
+    q.startedAt = Date.now();
+    save();
+  }
+}
+
+function recordEstimate(q) {
+  if (!q || !q.est || !q.startedAt || q.estDone) return;
+  const actual = Math.round((Date.now() - q.startedAt) / 60000);
+  if (actual < 1 || actual > 600) return;
+  q.estDone = true;
+  life().est.push({ at: Date.now(), est: q.est, actual });
+  if (life().est.length > 100) life().est.shift();
+  save();
+  const k = estFactor();
+  if (k) toast({ title: 'Оценка времени', main: `Думал ${q.est} мин — вышло ${actual}`, sub: `Обычно ты ${k > 1 ? `недооцениваешь в ${k.toFixed(1).replace('.', ',')} раза` : 'оцениваешь точно'}`, ms: 5000 });
+}
+
+/* ---------- Напоминания через «Команды» ---------- */
+
+function openReminderGuide() {
+  openSheet('Напоминания', `
+    <p class="dim center">Приложение без сервера не может само прислать уведомление. Это сделает айфон: «Команды» → вкладка «Автоматизация» → «+» → «Время суток».</p>
+    <div class="guide">
+      <b>1. Утро · 9:30, ежедневно</b>
+      <p>Действие «Показать уведомление»: «Как ты сейчас? Открой Систему». Выключи «Подтверждать запуск» — сработает само.</p>
+      <b>2. Вечер · ${minToTime(session.state.evening.start)}, ежедневно</b>
+      <p>Уведомление: «Посадочная полоса — открой вечер в Системе».</p>
+      <b>3. Разбор недели · воскресенье, 19:00</b>
+      <p>Уведомление: «5 минут на разбор недели». В Системе он ждёт на экране «Сейчас».</p>
+    </div>
+    <p class="hint">Нажатие на уведомление откроет «Команды», а не Систему, — открой её с главного экрана. Само напоминание и есть смысл: вспомнить вовремя.</p>
+    <button class="btn" type="button" data-action="close">Понятно</button>`);
 }

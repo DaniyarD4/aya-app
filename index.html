@@ -1405,6 +1405,17 @@ html.noscroll, html.noscroll body { overflow: hidden; }
 .waves i.today { outline: 1px solid var(--text-dim); outline-offset: 1px; }
 .waves-legend { display: flex; gap: 12px; margin-top: 8px; font-size: 11px; color: var(--text-faint); }
 .orb-mode { font-size: 12px; color: var(--accent-2); }
+.daybar { margin-top: 10px; }
+.daybar-track { position: relative; display: block; height: 6px; border-radius: 999px; background: rgba(120, 205, 255, 0.1); overflow: visible; }
+.daybar-track i { position: absolute; top: 0; height: 100%; border-radius: 999px; }
+.daybar-track .day { left: 0; background: linear-gradient(90deg, rgba(102, 208, 255, 0.25), rgba(102, 208, 255, 0.55)); }
+.daybar-track .eve { background: linear-gradient(90deg, rgba(185, 155, 255, 0.45), rgba(185, 155, 255, 0.2)); }
+.daybar-track b { position: absolute; top: -4px; width: 3px; height: 14px; margin-left: -1.5px; border-radius: 2px; background: #fff; box-shadow: 0 0 8px #fff; }
+.daybar small { display: block; margin-top: 6px; font-size: 12px; color: var(--text-dim); }
+.leave-item.warm { border-color: rgba(255, 197, 107, 0.6); }
+.leave-item.hot { border-color: rgba(255, 95, 122, 0.8); box-shadow: 0 0 18px rgba(255, 95, 122, 0.35); }
+.guide b { display: block; margin-top: 14px; color: var(--accent-2); }
+.guide p { margin: 4px 0 0; font-size: 14px; line-height: 1.45; color: var(--text-dim); }
 /* Вброс, шаги, «5 минут», складки */
 .capture { display: flex; gap: 8px; margin-top: 12px; padding: 8px; }
 .capture input { flex: 1; min-width: 0; height: 46px; padding: 0 14px; border: 1px solid rgba(120, 205, 255, 0.22); border-radius: 12px; background: rgba(5, 12, 24, 0.7); color: var(--text); font: inherit; font-size: 16px; }
@@ -3394,7 +3405,7 @@ function render() {
   });
   const view = app.querySelector('[data-view]');
   app.classList.toggle('no-boards', !mod('boards'));
-  view.innerHTML = (typeof focusHtml === 'function' ? focusHtml() : '') + activeHtml() + VIEWS[ui.tab]();
+  view.innerHTML = (typeof focusHtml === 'function' ? leaveHtml() + focusHtml() : '') + activeHtml() + VIEWS[ui.tab]();
   if (ui.tab === 'status' && typeof wireCapture === 'function') wireCapture(view);
   tickActive();
   if (ui.tab === 'settings') wireSettings(view);
@@ -3486,6 +3497,8 @@ function onViewClick(e) {
     case 'go-profile': ui.tab = 'profile'; render(); return scrollTo(0, 0);
     case 'board-new': return newBoardSheet();
     case 'focus-done': return focusDone();
+    case 'leave-stop': session.state.life.leave = null; save(); return render();
+    case 'reminders': return openReminderGuide();
     case 'focus-stop': session.state.life.focus = null; save(); return render();
     case 'pilot-checkin': return openCheckin('open');
     case 'pilot-rest': return openSuggestion(pilotState() && pilotState().mode === 'ebb' ? 'tired' : 'rest');
@@ -3754,7 +3767,9 @@ function openQuestEditor(quest, opts = {}) {
         <div class="choices">${[1, 2, 3].map((n) => `<label class="choice"><input type="radio" name="load" value="${n}"${questLoad(q) === n ? ' checked' : ''}><span>${LOADS[n].icon} ${LOADS[n].name}</span></label>`).join('')}</div>
         <label class="choice" style="margin-top:8px"><input type="checkbox" name="wait"${q.wait ? ' checked' : ''}><span>Отложить до волны</span></label>
         <div class="hint">Пилот энергии ставит тяжёлое на волну, лёгкое — на откат. По умолчанию — по типу квеста.</div>
-      </div>`}
+      </div>
+      <label class="field"><span>Сколько займёт, мин — по желанию</span><input name="est" type="number" inputmode="numeric" min="1" max="600" step="5" value="${q.est || ''}" placeholder="например, 30"></label>
+      ${estFactor() ? `<div class="hint">Твоя поправка: обычно выходит в ${estFactor().toFixed(1).replace('.', ',')} раза ${estFactor() >= 1 ? 'дольше' : 'быстрее'}, чем пишешь.</div>` : ''}`}
       <div class="field"><span>Кого из личностей питает</span>
         <div class="choices">${PARTS.map((x) => `<label class="choice"><input type="checkbox" name="parts" value="${x.id}"${questParts(q).includes(x.id) ? ' checked' : ''}><span>${esc(x.short)}</span></label>`).join('')}</div>
         <div class="hint">Отмечено то, что Система угадала по названию. Закрытый квест заряжает выбранных.</div>
@@ -3802,6 +3817,7 @@ function openQuestEditor(quest, opts = {}) {
       const load = Number(f.load.value);
       data.load = load === LOAD_BY_TYPE[data.type] ? undefined : load; // как у типа — не храним, сменится вместе с типом
       data.wait = f.wait.checked || undefined;
+      data.est = Number(f.est.value) > 0 ? Math.round(Number(f.est.value)) : undefined;
     }
     if (quest) Object.assign(quest, data);
     else state.quests.push({ id: uid(), createdAt: Date.now(), ...data });
@@ -4802,7 +4818,7 @@ function pilotRow(q, now) {
   }
   return `<div class="pilot-row${now ? ' now' : ''}">
       <button class="qcheck" type="button" data-check="${q.id}" role="checkbox" aria-checked="false" aria-label="Выполнено: ${esc(q.title)}"><span class="qbox"></span></button>
-      <span class="t">${esc(q.title)}<small>${q.area === 'state' ? 'опора · держит состояние' : `${L.icon} ${L.name.toLowerCase()} · ${TYPE_BY_ID[q.type].name.toLowerCase()}${q.goalId ? ' · к цели' : ''}`}</small></span>
+      <span class="t">${esc(q.title)}<small>${q.area === 'state' ? 'опора · держит состояние' : `${L.icon} ${L.name.toLowerCase()} · ${TYPE_BY_ID[q.type].name.toLowerCase()}${q.goalId ? ' · к цели' : ''}${q.est ? ` · ${estText(q)}` : ''}`}</small></span>
       ${now ? `${q.area === 'state' ? '' : `<button class="skip" type="button" data-focus5="${q.id}">5 мин</button>`}<button class="skip" type="button" data-pilot-skip="${q.id}">другой</button>` : ''}
     </div>`;
 }
@@ -4990,12 +5006,13 @@ function pilotNudge() {
     return toast({ title: `${m.icon} ${m.name}`, main: 'На сегодня по силам — всё', sub: 'Дальше — отдых без вины', action: { label: 'Отдых', run: () => openSuggestion(st.mode === 'ebb' ? 'tired' : 'rest') }, ms: 7000 });
   }
   if (next) {
-    toast({ title: changed ? `${m.icon} Теперь ${m.name.toLowerCase()}` : 'Пилот', main: `Дальше: ${next.title}`, sub: `${LOADS[questLoad(next)].icon} ${LOADS[questLoad(next)].hint}`, action: { label: 'Беру', run: () => { ui.pilotFocus = next.id; render(); } }, ms: 6000 });
+    toast({ title: changed ? `${m.icon} Теперь ${m.name.toLowerCase()}` : 'Пилот', main: `Дальше: ${next.title}`, sub: `${LOADS[questLoad(next)].icon} ${LOADS[questLoad(next)].hint}`, action: { label: 'Беру', run: () => { ui.pilotFocus = next.id; markStarted(next); render(); } }, ms: 6000 });
   }
 }
 
 /** После закрытого квеста: подсказка, а окно с вопросом о силах — только если не спрашивали больше 2,5 часа и за этот вход ещё не спрашивали. */
 function pilotAfterQuest(q) {
+  if (typeof recordEstimate === 'function') recordEstimate(q);
   if (!session.state.settings.pilot || q.area === 'state' || q.system === 'groceries') return;
   if (ui.pilotFocus === q.id) ui.pilotFocus = null;
   setTimeout(() => afterFx(() => {
@@ -7655,7 +7672,7 @@ function statusView() {
     backupDue() ? line('💾', 'Пора сохранить бэкап', 'export') : '',
   ].filter(Boolean).join('');
   const word = s ? scoreClass(s.score)[1] : null;
-  return `${captureHtml()}${pilotHtml(true)}
+  return `${dayBarHtml()}${captureHtml()}${pilotHtml(true)}
     <div class="panel now-list">
       ${alerts}
       ${s ? line('◉', `Состояние ${s.score}% · ${word}${energy ? ` · ⚡ ${energy}/5` : ''}`, 'go-state') : line('◉', 'Состояние: настроить опоры', 'go-state')}
@@ -7810,6 +7827,11 @@ function settingsView() {
         <span class="xp-input"><input type="time" data-time="start" value="${minToTime(state.evening.start)}" style="width:110px"></span></label>
       <label class="set-row"><span><b>Разбор мыслей</b><small>Когда возвращаться к выгруженному</small></span>
         <span class="xp-input"><input type="time" data-time="review" value="${minToTime(state.evening.review)}" style="width:110px"></span></label>
+      <label class="set-row"><span><b>Подъём</b><small>Начало полоски дня</small></span>
+        <span class="xp-input"><input type="time" data-life-time="wake" value="${minToTime(dayTimes().wake)}" style="width:110px"></span></label>
+      <label class="set-row"><span><b>Сон</b><small>Конец полоски дня</small></span>
+        <span class="xp-input"><input type="time" data-life-time="sleep" value="${minToTime(dayTimes().sleep)}" style="width:110px"></span></label>
+      <button class="btn ghost" type="button" data-action="reminders">Напоминания через «Команды»</button>
     </div>
 
     <div class="section-h">Данные</div>
@@ -7861,6 +7883,14 @@ function wireSettings(view) {
   });
   view.querySelectorAll('[data-rank]').forEach((input) => {
     input.addEventListener('change', () => onRankInput(input));
+  });
+  view.querySelectorAll('[data-life-time]').forEach((input) => {
+    input.addEventListener('change', () => {
+      const [h, m] = input.value.split(':').map(Number);
+      if (Number.isNaN(h)) return;
+      session.state.life[input.dataset.lifeTime] = h * 60 + (m || 0);
+      save();
+    });
   });
   view.querySelectorAll('[data-mod]').forEach((input) => {
     input.addEventListener('change', () => {
