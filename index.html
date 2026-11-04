@@ -1405,6 +1405,16 @@ html.noscroll, html.noscroll body { overflow: hidden; }
 .waves i.today { outline: 1px solid var(--text-dim); outline-offset: 1px; }
 .waves-legend { display: flex; gap: 12px; margin-top: 8px; font-size: 11px; color: var(--text-faint); }
 .orb-mode { font-size: 12px; color: var(--accent-2); }
+/* «Сейчас»: строки вместо баннеров */
+.now-list { margin-top: 12px; padding: 4px 14px; }
+.now-line { display: flex; align-items: center; gap: 12px; width: 100%; min-height: 52px; padding: 8px 0; border: 0; border-bottom: 1px solid rgba(120, 205, 255, 0.1); background: none; color: var(--text); font: inherit; font-size: 15px; text-align: left; cursor: pointer; }
+.now-line:last-child { border-bottom: 0; }
+.now-line .ic { flex: none; width: 24px; text-align: center; color: var(--accent-2); }
+.now-line .t { flex: 1; min-width: 0; }
+.now-line .go { color: var(--text-faint); font-size: 20px; }
+.now-line.warn .t { color: var(--warn); }
+.topbar .who[data-action] { cursor: pointer; }
+.lead-chips button[aria-pressed="true"] { border-color: var(--pc); background: color-mix(in srgb, var(--pc) 22%, transparent); }
 /* Вход: стеклянная капсула, как жидкое стекло — светящаяся кромка, кнопка внутри, вдавливание и заливка светом */
 @property --gl-a { syntax: '<angle>'; inherits: false; initial-value: 0deg; }
 .gl-login { position: relative; width: 100%; max-width: 460px; text-align: center; }
@@ -2093,7 +2103,7 @@ html.noscroll, html.noscroll body { overflow: hidden; }
 
 <template id="tpl-shell">
   <header class="topbar">
-    <div class="who"><small data-bind="rankline"></small><b data-bind="name"></b></div>
+    <div class="who" data-action="open-profile" role="button" tabindex="0" aria-label="Профиль"><small data-bind="rankline"></small><b data-bind="name"></b></div>
     <div class="xp-total" data-bind="xp"></div>
     <button class="icon-btn" type="button" data-action="open-boards" aria-label="Доски">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><rect x="6.5" y="6.5" width="5" height="5" rx="1"/><path d="M14 8h4"/><path d="M14 11h3"/><path d="M6.5 15.5h11"/></svg>
@@ -2110,7 +2120,7 @@ html.noscroll, html.noscroll body { overflow: hidden; }
   <nav class="tabbar" aria-label="Разделы">
     <button type="button" data-tab="status">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l8.5 5v10L12 22l-8.5-5V7z"/><path d="M12 7l4 2.5v5L12 17l-4-2.5v-5z"/></svg>
-      <span>Статус</span>
+      <span>Сейчас</span>
     </button>
     <button type="button" data-tab="quests">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M8 12l3 3 5-6"/></svg>
@@ -2122,11 +2132,7 @@ html.noscroll, html.noscroll body { overflow: hidden; }
     </button>
     <button type="button" data-tab="finance">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="6" width="18" height="13" rx="2"/><path d="M3 10h18"/><path d="M16 14.5h2"/></svg>
-      <span>Финансы</span>
-    </button>
-    <button type="button" data-tab="journal">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19V5"/><path d="M4 19h16"/><path d="M8 16v-4"/><path d="M12 16V8"/><path d="M16 16v-6"/></svg>
-      <span>Журнал</span>
+      <span>Деньги</span>
     </button>
   </nav>
   <button class="fab" type="button" data-action="need" aria-label="Мне нужно…">
@@ -3305,11 +3311,18 @@ let renderTimer = null;
 
 function showHome() {
   ui.tab = 'status';
+  ui.askedThisOpen = false;
   ui.showAllDone = false;
   ui.logLimit = LOG_PAGE;
   mount('tpl-shell');
   app.classList.add('shell');
   app.querySelector('.topbar [data-action="lock"]').addEventListener('click', () => lock('manual'));
+  app.querySelector('.topbar [data-action="open-profile"]').addEventListener('click', () => {
+    flushInputs();
+    ui.tab = 'profile';
+    render();
+    scrollTo(0, 0);
+  });
   app.querySelector('.topbar [data-action="open-boards"]').addEventListener('click', () => {
     flushInputs();
     ui.tab = 'boards';
@@ -3371,7 +3384,7 @@ function render() {
   }));
 }
 
-const VIEWS = { status: statusView, quests: questsView, state: stateView, finance: financeView, journal: journalView, settings: settingsView };
+const VIEWS = { status: statusView, profile: profileView, quests: questsView, state: stateView, finance: financeView, journal: journalView, settings: settingsView };
 
 function onViewClick(e) {
   const t = e.target.closest('[data-check], [data-edit], [data-stat], [data-goal], [data-radar], [data-energy], [data-drain], [data-exp], [data-inc], [data-item], [data-buy], [data-take], [data-worry], [data-leak], [data-xstop], [data-pilot-e], [data-pilot-skip], [data-part], [data-orb-view], [data-lead-to], [data-board], [data-action], [data-day]');
@@ -3428,6 +3441,7 @@ function onViewClick(e) {
     case 'edit-drains': return openDrainsEditor();
     case 'go-state': ui.tab = 'state'; render(); return scrollTo(0, 0);
     case 'go-quests': ui.tab = 'quests'; render(); return scrollTo(0, 0);
+    case 'go-profile': ui.tab = 'profile'; render(); return scrollTo(0, 0);
     case 'board-new': return newBoardSheet();
     case 'pilot-checkin': return openCheckin('open');
     case 'pilot-rest': return openSuggestion(pilotState() && pilotState().mode === 'ebb' ? 'tired' : 'rest');
@@ -4796,18 +4810,27 @@ function openCheckin(reason) {
   clearToasts();
   flow().lastAsk = Date.now();
   save();
+  // одно окно: кто у руля (по желанию) и силы — нажатие на цифру сразу всё сохраняет
+  const lead = leadNow();
   const root = openSheet('Система', `
     <p class="lead">${reason === 'quest' ? 'Квест закрыт ✓ Как силы?' : 'Как ты сейчас?'}</p>
-    <p class="dim center">${reason === 'quest' ? 'Подберу следующий шаг под твою волну.' : 'От этого Система разложит квесты: тяжёлое — на волну, лёгкое — на откат.'}</p>
+    ${reason === 'open' ? `<div class="pilot-lbl" style="margin-top:12px">Кто у руля — по желанию</div>
+      <div class="lead-chips" style="margin-top:6px">${PARTS.map((x) => `<button type="button" data-l="${x.id}" style="--pc:${x.color}" aria-pressed="${!!lead && lead.id === x.id}">${esc(x.short)}</button>`).join('')}</div>` : ''}
+    <div class="pilot-lbl" style="margin-top:14px">Силы — нажми цифру, и готово</div>
     ${energyAskHtml()}
     <button class="btn ghost" type="button" data-action="close" style="margin-top:14px">Не сейчас</button>`);
+  let picked = null;
+  root.querySelectorAll('[data-l]').forEach((b) => b.addEventListener('click', () => {
+    picked = picked === b.dataset.l ? null : b.dataset.l;
+    root.querySelectorAll('[data-l]').forEach((x) => x.setAttribute('aria-pressed', String(x.dataset.l === picked)));
+  }));
   root.querySelectorAll('[data-pilot-e]').forEach((b) => b.addEventListener('click', () => {
+    if (picked) setLead(picked);
     recordEnergy(Number(b.dataset.pilotE));
     haptic(10);
     closeSheet();
     render();
-    if (reason === 'open') askLead(() => pilotNext(reason));
-    else pilotNext(reason);
+    pilotNudge(); // дальше — тихая подсказка, план и так на экране
   }));
 }
 
@@ -4888,23 +4911,38 @@ function pilotNext(reason) {
   }));
 }
 
-/** После закрытого квеста: спросить силы (если давно не спрашивали) и подсказать следующий шаг. */
+/** Тихая подсказка вместо окна: перерыв, «на сегодня всё», смена режима или следующий квест. */
+function pilotNudge() {
+  const plan = pilotPlan();
+  if (!plan.st) return;
+  const { st, m } = plan;
+  const next = plan.ready[0];
+  const changed = ui.pilotMode && ui.pilotMode !== st.mode;
+  ui.pilotMode = st.mode;
+  flow().lastNudge = Date.now();
+  if (plan.breakDue) {
+    return toast({ title: 'Пилот', main: `На волне уже ${hoursText(plan.minutes)}`, sub: 'Вода, еда, 10 минут', action: { label: 'Перерыв', run: () => { flow().breakAt = Date.now(); save(); render(); } }, ms: 7000 });
+  }
+  if (plan.doneToday >= plan.cap && st.mode !== 'wave') {
+    return toast({ title: `${m.icon} ${m.name}`, main: 'На сегодня по силам — всё', sub: 'Дальше — отдых без вины', action: { label: 'Отдых', run: () => openSuggestion(st.mode === 'ebb' ? 'tired' : 'rest') }, ms: 7000 });
+  }
+  if (next) {
+    toast({ title: changed ? `${m.icon} Теперь ${m.name.toLowerCase()}` : 'Пилот', main: `Дальше: ${next.title}`, sub: `${LOADS[questLoad(next)].icon} ${LOADS[questLoad(next)].hint}`, action: { label: 'Беру', run: () => { ui.pilotFocus = next.id; render(); } }, ms: 6000 });
+  }
+}
+
+/** После закрытого квеста: подсказка, а окно с вопросом о силах — только если не спрашивали больше 2,5 часа и за этот вход ещё не спрашивали. */
 function pilotAfterQuest(q) {
   if (!session.state.settings.pilot || q.area === 'state' || q.system === 'groceries') return;
   if (ui.pilotFocus === q.id) ui.pilotFocus = null;
   setTimeout(() => afterFx(() => {
     const f = flow();
     const last = f.checkins.at(-1);
-    // часто закрываешь подряд — не дёргаем окном, хватит подсказки
-    if (Date.now() - (f.lastNudge || 0) < 8 * 60000) {
-      const plan = pilotPlan();
-      const next = plan.st && plan.ready[0];
-      if (plan.breakDue) toast({ title: 'Пилот', main: `На волне уже ${hoursText(plan.minutes)}`, sub: 'Пора на перерыв', action: { label: 'Перерыв', run: () => pilotNext('quest') }, ms: 7000 });
-      else if (next) toast({ title: 'Пилот', main: `Дальше: ${next.title}`, sub: `${LOADS[questLoad(next)].icon} ${plan.m.name.toLowerCase()}`, action: { label: 'Беру', run: () => { ui.pilotFocus = next.id; render(); } }, ms: 6000 });
-      return;
+    if ((!last || Date.now() - last.at > 150 * 60000) && !ui.askedThisOpen) {
+      ui.askedThisOpen = true;
+      return openCheckin('quest');
     }
-    if (!last || Date.now() - last.at > 75 * 60000) openCheckin('quest');
-    else pilotNext('quest');
+    pilotNudge();
   }), 1400);
 }
 
@@ -4917,6 +4955,7 @@ function pilotOnOpen() {
   const last = f.checkins.at(-1);
   if (last && Date.now() - last.at < 3 * 3600000) return;
   if (Date.now() - (f.lastAsk || 0) < 3 * 3600000) return;
+  ui.askedThisOpen = true; // за один вход — не больше одного окна с вопросом
   setTimeout(() => afterFx(() => session.state.settings.pilot && !currentEnergyFresh() && openCheckin('open')), 1600);
 }
 
@@ -5184,27 +5223,6 @@ function openPart(id) {
     else delete partsState().notes[id];
     save();
     toast({ title: x.name, main: 'Сохранено', ms: 2000 });
-  });
-}
-
-/** После вопроса о силах: «кто сейчас у руля?» и совет, если руль не у того. */
-function askLead(then) {
-  const root = openSheet('Система', `
-    <p class="lead">Кто сейчас у руля?</p>
-    <p class="dim center">Какая из твоих сторон сейчас ведёт — та, что работает, отдыхает или переживает.</p>
-    <div class="lead-chips">${PARTS.map((x) => `<button type="button" data-l="${x.id}" style="--pc:${x.color}">${esc(x.short)}</button>`).join('')}</div>
-    <button class="btn ghost" type="button" data-skip style="margin-top:14px">Пропустить</button>`);
-  root.querySelectorAll('[data-l]').forEach((b) => b.addEventListener('click', () => {
-    setLead(b.dataset.l);
-    closeSheet();
-    render();
-    const advice = leadAdvice(partCharges());
-    if (advice) return leadSwitchSheet(advice, then);
-    then();
-  }));
-  root.querySelector('[data-skip]').addEventListener('click', () => {
-    closeSheet();
-    then();
   });
 }
 
@@ -5803,7 +5821,7 @@ function askNext(e) {
     e.asked.planned = true;
     return ask('Это было запланировано?', [{ label: 'Да, запланировано', value: true }, { label: 'Нет, импульсивно', value: false }], (v) => { e.planned = v; });
   }
-  if (e.cls === 'want' && !e.fixed && (e.planned === false || e.overLimit) && !e.asked.why) {
+  if (e.cls === 'want' && !e.fixed && e.overLimit && !e.asked.why) { // спрашиваем только про траты сверх лимита
     e.asked.why = true;
     return ask('Что подтолкнуло? Честно — Система подберёт замену, а не запрет.', Object.entries(WHY).map(([id, w]) => ({ label: w.label, value: id })), (v) => { e.why = v; }, true);
   }
@@ -7557,7 +7575,36 @@ function openFoodSettings() {
 
 /* ---------- Статус: персонаж и характеристики ---------- */
 
+/** «Сейчас»: что делать прямо сейчас — и только то, что требует внимания. Остальное — в профиле. */
 function statusView() {
+  const { state } = session;
+  const p = playerInfo();
+  const s = supports().length ? dayScore(new Date()) : null;
+  const energy = dayData(dayKey(new Date())).energy;
+  const line = (icon, text, action, cls = '') => `<button class="now-line${cls}" type="button" data-action="${action}"><span class="ic">${icon}</span><span class="t">${text}</span><span class="go">›</span></button>`;
+  const due = worriesDue().length;
+  const warn = supportWarnings();
+  const alerts = [
+    warn.length ? line('⚠️', `Опоры проседают: ${esc(warn[0].split(' — ')[0])}${warn.length > 1 ? ` и ещё ${warn.length - 1}` : ''}`, 'go-state', ' warn') : '',
+    due ? line('🧠', `${due} ${plural(due, ['мысль ждёт', 'мысли ждут', 'мыслей ждут'])} разбора`, 'worries') : '',
+    backupDue() ? line('💾', 'Пора сохранить бэкап', 'export') : '',
+  ].filter(Boolean).join('');
+  const word = s ? scoreClass(s.score)[1] : null;
+  return `${pilotHtml(true)}
+    <div class="panel now-list">
+      ${alerts}
+      ${s ? line('◉', `Состояние ${s.score}% · ${word}${energy ? ` · ⚡ ${energy}/5` : ''}`, 'go-state') : line('◉', 'Состояние: настроить опоры', 'go-state')}
+      ${line('★', `Ранг ${p.rank} · ур. ${p.level} · ${fmt(p.xp)} XP`, 'go-profile')}
+    </div>
+    ${eveningCardHtml()}`;
+}
+
+/** Профиль: персонаж, цели, колесо, характеристики и журнал — посмотреть, когда хочется. */
+function profileView() {
+  return heroView() + journalView();
+}
+
+function heroView() {
   const { state } = session;
   const p = playerInfo();
   const next = RANKS.find((r) => r.id !== 'E' && state.settings.ranks[r.id] > p.level);
@@ -7576,16 +7623,7 @@ function statusView() {
     </button>`;
   }).join('');
 
-  const warn = supportWarnings();
-  const stateBanner = warn.length
-    ? `<div class="panel backup-banner state-banner"><p><b>Система: опоры проседают</b>${warn.slice(0, 3).map(esc).join(' · ')}${warn.length > 3 ? ` · и ещё ${warn.length - 3}` : ''}. Состояние под угрозой.</p>
-        <button class="btn danger" type="button" data-action="go-state">Открыть</button></div>`
-    : '';
-  const banner = stateBanner + (backupDue()
-    ? `<div class="panel backup-banner"><p><b>Напоминание</b>Бэкап ${backupAge() === null ? 'ещё не делали' : `делали ${backupAgeText()}`}. Сохраните файл на случай потери телефона.</p>
-        <button class="btn" type="button" data-action="export">Бэкап</button></div>`
-    : '');
-  return `${pilotHtml(true)}${eveningCardHtml()}${worriesDueHtml()}${banner}<section class="panel status r-${p.rank}">
+  return `<section class="panel status r-${p.rank}">
       <header class="status-head"><span class="sys-icon">!</span><span>Статус</span></header>
       <div class="status-main">
         <div class="rank-badge"><small>Ранг</small><b>${p.rank}</b></div>
@@ -7603,9 +7641,6 @@ function statusView() {
     ${goalsHtml()}
 
     ${radarHtml()}
-
-    <div class="section-h">Сегодня</div>
-    <div class="panel pad">${countersHtml()}</div>
 
     <div class="section-h">Характеристики <span class="count">${state.stats.length}</span></div>
     ${cards ? `<div class="stat-grid">${cards}</div>` : '<div class="panel empty">Характеристик нет. Добавьте хотя бы одну, чтобы квесты могли её прокачивать.</div>'}
