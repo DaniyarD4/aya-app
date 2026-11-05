@@ -19,17 +19,17 @@
 <title>Система</title>
 <style>
 :root {
-  --bg: #05070d;
-  --bg-2: #0a1222;
-  --panel: rgba(8, 18, 36, 0.86);
-  --line: rgba(120, 205, 255, 0.75);
-  --line-soft: rgba(120, 205, 255, 0.28);
-  --glow: rgba(64, 170, 255, 0.55);
-  --accent: #66d0ff;
-  --accent-2: #a9e6ff;
-  --text: #e6f4ff;
-  --text-dim: #8fb0c8;
-  --text-faint: #56738a;
+  --bg: #050608;
+  --bg-2: #0b0d12;
+  --panel: rgba(14, 16, 22, 0.88);
+  --line: rgba(160, 200, 255, 0.55);
+  --line-soft: rgba(255, 255, 255, 0.11);
+  --glow: rgba(70, 130, 255, 0.4);
+  --accent: #5a8dff;
+  --accent-2: #b8d0ff;
+  --text: #f2f5fa;
+  --text-dim: #99a3b3;
+  --text-faint: #5f6877;
   --danger: #ff5f7a;
   --danger-glow: rgba(255, 80, 110, 0.45);
   --warn: #ffc56b;
@@ -2037,9 +2037,148 @@ html.noscroll, html.noscroll body { overflow: hidden; }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
 }
+
+/* =====================================================================
+   ДИЗАЙН-СИСТЕМА v2: чёрное стекло, сияние состояния, голос «Системы»
+   Почти чёрный фон, сверху сияние цвета режима (откат — фиолетовое, ровно — синее,
+   волна — бирюзовое), спокойные карточки, стеклянные кнопки с переливом,
+   метки «Системы» моноширинным шрифтом. Слой поверх прежних стилей.
+   ===================================================================== */
+body { background: var(--bg); --g1: 200, 220, 255; --g2: 70, 130, 255; --g3: 30, 60, 190; }
+body.m-ebb { --g1: 255, 215, 240; --g2: 190, 90, 255; --g3: 90, 40, 170; }
+body.m-wave { --g1: 215, 255, 245; --g2: 60, 210, 220; --g3: 20, 120, 150; }
+body::before { display: none; }
+.app-glow { position: fixed; left: -25vw; right: -25vw; top: -30vh; height: 80vh; z-index: 0; pointer-events: none;
+  background: radial-gradient(55% 50% at 45% 42%, rgba(var(--g1), 0.9) 0%, rgba(var(--g2), 0.75) 26%, rgba(var(--g3), 0.35) 52%, transparent 76%);
+  filter: blur(16px); opacity: 0.85; transition: opacity 0.6s; }
+body.calm .app-glow { opacity: 0.45; }
+#app { z-index: 1; }
+.hl2 { color: rgb(var(--g2)); }
+body.m-even .hl2, body:not(.m-ebb):not(.m-wave) .hl2 { color: #6f9dff; }
+
+/* метки «Системы» */
+.tag { font-family: var(--mono); font-size: 11.5px; letter-spacing: 0.22em; color: #a9cbff; text-shadow: 0 0 8px rgba(110, 170, 255, 0.55); }
+.section-h { font-family: var(--mono); font-size: 11.5px; font-weight: 600; letter-spacing: 0.2em; color: #a9cbff; text-shadow: 0 0 8px rgba(110, 170, 255, 0.4); }
+.section-h::after { background: linear-gradient(90deg, rgba(255, 255, 255, 0.1), transparent); }
+
+/* карточки */
+.panel { background: rgba(14, 16, 22, 0.86); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 22px; box-shadow: none;
+  -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px); }
+.panel.pad { padding: 6px 18px 18px; }
+.empty b { color: #fff; letter-spacing: 0; }
+
+/* кнопки: стекло, градиент подсвечивает изнутри и плывёт */
+@keyframes btn-flow { to { background-position: 300% 50%; } }
+@keyframes btn-sheen { 0%, 55% { transform: translateX(-120%) skewX(-20deg); } 100% { transform: translateX(260%) skewX(-20deg); } }
+.btn { position: relative; overflow: hidden; isolation: isolate; min-height: 52px; border-radius: 999px;
+  font-size: 16px; font-weight: 600; letter-spacing: 0.01em; text-transform: none; color: #fff; text-shadow: 0 1px 10px rgba(20, 40, 120, 0.55);
+  background: linear-gradient(110deg, rgba(40, 100, 255, 0.58) 0%, rgba(120, 90, 255, 0.5) 22%, rgba(60, 190, 255, 0.54) 45%, rgba(40, 100, 255, 0.58) 68%, rgba(140, 110, 255, 0.5) 85%, rgba(40, 100, 255, 0.58) 100%);
+  background-size: 300% 100%; animation: btn-flow 7s linear infinite;
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.75), inset 0 -1px 0 rgba(255, 255, 255, 0.28), inset 0 0 22px rgba(160, 200, 255, 0.16), 0 10px 26px rgba(40, 90, 255, 0.26);
+  -webkit-backdrop-filter: blur(22px) saturate(170%); backdrop-filter: blur(22px) saturate(170%); }
+.btn::before { content: ''; position: absolute; left: 0; right: 0; top: 0; height: 60%; z-index: -1; pointer-events: none; border-radius: 999px 999px 40% 40% / 999px 999px 100% 100%;
+  background: radial-gradient(120% 100% at 50% 0%, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0.07) 55%, rgba(255, 255, 255, 0) 80%); }
+.btn::after { content: ''; position: absolute; top: -20%; bottom: -20%; left: 0; width: 30%; z-index: -1; pointer-events: none;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.32), transparent); animation: btn-sheen 3.6s ease-in-out infinite; }
+.btn:active { transform: scale(0.97); box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.6), inset 0 0 26px rgba(160, 200, 255, 0.3), 0 4px 14px rgba(40, 90, 255, 0.3); }
+.btn:disabled { opacity: 0.45; animation: none; }
+.btn:disabled::after { display: none; }
+.btn.ghost { min-height: 48px; margin-top: 12px; font-size: 15px; font-weight: 500; color: #e6edf7; text-shadow: none; letter-spacing: 0;
+  background: rgba(255, 255, 255, 0.06); border: 1px solid rgba(255, 255, 255, 0.22); animation: none;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35), inset 0 -1px 0 rgba(255, 255, 255, 0.1), 0 6px 16px rgba(0, 0, 0, 0.22); }
+.btn.ghost::after { display: none; }
+.btn.ghost.danger-text { color: #ff8fa3; }
+.btn.danger { color: #fff; text-shadow: 0 1px 8px rgba(120, 10, 30, 0.5); animation: none; border-color: rgba(255, 170, 185, 0.5);
+  background: linear-gradient(110deg, rgba(255, 70, 100, 0.5), rgba(255, 110, 150, 0.4)); box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.55), 0 8px 22px rgba(255, 60, 90, 0.25); }
+.btn.danger::after { display: none; }
+.btn.gold { color: #fff8ea; text-shadow: 0 1px 8px rgba(120, 70, 0, 0.5); border-color: rgba(255, 225, 170, 0.55);
+  background: linear-gradient(110deg, rgba(255, 180, 70, 0.55), rgba(255, 130, 90, 0.42), rgba(255, 210, 110, 0.55), rgba(255, 180, 70, 0.55)); background-size: 300% 100%;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.6), 0 8px 22px rgba(255, 170, 60, 0.25); }
+.btn.armed { color: #fff; border-color: rgba(255, 150, 170, 0.7); background: rgba(255, 60, 90, 0.3); animation: none; }
+.q-options .btn { margin: 0; min-height: 50px; font-size: 15px; letter-spacing: 0; }
+
+/* поля и выбор */
+.field > span { font-size: 13px; letter-spacing: 0.02em; text-transform: none; color: var(--text-dim); }
+textarea { font-family: var(--font); }
+.field input, .field textarea { border-radius: 14px; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.12); }
+.field input:focus, .field textarea:focus { border-color: rgba(150, 185, 255, 0.75); box-shadow: 0 0 0 3px rgba(70, 130, 255, 0.18); }
+.choice > span { border-radius: 14px; border-color: rgba(255, 255, 255, 0.12); background: rgba(255, 255, 255, 0.04); }
+.choice input:checked + span { color: #fff; border-color: rgba(150, 185, 255, 0.8); background: rgba(70, 130, 255, 0.22); box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.3), 0 0 14px rgba(70, 130, 255, 0.25); text-shadow: none; }
+
+/* шапка и меню */
+.topbar { background: linear-gradient(180deg, rgba(5, 6, 8, 0.82), rgba(5, 6, 8, 0.5)); border-bottom: 1px solid rgba(255, 255, 255, 0.06); }
+.topbar .who small { font-family: var(--mono); color: #cfe0ff; text-shadow: 0 0 10px rgba(110, 170, 255, 0.6); }
+.topbar .who small::before { content: '!'; display: inline-grid; place-items: center; width: 16px; height: 16px; margin-right: 8px; border: 1px solid #9cc4ff; font-size: 10px; letter-spacing: 0; vertical-align: 1px; box-shadow: 0 0 8px rgba(110, 170, 255, 0.5); }
+.icon-btn { border-radius: 50%; border: 1px solid rgba(255, 255, 255, 0.2); background: rgba(255, 255, 255, 0.05); color: #e6edf7; box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.25);
+  -webkit-backdrop-filter: blur(16px); backdrop-filter: blur(16px); }
+.topbar-xp { background: linear-gradient(90deg, #7fb1ff, #cfe2ff); box-shadow: 0 0 8px #7fb1ff; }
+.tabbar { background: rgba(5, 6, 8, 0.9); border-top: 1px solid rgba(255, 255, 255, 0.07); -webkit-backdrop-filter: blur(20px); backdrop-filter: blur(20px); box-shadow: none; }
+.tabbar button { color: #6b7482; }
+.tabbar button[aria-current="page"] { color: #7da6ff; text-shadow: none; }
+.tabbar button[aria-current="page"] svg { filter: none; }
+.fab { color: #fff3dc; border: 1px solid rgba(255, 220, 160, 0.55); background: linear-gradient(180deg, rgba(255, 200, 120, 0.32), rgba(255, 170, 80, 0.16));
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.45), 0 10px 24px rgba(0, 0, 0, 0.35), 0 0 18px rgba(255, 190, 100, 0.25); letter-spacing: 0.01em;
+  -webkit-backdrop-filter: blur(20px); backdrop-filter: blur(20px); }
+.fab svg { filter: none; }
+
+/* окна «Системы» — острые, со скобками: голос Системы */
+.sys { border-color: rgba(160, 200, 255, 0.6); background: linear-gradient(180deg, rgba(90, 140, 255, 0.12), rgba(6, 10, 20, 0.94) 45%), #060a14;
+  box-shadow: 0 0 40px rgba(80, 140, 255, 0.3), inset 0 0 24px rgba(110, 170, 255, 0.08); }
+.sys::before, .sys::after { border-color: #b8d4ff; filter: drop-shadow(0 0 6px rgba(110, 170, 255, 0.8)); }
+
+/* тосты — тёмное стекло */
+.toast { background: rgba(14, 18, 28, 0.84); border: 1px solid rgba(255, 255, 255, 0.14); border-radius: 18px; box-shadow: 0 12px 30px rgba(0, 0, 0, 0.45);
+  -webkit-backdrop-filter: blur(20px); backdrop-filter: blur(20px); }
+.toast .t-title { font-family: var(--mono); letter-spacing: 0.18em; color: #a9cbff; }
+.toast .t-main { font-size: 17px; font-weight: 700; color: #fff; text-shadow: none; }
+.toast button { border-radius: 999px; border-color: rgba(255, 255, 255, 0.25); background: rgba(255, 255, 255, 0.07); color: #fff; }
+.toast.up { border-color: rgba(255, 210, 140, 0.45); box-shadow: 0 12px 30px rgba(0, 0, 0, 0.45), 0 0 18px rgba(255, 190, 100, 0.15); }
+.toast.up .t-title { color: #ffd48a; }
+
+/* квесты: кружок вместо квадрата, тихие метки */
+.quest { border-radius: 18px; }
+.qbox { border-radius: 50%; border: 1.6px solid rgba(255, 255, 255, 0.7); background: transparent; box-shadow: none; }
+.quest.done .qbox { background: #fff; box-shadow: none; }
+.quest.done .qbox::after { border-color: #050608; }
+.qxp { color: #a9cbff; text-shadow: none; }
+.chip { border-radius: 999px; border-color: rgba(255, 255, 255, 0.12); background: rgba(255, 255, 255, 0.04); }
+.quest.done .qtitle { text-decoration-color: rgba(255, 255, 255, 0.4); }
+
+/* вход — на общем сиянии, кнопка тем же стеклом */
+.gl-bg { display: none; }
+.gl-btn { color: #fff; text-shadow: 0 1px 10px rgba(20, 40, 120, 0.55); border: 1px solid rgba(255, 255, 255, 0.5);
+  background: linear-gradient(110deg, rgba(40, 100, 255, 0.6) 0%, rgba(120, 90, 255, 0.5) 25%, rgba(60, 190, 255, 0.55) 50%, rgba(40, 100, 255, 0.6) 75%, rgba(120, 90, 255, 0.5) 100%);
+  background-size: 300% 100%; animation: btn-flow 7s linear infinite, gl-fade 0.6s 0.85s ease-out both; }
+.gl-pill.arrived .gl-btn { animation: btn-flow 7s linear infinite; }
+.gl-pill { border-color: rgba(200, 225, 255, 0.5); background: linear-gradient(180deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.04)); }
+.gl-brand h1 { font-weight: 400; font-size: 26px; }
+
+/* «Сейчас»: герой */
+.hero { position: relative; margin-top: 18px; }
+.hero-meta { margin-top: 8px; font-size: 13.5px; color: rgba(235, 242, 255, 0.78); }
+.hero-link { margin-left: 6px; padding: 0; border: 0; background: none; color: rgba(235, 242, 255, 0.55); font: inherit; font-size: 13px; text-decoration: underline; cursor: pointer; }
+.hero-title { margin: 12px 0 0; font-size: 31px; font-weight: 400; line-height: 1.18; letter-spacing: -0.01em; color: #fff; overflow-wrap: anywhere; }
+.hero-sub { margin: 10px 0 0; font-size: 15px; line-height: 1.42; color: rgba(230, 236, 246, 0.74); }
+.hero .pilot-voice { margin-top: 18px; }
+.hero .xpbar { margin-top: 16px; height: 3px; border-radius: 2px; background: rgba(255, 255, 255, 0.12); }
+.hero .xpbar i { display: block; height: 100%; min-width: 6%; border-radius: 2px; background: linear-gradient(90deg, #7fb1ff, #cfe2ff); box-shadow: 0 0 8px #7fb1ff; }
+.hero-xp { margin: 8px 0 0; font-size: 12.5px; color: rgba(225, 232, 242, 0.6); }
+.hero > .btn { margin-top: 18px; }
+.hero .btn .qbox { display: none; } /* служебная метка для анимации галочки */
+.hero-row { display: flex; gap: 10px; }
+.hero-row .btn { flex: 1; margin-top: 12px; }
+.hero .pilot-ask { margin-top: 22px; }
+.pilot-ask button { border-radius: 16px; border: 1px solid rgba(255, 255, 255, 0.2); background: rgba(255, 255, 255, 0.06); box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.3);
+  -webkit-backdrop-filter: blur(16px); backdrop-filter: blur(16px); }
+.capture { margin-top: 22px; border-radius: 18px; }
+.capture input { border-radius: 14px; background: rgba(255, 255, 255, 0.04); border-color: rgba(255, 255, 255, 0.1); }
+.capture .btn { width: 46px; min-height: 46px; height: 46px; font-size: 22px; }
+.pilot-lead { border-radius: 18px; border-color: rgba(185, 155, 255, 0.4); background: rgba(185, 155, 255, 0.08); }
 </style>
 </head>
 <body>
+<div class="app-glow" aria-hidden="true"></div>
 <main id="app" aria-live="polite"></main>
 
 <!-- ===== Экраны (клонируются в #app) ===== -->
@@ -2574,6 +2713,7 @@ function lock(reason) {
 /** Закрывает сессию: забывает ключ и данные, убирает всё, что было на экране. */
 function endSession() {
   flushInputs();
+  document.body.classList.remove('m-ebb', 'm-even', 'm-wave', 'calm');
   if (typeof boardClose === 'function') boardClose(true); // открытая доска сохраняется, пока ключ ещё есть
   session = null; // ключ и расшифрованные данные больше недоступны
   clearTimeout(renderTimer);
@@ -3419,6 +3559,10 @@ function render() {
   });
   const view = app.querySelector('[data-view]');
   app.classList.toggle('no-boards', !mod('boards'));
+  const stMode = session.state.settings.pilot ? pilotState() : null;
+  document.body.classList.remove('m-ebb', 'm-even', 'm-wave');
+  if (stMode) document.body.classList.add('m-' + stMode.mode);
+  document.body.classList.toggle('calm', ui.tab !== 'status');
   view.innerHTML = (typeof focusHtml === 'function' ? leaveHtml() + focusHtml() : '') + activeHtml() + VIEWS[ui.tab]();
   if (ui.tab === 'status' && typeof wireCapture === 'function') wireCapture(view);
   tickActive();
@@ -3635,7 +3779,7 @@ function toggleQuest(id, checkBtn) {
   FX.burst(x, y, { count: 26, speed: 300, life: 0.8, gravity: 260 });
   // Даём досмотреть вспышку, потом квест переезжает в «Выполнено»
   const card = checkBtn.closest('.quest, .pilot-row'); // квест можно закрыть и из плана пилота
-  card.classList.add('done', 'flash');
+  if (card) card.classList.add('done', 'flash');
   checkBtn.setAttribute('aria-checked', 'true');
   renderTopbar();
   clearTimeout(renderTimer);
@@ -4893,6 +5037,89 @@ function pilotHtml(compact) {
         <span class="fin-bar"><i data-pct="${capPct.toFixed(1)}"></i></span></div>
       ${plan.waiting.length ? `<details class="pilot-wait"><summary>Ждут волны · ${plan.waiting.length}</summary><ul>${plan.waiting.map((q) => `<li>${LOADS[questLoad(q)].icon} ${esc(q.title)}${q.wait ? ' · отложен' : ''}</li>`).join('')}</ul></details>` : ''}
     </section>`;
+}
+
+/* ---------- «Сейчас»: одно дело крупно ----------
+   Как экран онбординга: метка «Системы», заголовок с одним словом цвета режима, подпись,
+   полоска опыта и одна главная кнопка. Перерыв, опора, «на сегодня всё» и вопрос о силах — тем же языком. */
+
+const HL_STOP = new Set(['который', 'которые', 'сделать', 'чтобы', 'через', 'после', 'перед', 'нужно', 'можно']);
+
+/** Выделить одно слово цветом режима: самое длинное «содержательное». */
+function heroTitle(text) {
+  const words = text.split(/(\s+)/);
+  let best = -1;
+  words.forEach((w, i) => {
+    const clean = w.replace(/[^a-zа-яё]/gi, '');
+    if (clean.length >= 5 && !HL_STOP.has(clean.toLowerCase()) && (best < 0 || clean.length > words[best].replace(/[^a-zа-яё]/gi, '').length)) best = i;
+  });
+  const html = words.map((w, i) => (i === best ? `<span class="hl2">${esc(w)}</span>` : esc(w))).join('');
+  return /[.!?…]$/.test(text) ? html : html + '.';
+}
+
+function heroHtml({ tag, meta, title, titleHtml, sub, voice, bar, xp, primary, secondary }) {
+  return `<section class="hero">
+      <p class="tag">[ ${tag} ]</p>
+      ${meta ? `<p class="hero-meta">${meta}</p>` : ''}
+      <h1 class="hero-title">${titleHtml || heroTitle(title)}</h1>
+      ${sub ? `<p class="hero-sub">${sub}</p>` : ''}
+      ${bar !== undefined ? `<div class="xpbar"><i style="width:${bar}%"></i></div>` : ''}
+      ${xp ? `<p class="hero-xp">${xp}</p>` : ''}
+      ${primary || ''}
+      ${secondary ? `<div class="hero-row">${secondary}</div>` : ''}
+      ${voice || ''}
+    </section>`;
+}
+
+function nowHeroHtml() {
+  if (!session.state.settings.pilot) return '';
+  const plan = pilotPlan();
+  const meta = (st) => `${MODES[st.mode].icon} ${MODES[st.mode].name} · энергия ${st.energy}/5 <button type="button" class="hero-link" data-action="pilot-checkin">изменить</button>`;
+  if (!plan.st) {
+    return heroHtml({ tag: 'СИСТЕМА', titleHtml: 'Как ты <span class="hl2">сейчас</span>?', sub: 'Отметь силы — Система подберёт одно дело под твою волну.', primary: energyAskHtml() });
+  }
+  const { st } = plan;
+  const voice = typeof voiceHtml === 'function' ? voiceHtml() : '';
+  const adv = leadAdvice(partCharges());
+  const advice = adv ? `<div class="pilot-lead">${esc(adv.text)}<button class="btn ghost" type="button" data-lead-to="${adv.want}">Передать руль: ${esc(PART[adv.want].short)}</button></div>` : '';
+  if (plan.breakDue) {
+    return heroHtml({ tag: 'СИСТЕМА · ПЕРЕРЫВ', meta: meta(st), titleHtml: `Ты на волне уже <span class="hl2">${hoursText(plan.minutes)}</span>.`, sub: 'Вода, еда, 10 минут без экрана — и волна продолжится.',
+      primary: '<button class="btn" type="button" data-action="pilot-break">Сделал перерыв</button>' });
+  }
+  if (plan.supportsFirst.length) {
+    const q = plan.supportsFirst[0];
+    return advice + heroHtml({ tag: 'ОПОРА', meta: meta(st), title: q.title, sub: 'Откат. Опора быстрее всего вернёт силы.', voice,
+      primary: `<button class="btn" type="button" data-check="${q.id}"><span class="qbox" hidden></span>Сделал ✓</button>`,
+      secondary: '<button class="btn ghost" type="button" data-action="pilot-rest">Лучше отдых</button>' });
+  }
+  const q = plan.ready[0];
+  if (plan.doneToday >= plan.cap && st.mode !== 'wave') {
+    return heroHtml({ tag: 'СИСТЕМА', meta: meta(st), titleHtml: 'На сегодня по силам — <span class="hl2">всё</span>.', sub: `Закрыто ${plan.doneToday}. ${st.mode === 'ebb' ? 'Откат — время восстановиться.' : 'Остальное подождёт волны.'}`, voice,
+      primary: '<button class="btn" type="button" data-action="pilot-rest">Подобрать отдых</button>',
+      secondary: q ? `<button class="btn ghost" type="button" data-focus5="${q.id}">Всё-таки ещё одно</button>` : '' });
+  }
+  if (!q) {
+    return heroHtml({ tag: 'СИСТЕМА', meta: meta(st), titleHtml: plan.open.length ? 'Остальное <span class="hl2">подождёт</span> волны.' : 'Квесты <span class="hl2">закрыты</span>.', sub: 'Можно отдохнуть без вины.', voice,
+      primary: '<button class="btn" type="button" data-action="pilot-rest">Подобрать отдых</button>' });
+  }
+  if (typeof autoBreak === 'function') autoBreak(q);
+  const next = q.steps && stepNext(q);
+  const c = next ? stepCount(q) : null;
+  const L = LOADS[questLoad(q)];
+  const xp = session.state.settings.xp[q.type];
+  const stats = q.stats.map(statName).filter((n) => n !== '—').slice(0, 2).join(', ');
+  return advice + heroHtml({
+    tag: next ? `КВЕСТ · ШАГ ${c.done + 1}/${c.all}` : 'КВЕСТ',
+    meta: meta(st),
+    title: next ? next.t.replace(/\s*\(5 мин\)$/, '') : q.title,
+    sub: next ? `${esc(q.title)}${c.done === 0 ? ' — первый шаг на 5 минут. Дальше станет легче.' : ''}` : `${L.icon} ${L.name} · ${L.hint}${q.est ? ` · ${estText(q)}` : ''}`,
+    voice,
+    bar: next ? Math.round((c.done / c.all) * 100) : undefined,
+    xp: `+${xp} XP за ${next ? 'весь ' : ''}квест${stats ? ` · ${esc(stats)}` : ''}`,
+    primary: `<button class="btn" type="button" data-focus5="${q.id}">Начать на 5 минут</button>`,
+    secondary: `<button class="btn ghost" type="button" data-pilot-skip="${q.id}">Другое дело</button>`
+      + (next ? `<button class="btn ghost" type="button" data-step="${q.id}">Шаг готов ✓</button>` : `<button class="btn ghost" type="button" data-check="${q.id}"><span class="qbox" hidden></span>Готово ✓</button>`),
+  });
 }
 
 /** Открыть окно, когда закроются ачивки и другие окна. */
@@ -7763,7 +7990,7 @@ function statusView() {
     ...(typeof lifeLines === 'function' ? lifeLines(line) : []),
   ].filter(Boolean).join('');
   const word = s ? scoreClass(s.score)[1] : null;
-  return `${dayBarHtml()}${captureHtml()}${pilotHtml(true)}
+  return `${dayBarHtml()}${session.state.settings.pilot ? nowHeroHtml() : pilotHtml(true)}${captureHtml()}
     <div class="panel now-list">
       ${alerts}
       ${s ? line('◉', `Состояние ${s.score}% · ${word}${energy ? ` · ⚡ ${energy}/5` : ''}`, 'go-state') : line('◉', 'Состояние: настроить опоры', 'go-state')}
