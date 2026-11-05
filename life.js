@@ -313,6 +313,21 @@ function capture(text, forced) {
     Sound.play('quest');
     return toast({ title: 'Отсчёт', main: `Выйти в ${new Date(leave.at).toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' })}`, sub: 'Напомню за 20 и за 5 минут', kind: 'up', ms: 4000 });
   }
+  if (!forced && typeof openCanBuy === 'function') {
+    // «можно купить кроссовки 30к?» → вердикт; «хочу лего 100к» → в очередь хотелок
+    const ask = text.match(/^\s*(?:а\s+)?можно\s+(?:ли\s+)?(?:купить|взять)\s+(.+?)\??\s*$/i);
+    const p = ask && parseExpense(ask[1]);
+    if (p) return openCanBuy({ what: p.text === 'Трата' ? '' : p.text, price: p.amount });
+    const want = text.match(/^\s*хочу\s+(.+)$/i);
+    const w = want && parseExpense(want[1]);
+    if (w && w.amount >= 1000 && w.text !== 'Трата') {
+      if (!ap().on) return openWishAdd({ title: w.text, price: w.amount });
+      const made = addWish(w.text, w.amount);
+      render();
+      Sound.play('quest');
+      return toast({ title: '→ Хотелка', main: `${made.title} · ${money(made.price)}`, sub: wishLocked(made) ? 'Закрыта до стабильного дохода' : wishEta(made, wishAlloc()), kind: 'up', ms: 5000 });
+    }
+  }
   const kind = forced || captureKind(text);
   const undo = captureAs(kind, text);
   save();
@@ -724,6 +739,7 @@ function openReview() {
       ${sum.worst && sum.worst !== sum.best ? `<div class="stat-row"><span>Тяжёлый день</span><span>${dayTitle(sum.worst.d)} · ⚡${num1(sum.worst.energy)}</span></div><p class="hint" style="margin:0">${esc(sum.worstWhy)}</p>` : ''}
       ${sum.topDrain ? `<div class="stat-row"><span>Главный слив</span><span>${esc(sum.topDrain.title)} · ${sum.topDrain.n}×</span></div>` : ''}
       ${sum.impulse ? `<div class="stat-row"><span>Импульсные траты</span><span class="mono">${money(sum.impulse)}</span></div>` : ''}
+      ${typeof weekMoneyHtml === 'function' ? weekMoneyHtml() : ''}
       ${res ? `<div class="pilot-lead" style="margin-top:12px">${res.ok === true ? '✅' : res.ok === false ? '↻' : '🧪'} Прошлый эксперимент: ${esc(res.text)}</div>` : ''}
       <div class="pilot-lbl">Вывод</div>
       <p class="find">🔎 ${esc(lesson)}</p>

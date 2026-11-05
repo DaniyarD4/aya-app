@@ -1889,6 +1889,27 @@ html.noscroll, html.noscroll body { overflow: hidden; }
 .swap { display: block; width: 100%; margin-top: 10px; padding: 14px; text-align: left; border: 1px solid rgba(120, 205, 255, 0.25); border-radius: 12px; background: rgba(10, 20, 36, 0.6); color: var(--text); font: inherit; cursor: pointer; }
 .swap b { display: block; color: var(--accent-2); }
 .swap small { display: block; margin-top: 4px; color: var(--text-dim); font-size: 13px; line-height: 1.4; }
+/* Денежный автопилот (money.js) */
+.ap-card { --fc: var(--accent-2); }
+.ap-head { display: flex; justify-content: space-between; align-items: center; margin-top: 12px; }
+.ap-head .tag { margin: 0; }
+.ap-title { margin: 8px 0 0; font-size: 18px; }
+.ap-wallet { margin-top: 14px; font-size: 14px; }
+.ap-wallet .fin-head span:last-child, .ap-wish .fin-head span:last-child { flex: none; white-space: nowrap; font-family: var(--mono); color: var(--text-dim); font-size: 13px; }
+.ap-wish { display: block; width: 100%; margin-top: 10px; padding: 12px; text-align: left; border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 12px; background: rgba(255, 255, 255, 0.03); color: var(--text); font: inherit; font-size: 14px; cursor: pointer; --fc: #b99bff; }
+.ap-wish small { display: block; margin-top: 6px; color: var(--text-dim); font-size: 12.5px; }
+.ap-wish.full { border-color: rgba(255, 210, 120, 0.45); --fc: var(--warn); }
+.ap-wish.locked { opacity: 0.55; }
+.ap-list .ap-wish .fin-bar { display: none; }
+.ap-sw { margin: 10px 0 0; font-size: 13.5px; color: var(--text-dim); }
+.ap-sw.bad { color: var(--warn); }
+.ap-rule { margin-top: 8px; padding: 10px 12px; border-radius: 10px; background: rgba(255, 255, 255, 0.04); font-size: 13.5px; line-height: 1.4; }
+.can-verdict { margin: 12px 0 4px; padding: 14px; border-radius: 12px; border: 1px solid rgba(255, 255, 255, 0.1); background: rgba(255, 255, 255, 0.04); }
+.can-verdict p { margin: 6px 0 0; font-size: 14px; line-height: 1.45; color: var(--text-dim); }
+.can-verdict.v-yes { border-color: rgba(110, 230, 160, 0.45); }
+.can-verdict.v-maybe { border-color: rgba(255, 210, 120, 0.45); }
+.can-verdict.v-wait { border-color: rgba(120, 205, 255, 0.4); }
+.can-verdict.v-no { border-color: rgba(255, 110, 120, 0.5); }
 .xp-card { padding: 4px 0 14px; margin-bottom: 4px; border-bottom: 1px solid rgba(120, 205, 255, 0.1); }
 .xp-card .fin-head span:first-child { color: var(--accent-2); }
 .xp-card small { display: block; margin-top: 6px; color: var(--text-dim); font-size: 13px; }
@@ -2067,35 +2088,49 @@ body.m-even .hl2, body:not(.m-ebb):not(.m-wave) .hl2 { color: #6f9dff; }
 .panel.pad { padding: 6px 18px 18px; }
 .empty b { color: #fff; letter-spacing: 0; }
 
-/* кнопки: стекло, градиент подсвечивает изнутри и плывёт */
-@keyframes btn-flow { to { background-position: 300% 50%; } }
-@keyframes btn-sheen { 0%, 55% { transform: translateX(-120%) skewX(-20deg); } 100% { transform: translateX(260%) skewX(-20deg); } }
-.btn { position: relative; overflow: hidden; isolation: isolate; min-height: 52px; border-radius: 999px;
-  font-size: 16px; font-weight: 600; letter-spacing: 0.01em; text-transform: none; color: #fff; text-shadow: 0 1px 10px rgba(20, 40, 120, 0.55);
-  background: linear-gradient(110deg, rgba(40, 100, 255, 0.58) 0%, rgba(120, 90, 255, 0.5) 22%, rgba(60, 190, 255, 0.54) 45%, rgba(40, 100, 255, 0.58) 68%, rgba(140, 110, 255, 0.5) 85%, rgba(40, 100, 255, 0.58) 100%);
-  background-size: 300% 100%; animation: btn-flow 7s linear infinite;
-  border: 1px solid rgba(255, 255, 255, 0.5);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.75), inset 0 -1px 0 rgba(255, 255, 255, 0.28), inset 0 0 22px rgba(160, 200, 255, 0.16), 0 10px 26px rgba(40, 90, 255, 0.26);
-  -webkit-backdrop-filter: blur(22px) saturate(170%); backdrop-filter: blur(22px) saturate(170%); }
-.btn::before { content: ''; position: absolute; left: 0; right: 0; top: 0; height: 60%; z-index: -1; pointer-events: none; border-radius: 999px 999px 40% 40% / 999px 999px 100% 100%;
-  background: radial-gradient(120% 100% at 50% 0%, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0.07) 55%, rgba(255, 255, 255, 0) 80%); }
-.btn::after { content: ''; position: absolute; top: -20%; bottom: -20%; left: 0; width: 30%; z-index: -1; pointer-events: none;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.32), transparent); animation: btn-sheen 3.6s ease-in-out infinite; }
-.btn:active { transform: scale(0.97); box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.6), inset 0 0 26px rgba(160, 200, 255, 0.3), 0 4px 14px rgba(40, 90, 255, 0.3); }
-.btn:disabled { opacity: 0.45; animation: none; }
-.btn:disabled::after { display: none; }
-.btn.ghost { min-height: 48px; margin-top: 12px; font-size: 15px; font-weight: 500; color: #e6edf7; text-shadow: none; letter-spacing: 0;
-  background: rgba(255, 255, 255, 0.06); border: 1px solid rgba(255, 255, 255, 0.22); animation: none;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35), inset 0 -1px 0 rgba(255, 255, 255, 0.1), 0 6px 16px rgba(0, 0, 0, 0.22); }
+/* кнопки: «меш» — пастельные пятна плывут внутри таблетки, сверху стеклянный блик.
+   Основная — океан (синий с ледяным светом), золотая — мята и сирень, вторичная — тёмная с переливающейся каймой. */
+@keyframes mesh-drift { 0% { transform: translate3d(-6%, -4%, 0) rotate(0deg) scale(1); } 50% { transform: translate3d(5%, 3%, 0) rotate(8deg) scale(1.08); } 100% { transform: translate3d(-3%, 5%, 0) rotate(-6deg) scale(1.02); } }
+@keyframes rim-flow { to { background-position: 0 0, 300% 50%; } }
+@keyframes btn-flow { to { background-position: 100% 50%; } }
+.btn { --m-base: linear-gradient(100deg, #2a78ff 0%, #4f9dff 45%, #2a78ff 100%);
+  --m1: rgba(236, 250, 255, 0.95); --m2: rgba(150, 215, 255, 0.95); --m3: rgba(20, 90, 255, 0.95); --m4: rgba(245, 225, 210, 0.85);
+  --m-text: #07142c; --m-glow: rgba(60, 130, 255, 0.35);
+  position: relative; overflow: hidden; isolation: isolate; min-height: 52px; border-radius: 999px;
+  font-size: 16px; font-weight: 600; letter-spacing: 0.01em; text-transform: none; color: var(--m-text); text-shadow: none;
+  background: var(--m-base); border: 1px solid rgba(255, 255, 255, 0.35); animation: none;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.55), 0 10px 28px var(--m-glow); }
+.btn::before { content: ''; position: absolute; inset: -60% -25%; z-index: -1; pointer-events: none;
+  background:
+    radial-gradient(30% 45% at 50% 82%, var(--m1), transparent 70%),
+    radial-gradient(28% 60% at 82% 45%, var(--m4), transparent 70%),
+    radial-gradient(32% 70% at 68% 60%, var(--m2), transparent 72%),
+    radial-gradient(34% 70% at 18% 50%, var(--m3), transparent 72%);
+  filter: blur(8px); animation: mesh-drift 9s ease-in-out infinite alternate; }
+.btn::after { content: ''; position: absolute; left: 6%; right: 6%; top: 0; height: 48%; z-index: -1; pointer-events: none; border-radius: 0 0 50% 50% / 0 0 100% 100%;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.32), rgba(255, 255, 255, 0)); }
+.btn:active { transform: scale(0.97); box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.45), 0 4px 14px var(--m-glow); }
+.btn:disabled { opacity: 0.45; }
+.btn:disabled::before { animation: none; }
+.btn.gold { --m-base: linear-gradient(100deg, #6ef0d2 0%, #9cf2df 40%, #d79cf0 100%);
+  --m1: rgba(245, 255, 252, 0.95); --m2: rgba(120, 245, 215, 0.9); --m3: rgba(90, 230, 220, 0.9); --m4: rgba(230, 150, 245, 0.95);
+  --m-text: #0b1d22; --m-glow: rgba(150, 240, 220, 0.3); border-color: rgba(255, 255, 255, 0.45); }
+.btn.gold, .btn.danger { background: var(--m-base); color: var(--m-text); box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.55), 0 10px 28px var(--m-glow); }
+.btn.gold { text-shadow: none; }
+.btn.danger { --m-base: linear-gradient(100deg, #ff3f63, #ff7a96); --m1: rgba(255, 225, 230, 0.8); --m2: rgba(255, 150, 175, 0.9); --m3: rgba(220, 20, 70, 0.9); --m4: rgba(255, 190, 160, 0.8);
+  --m-text: #fff; --m-glow: rgba(255, 60, 90, 0.3); border-color: rgba(255, 200, 210, 0.45); text-shadow: 0 1px 8px rgba(120, 10, 30, 0.45); }
+.btn.ghost { min-height: 48px; margin-top: 12px; font-size: 15px; font-weight: 500; color: #eef2f8; letter-spacing: 0;
+  border: 1.2px solid transparent;
+  background: linear-gradient(#111217, #111217) padding-box, linear-gradient(100deg, #5ee6c8, #6f86ff 30%, #e58ad0 55%, #5ee6c8 80%, #6f86ff) border-box;
+  background-size: 100% 100%, 300% 100%; animation: rim-flow 10s linear infinite;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06), 0 6px 18px rgba(0, 0, 0, 0.35); }
+.btn.ghost::before { inset: -40% -10%; opacity: 0.32;
+  --m1: rgba(255, 140, 90, 0.5); --m2: rgba(150, 70, 60, 0.6); --m3: rgba(40, 90, 70, 0.6); --m4: rgba(110, 90, 150, 0.5); }
 .btn.ghost::after { display: none; }
 .btn.ghost.danger-text { color: #ff8fa3; }
-.btn.danger { color: #fff; text-shadow: 0 1px 8px rgba(120, 10, 30, 0.5); animation: none; border-color: rgba(255, 170, 185, 0.5);
-  background: linear-gradient(110deg, rgba(255, 70, 100, 0.5), rgba(255, 110, 150, 0.4)); box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.55), 0 8px 22px rgba(255, 60, 90, 0.25); }
-.btn.danger::after { display: none; }
-.btn.gold { color: #fff8ea; text-shadow: 0 1px 8px rgba(120, 70, 0, 0.5); border-color: rgba(255, 225, 170, 0.55);
-  background: linear-gradient(110deg, rgba(255, 180, 70, 0.55), rgba(255, 130, 90, 0.42), rgba(255, 210, 110, 0.55), rgba(255, 180, 70, 0.55)); background-size: 300% 100%;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.6), 0 8px 22px rgba(255, 170, 60, 0.25); }
 .btn.armed { color: #fff; border-color: rgba(255, 150, 170, 0.7); background: rgba(255, 60, 90, 0.3); animation: none; }
+.btn.armed::before { display: none; }
+@media (prefers-reduced-motion: reduce) { .btn::before, .btn.ghost { animation: none; } }
 .q-options .btn { margin: 0; min-height: 50px; font-size: 15px; letter-spacing: 0; }
 
 /* поля и выбор */
@@ -2147,10 +2182,11 @@ textarea { font-family: var(--font); }
 
 /* вход — на общем сиянии, кнопка тем же стеклом */
 .gl-bg { display: none; }
-.gl-btn { color: #fff; text-shadow: 0 1px 10px rgba(20, 40, 120, 0.55); border: 1px solid rgba(255, 255, 255, 0.5);
-  background: linear-gradient(110deg, rgba(40, 100, 255, 0.6) 0%, rgba(120, 90, 255, 0.5) 25%, rgba(60, 190, 255, 0.55) 50%, rgba(40, 100, 255, 0.6) 75%, rgba(120, 90, 255, 0.5) 100%);
-  background-size: 300% 100%; animation: btn-flow 7s linear infinite, gl-fade 0.6s 0.85s ease-out both; }
-.gl-pill.arrived .gl-btn { animation: btn-flow 7s linear infinite; }
+.gl-btn { color: #07142c; text-shadow: none; border: 1px solid rgba(255, 255, 255, 0.4);
+  background: radial-gradient(30% 60% at 50% 100%, rgba(236, 250, 255, 0.95), transparent 70%), radial-gradient(35% 90% at 85% 40%, rgba(245, 225, 210, 0.85), transparent 70%),
+    radial-gradient(40% 90% at 15% 50%, rgba(20, 90, 255, 0.95), transparent 72%), linear-gradient(100deg, #2a78ff, #7dbdff 60%, #2a78ff);
+  background-size: 160% 100%; animation: btn-flow 9s ease-in-out infinite alternate, gl-fade 0.6s 0.85s ease-out both; }
+.gl-pill.arrived .gl-btn { animation: btn-flow 9s ease-in-out infinite alternate; }
 .gl-pill { border-color: rgba(200, 225, 255, 0.5); background: linear-gradient(180deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.04)); }
 .gl-brand h1 { font-weight: 400; font-size: 26px; }
 
@@ -2489,7 +2525,8 @@ function migrate(state) {
   state.parts = Object.assign({ lead: null, feeds: [], notes: {}, view: 'parts' }, state.parts); // личности вокруг шарика
   state.boards = state.boards || []; // доски: см. board.js
   state.life = Object.assign({ mods: {}, learned: {}, capture: {}, focus: null, est: [], leave: null, reviews: [], routines: null }, state.life); // см. life.js
-  state.schema = 14;
+  state.finance.ap = Object.assign({ on: false, at: 0, start: 0, wishes: [], allow: {}, mode: 'stab', manualOrder: false }, state.finance.ap); // см. money.js
+  state.schema = 15;
   return state;
 }
 
@@ -3596,8 +3633,9 @@ document.addEventListener('toggle', (e) => {
 const VIEWS = { status: statusView, profile: profileView, quests: questsView, state: stateView, finance: financeView, journal: journalView, settings: settingsView };
 
 function onViewClick(e) {
-  const t = e.target.closest('[data-check], [data-edit], [data-stat], [data-goal], [data-radar], [data-energy], [data-drain], [data-exp], [data-inc], [data-item], [data-buy], [data-take], [data-worry], [data-leak], [data-xstop], [data-pilot-e], [data-pilot-skip], [data-part], [data-orb-view], [data-lead-to], [data-board], [data-step], [data-focus5], [data-action], [data-day]');
+  const t = e.target.closest('[data-check], [data-edit], [data-stat], [data-goal], [data-radar], [data-energy], [data-drain], [data-exp], [data-inc], [data-item], [data-buy], [data-take], [data-worry], [data-leak], [data-xstop], [data-pilot-e], [data-pilot-skip], [data-part], [data-orb-view], [data-lead-to], [data-board], [data-step], [data-focus5], [data-wish], [data-action], [data-day]');
   if (!t || !session) return;
+  if (t.dataset.wish) return openWish(t.dataset.wish);
   if (t.dataset.radar !== undefined) return selectRadarAxis(Number(t.dataset.radar));
   if (t.dataset.energy) return setEnergy(Number(t.dataset.energy));
   if (t.dataset.drain) return toggleDrain(t.dataset.drain);
@@ -3669,6 +3707,11 @@ function onViewClick(e) {
       toast({ title: 'Перерыв', main: 'Вода, еда, 10 минут', sub: 'Волна никуда не денется', kind: 'up', ms: 4000 });
       return render();
     case 'fin-budget': return openBudgetEditor();
+    case 'ap-setup': return openApSetup();
+    case 'can-buy': return openCanBuy();
+    case 'wish-add': return openWishAdd();
+    case 'wish-all': return openWishAll();
+    case 'ap-grow': fin().ap.mode = 'grow'; save(); render(); return toast({ title: 'Автопилот', main: 'Режим роста', sub: 'Каждое поступление: 15% в подушку, 15% в хотелки. Большие хотелки открыты', kind: 'up', ms: 5000 });
     case 'fin-check': return openReconcile();
     case 'grocery-basket': return openBasket();
     case 'grocery-now': return ensureGroceryQuest(true);
@@ -5992,18 +6035,15 @@ function finBudget() {
 
 /** Сколько потрачено за [from, to) без обязательных платежей. */
 function spentBetween(from, to, except) {
-  return fin().expenses.reduce((a, e) => a + (!e.fixed && e !== except && e.at >= from && e.at < to ? e.amount : 0), 0);
+  return fin().expenses.reduce((a, e) => a + (!e.fixed && !e.wallet && e !== except && e.at >= from && e.at < to ? e.amount : 0), 0); // покупки из кошельков автопилота — не из лимита
 }
 
 function daysInMonth(d) {
   return new Date(d.getFullYear(), d.getMonth() + 1, 0).getDate();
 }
 
-/** Сколько от поступления остаётся на жизнь после накоплений. */
-const netIncome = (amount) => Math.round(amount * (1 - (fin().savePct + (fin().joyPct || 0)) / 100));
-
 function incomesBetween(from, to, net) {
-  return fin().incomes.reduce((a, i) => a + (i.at >= from && i.at < to ? (net && !i.adjust ? netIncome(i.amount) : i.amount) : 0), 0);
+  return fin().incomes.reduce((a, i) => a + (i.at >= from && i.at < to ? (net ? netOf(i) : i.amount) : 0), 0);
 }
 
 /** Обязательные платежи, списанные к моменту t: каждый месяц в его начале, в первый — пропорционально дням. */
@@ -6066,12 +6106,17 @@ function addIncome(raw) {
   if (!parsed) return false;
   const f = fin();
   const inc = { id: uid(), at: Date.now(), amount: parsed.amount, text: parsed.text === 'Трата' ? 'Поступление' : parsed.text };
+  if (f.ap && f.ap.on) inc.split = splitFor(inc.amount); // раскладка фиксируется в момент поступления
   f.incomes.push(inc);
   if (!f.since) f.since = inc.at;
   save();
   render();
   Sound.play('quest');
   haptic([20, 40, 20]);
+  if (inc.split) {
+    splitToast(inc);
+    return true;
+  }
   const lim = limitsNow();
   const saved = Math.round((inc.amount * f.savePct) / 100);
   const joy = Math.round((inc.amount * (f.joyPct || 0)) / 100);
@@ -6137,9 +6182,12 @@ function computeOverLimit(e) {
 function expenseVerdict(e) {
   if (e.cat === 'unknown') return { icon: '❔', grade: 'meh', text: 'Неучтённая трата — нашлась при сверке' };
   if (e.fixed) return { icon: '📌', grade: 'fixed', text: 'Обязательный платёж — уже в бюджете' };
+  if (e.wallet === 'wish') return { icon: '✅', grade: 'ok', text: 'Из копилки хотелок — без вины' };
+  if (e.wallet === 'cushion') return { icon: '🛡', grade: 'ok', text: 'Из подушки — на то она и нужна' };
   if (e.cls === 'need') return { icon: '✅', grade: 'ok', text: 'Грамотная: необходимое' };
   if (e.cls === 'invest' && e.overLimit) return { icon: '⚠️', grade: 'meh', text: 'Вклад, но сверх лимита — убедись, что окупится' };
   if (e.cls === 'invest') return { icon: '✅', grade: 'ok', text: 'Грамотная: вклад в себя и дело' };
+  if (e.cls === 'want' && typeof withinAllow === 'function' && withinAllow(e)) return { icon: '✅', grade: 'ok', text: 'В плане: честная часть недели' };
   if (e.overLimit) return { icon: '❌', grade: 'bad', text: 'Слив: хотелка сверх лимита' };
   if (e.planned === false) return { icon: '⚠️', grade: 'meh', text: 'Спорная: импульсивная хотелка' };
   if (e.planned === true) return { icon: '✅', grade: 'ok', text: 'В рамках: запланированная хотелка' };
@@ -6393,6 +6441,7 @@ function financeView() {
     </form>
     <p class="error" data-fin-error></p>
     ${limits}
+    ${typeof apHtml === 'function' ? apHtml() : ''}
     ${balanceHtml()}
     ${groceryHtml()}
 
@@ -6633,7 +6682,7 @@ function goldBalance() {
 /** Деньги фонда радостей: доля поступлений минус покупки наград. */
 function joyFund() {
   const f = fin();
-  const inflow = f.incomes.reduce((a, i) => a + (i.adjust ? 0 : (i.amount * (f.joyPct || 0)) / 100), 0);
+  const inflow = f.incomes.reduce((a, i) => a + part(i, 'joy'), 0);
   return Math.round(inflow - session.state.purchases.reduce((a, x) => a + (x.kzt || 0), 0));
 }
 
@@ -7256,7 +7305,7 @@ function spendPatterns() {
   const f = fin();
   const now = Date.now();
   const from = now - 30 * 864e5;
-  const recent = f.expenses.filter((e) => e.at >= from && !e.fixed);
+  const recent = f.expenses.filter((e) => e.at >= from && !e.fixed && !e.wallet);
   if (!recent.length) return [];
   const total = recent.reduce((a, e) => a + e.amount, 0);
   const first = Math.min(...f.expenses.map((e) => e.at));
@@ -7371,8 +7420,11 @@ function openSpendCase(cat) {
     <ul class="facts">${p.facts.map((t) => `<li>${esc(t)}</li>`).join('')}</ul>
     <p class="dim center">Система думает, что дело в причине «${WHY[p.guess].short}». А ты как думаешь — почему так выходит?</p>
     <div class="rec-chips why-chips">${Object.entries(WHY).map(([id, w]) => `<button type="button" data-why="${id}"${id === p.guess ? ' class="guess"' : ''}>${w.label}</button>`).join('')}</div>
-    <button class="btn ghost" type="button" data-action="close" style="margin-top:16px">Не сейчас</button>`);
+    <p class="dim center" style="margin-top:16px">Или не бороться, а сделать частью плана: честный недельный лимит — и траты в нём перестают быть «сливом».</p>
+    <button class="btn ghost" type="button" data-allow>Сделать частью плана${allowFor(cat) ? ` (сейчас ${money(allowFor(cat))}/нед)` : ''}</button>
+    <button class="btn ghost" type="button" data-action="close">Не сейчас</button>`);
   root.querySelectorAll('[data-why]').forEach((b) => b.addEventListener('click', () => openSwaps(cat, b.dataset.why)));
+  root.querySelector('[data-allow]').addEventListener('click', () => makeAllow(cat));
 }
 
 /** Замены под причину: выбор ставит эксперимент на 7 дней. */
@@ -8601,5 +8653,6 @@ boot();
 </script>
 <script src="board.js"></script>
 <script src="life.js"></script>
+<script src="money.js"></script>
 </body>
 </html>
